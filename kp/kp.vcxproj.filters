@@ -19,4 +19,15 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="data\clients.dat">
+      <Filter>Исходные файлы</Filter>
+    </None>
+    <None Include="data\settings.dat">
+      <Filter>Исходные файлы</Filter>
+    </None>
+    <None Include="data\users.dat">
+      <Filter>Исходные файлы</Filter>
+    </None>
+  </ItemGroup>
 </Project>
