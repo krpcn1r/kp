@@ -1,10 +1,10 @@
 #include "Render.h"
 #include <iostream>
 #include <windows.h>
-
+#include <conio.h>
 using namespace std;
 
-void static setCursor(int x, int y) {
+void setCursor(int x, int y) {
     COORD coord;
     coord.X = x;
     coord.Y = y;
@@ -12,16 +12,16 @@ void static setCursor(int x, int y) {
     SetConsoleCursorPosition(hConsole, coord); 
 }
 
-void static setColor(int color) {
+void setColor(int color) {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hConsole, color);
 }
 
-void static clearScreen() {
+void clearScreen() {
     system("cls"); 
 }
 
-void static drawBox(int x, int y, int w, int h, int color) { 
+void drawBox(int x, int y, int w, int h, int color) { 
     setColor(color);
     setCursor(x, y);
 
@@ -47,8 +47,8 @@ void static drawBox(int x, int y, int w, int h, int color) {
 
     setColor(7); 
 }
-
-void static drawTextBox(int x, int y, int w, int h, string text, int textColor, int boxColor, int padding) {
+    
+void drawTextBox(int x, int y, int w, int h, string text, int textColor, int boxColor, int padding) {
     drawBox(x, y, w, h, boxColor);
 
     int textY = y + (h / 2);
@@ -66,4 +66,30 @@ void static drawTextBox(int x, int y, int w, int h, string text, int textColor, 
     cout << textToPrint; 
 
     setColor(7);
+}
+
+string inputField(int x, int y, int width, bool isPassword) {
+    string input = "";
+    char choose;
+
+    while (true) {
+        setCursor(x + input.length(), y); 
+        choose = _getch(); 
+
+        if (choose == 13) break;
+
+        if (choose == 8) {
+            if (input.length() > 0) {
+                input.pop_back();
+                setCursor(x + input.length(), y);
+                cout << " "; 
+            }
+        }
+        else if (input.length() < width - 2 && isprint(choose)) {
+            input += choose;
+            if (isPassword) cout << "*";
+            else cout << choose;
+        }
+    }
+    return input;
 }
