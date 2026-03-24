@@ -127,12 +127,40 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="admin\AdminPanel.cpp" />
+    <ClCompile Include="admin\ConfigWizard.cpp" />
+    <ClCompile Include="admin\LogViewer.cpp" />
+    <ClCompile Include="auth\AuthManager.cpp" />
+    <ClCompile Include="auth\Login.cpp" />
+    <ClCompile Include="auth\Register.cpp" />
+    <ClCompile Include="clients\Billing.cpp" />
+    <ClCompile Include="clients\ClientManager.cpp" />
+    <ClCompile Include="core\Database.cpp" />
+    <ClCompile Include="core\InputHandler.cpp" />
+    <ClCompile Include="core\Render.cpp" />
+    <ClCompile Include="core\Utils.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="data\clients.dat" />
     <None Include="data\settings.dat" />
     <None Include="data\users.dat" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="admin\AdminPanel.h" />
+    <ClInclude Include="admin\ConfigWizard.h" />
+    <ClInclude Include="admin\LogViewer.h" />
+    <ClInclude Include="auth\AuthManager.h" />
+    <ClInclude Include="auth\Login.h" />
+    <ClInclude Include="auth\Register.h" />
+    <ClInclude Include="auth\UserStruct.h" />
+    <ClInclude Include="clients\Billing.h" />
+    <ClInclude Include="clients\ClientManager.h" />
+    <ClInclude Include="clients\ClientStruct.h" />
+    <ClInclude Include="core\Database.h" />
+    <ClInclude Include="core\InputHandler.h" />
+    <ClInclude Include="core\Render.h" />
+    <ClInclude Include="core\Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
