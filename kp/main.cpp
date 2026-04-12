@@ -21,6 +21,8 @@
 using namespace std;
 
 int main() {
+    SetConsoleOutputCP(1251);
+    SetConsoleCP(1251);
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_CURSOR_INFO cursorInfo;
     GetConsoleCursorInfo(hConsole, &cursorInfo);
