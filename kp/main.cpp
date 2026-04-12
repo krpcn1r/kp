@@ -3,7 +3,6 @@
 #include "admin/ConfigWizard.h"
 
 #include "auth/AuthManager.h"
-#include "auth/ClientStruct.h"
 #include "auth/Login.h"
 #include "auth/Register.h"
 
