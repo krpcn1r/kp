@@ -1,6 +1,6 @@
 #include "admin/AdminPanel.h"
 #include "admin/ConfigWizard.h"
-#include <conio.h>
+#include "core/InputHandler.h"
 #include <iostream>
 #include <string>
 #include <windows.h>
@@ -21,100 +21,146 @@
 using namespace std;
 
 int main() {
-    SetConsoleOutputCP(1251);
-    SetConsoleCP(1251);
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_CURSOR_INFO cursorInfo;
-    GetConsoleCursorInfo(hConsole, &cursorInfo);
-    cursorInfo.bVisible = false;
-    SetConsoleCursorInfo(hConsole, &cursorInfo);
+  SetConsoleOutputCP(65001);
+  SetConsoleCP(65001);
 
-    int selectedOption = 0;
-    const int numOptions = 3;
-    bool isRunning = true;
+  HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+  CONSOLE_CURSOR_INFO cursorInfo;
+  GetConsoleCursorInfo(hConsole, &cursorInfo);
+  cursorInfo.bVisible = false;
+  SetConsoleCursorInfo(hConsole, &cursorInfo);
 
-    while (isRunning) {
-        clearScreen();
+  int selectedOption = 0;
+  const int numOptions = 3;
+  bool isRunning = true;
+  bool needFullRedraw = true;
 
-        setColor(11);
-        setCursor(30, 2);
-        cout << "===============================";
-        setCursor(30, 3);
-        cout << "         MobileHelper          ";
-        setCursor(30, 4);
-        cout << "===============================";
+  while (isRunning) {
+    if (needFullRedraw) {
+      clearScreen();
 
-        string options[numOptions] = { "[L] Войти в систему", "[R] Регистрация",
-                                      "[Q] Выход" };
+      setColor(15);
+      setCursor(2, 1);
+      cout << "╔═══════════════════════════════════════════════════════════════"
+              "═══════════╗";
+      for (int i = 2; i <= 23; i++) {
+        setCursor(2, i);
+        cout << "║";
+        setCursor(77, i);
+        cout << "║";
+      }
+      setCursor(2, 24);
+      cout << "╚═══════════════════════════════════════════════════════════════"
+              "═══════════╝";
 
-        for (int i = 0; i < numOptions; i++) {
-            int textColor = 7;
-            int boxColor = 8;
+      setCursor(2, 14);
+      cout << "╠═══════════════════════════════════════════════════════════════"
+              "═══════════╣";
+      setCursor(2, 16);
+      cout << "╠═══════════════════════════════════════════════════════════════"
+              "═══════════╣";
 
-            if (i == selectedOption) {
-                textColor = 15;
-                boxColor = 10;
-            }
+      setColor(7);
+      setCursor(4, 15);
 
-            drawTextBox(30, 7 + i * 4, 31, 3, options[i], textColor, boxColor, 2);
-        }
+      std::string sessionStr = AuthManager::isUserLoggedIn()
+                                   ? AuthManager::getCurrentUser().login
+                                   : "[Гость]";
+      std::vector<User> users = Database::loadUsers();
 
-        int key = _getch();
+      cout << " Статус БД: ОК   |   Пользователей: " << users.size()
+           << "   |   Сессия: " << sessionStr << "        ";
 
-        if (key == 9) {
-            selectedOption++;
-            if (selectedOption >= numOptions)
-                selectedOption = 0;
-        }
-        else if (key == 224) {
-            int arrow = _getch();
-            if (arrow == 72) {
-                selectedOption--;
-                if (selectedOption < 0)
-                    selectedOption = numOptions - 1;
-            }
-            else if (arrow == 80) {
-                selectedOption++;
-                if (selectedOption >= numOptions)
-                    selectedOption = 0;
-            }
-        }
-        else if (key == 13) {
-            if (selectedOption == 0)
-                key = 'l';
-            else if (selectedOption == 1)
-                key = 'r';
-            else if (selectedOption == 2)
-                key = 'q';
-        }
+      setColor(8);
+      setCursor(2, 25);
+      cout << "[Tab] Навигация  | [Enter] Выбрать   |  [Esc] Выход";
 
-        if (key == 'l' || key == 'L') {
-            selectedOption = 0;
-            clearScreen();
-            drawBox(28, 9, 36, 5, 11);
-            setCursor(30, 11);
-            setColor(15);
-            cout << "Запуск функции Login()...";
-            _getch();
-        }
-        else if (key == 'r' || key == 'R') {
-            selectedOption = 1;
-            clearScreen();
-            drawBox(28, 9, 36, 5, 11);
-            setCursor(30, 11);
-            setColor(15);
-            cout << "Запуск функции Register()...";
-            _getch();
-        }
-        else if (key == 'q' || key == 'Q') {
-            isRunning = false;
-        }
+      setColor(9);
+      setCursor(16, 2);
+      cout << "███╗   ███╗ ██████╗ ██████╗ ██╗██╗     ███████╗";
+      setCursor(16, 3);
+      cout << "████╗ ████║██╔═══██╗██╔══██╗██║██║     ██╔════╝";
+      setCursor(16, 4);
+      cout << "██╔████╔██║██║   ██║██████╔╝██║██║     █████╗  ";
+      setCursor(16, 5);
+      cout << "██║╚██╔╝██║██║   ██║██╔══██╗██║██║     ██╔══╝  ";
+      setCursor(16, 6);
+      cout << "██║ ╚═╝ ██║╚██████╔╝██████╔╝██║███████╗███████╗";
+      setCursor(16, 7);
+      cout << "╚═╝     ╚═╝ ╚═════╝ ╚═════╝ ╚═╝╚══════╝╚══════╝";
+
+      setCursor(16, 8);
+      cout << "██╗  ██╗███████╗██╗     ██████╗ ███████╗██████╗ ";
+      setCursor(16, 9);
+      cout << "██║  ██║██╔════╝██║     ██╔══██╗██╔════╝██╔══██╗";
+      setCursor(16, 10);
+      cout << "███████║█████╗  ██║     ██████╔╝█████╗  ██████╔╝";
+      setCursor(16, 11);
+      cout << "██╔══██║██╔══╝  ██║     ██╔═══╝ ██╔══╝  ██╔══██╗";
+      setCursor(16, 12);
+      cout << "██║  ██║███████╗███████╗██║     ███████╗██║  ██║";
+      setCursor(16, 13);
+      cout << "╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝";
+
+      needFullRedraw = false;
     }
 
-    cursorInfo.bVisible = true;
-    SetConsoleCursorInfo(hConsole, &cursorInfo);
-    setColor(7);
-    clearScreen();
+    string options[numOptions] = {"1. Войти в существующий аккаунт",
+                                  "2. Создать новый профиль       ",
+                                  "0. Завершить работу            "};
 
-    return 0;
+    for (int i = 0; i < numOptions; i++) {
+      int yPos = 18 + i + (i == 2 ? 1 : 0);
+      setCursor(6, yPos);
+      if (i == selectedOption) {
+        setColor(10);
+        cout << "> " << options[i];
+      } else {
+        setColor(8);
+        cout << "  " << options[i];
+      }
+    }
+
+    int key = InputHandler::getExtKey();
+
+    if (key == Key::TAB) {
+      selectedOption++;
+      if (selectedOption >= numOptions)
+        selectedOption = 0;
+    } else if (key == Key::UP) {
+      selectedOption--;
+      if (selectedOption < 0)
+        selectedOption = numOptions - 1;
+    } else if (key == Key::DOWN) {
+      selectedOption++;
+      if (selectedOption >= numOptions)
+        selectedOption = 0;
+    } else if (key == Key::ENTER || key == '1' || key == '2' || key == '0') {
+      if (key == '1')
+        selectedOption = 0;
+      if (key == '2')
+        selectedOption = 1;
+      if (key == '0')
+        selectedOption = 2;
+
+      if (selectedOption == 0) {
+        showLoginScreen();
+        needFullRedraw = true;
+      } else if (selectedOption == 1) {
+        showRegisterScreen();
+        needFullRedraw = true;
+      } else if (selectedOption == 2) {
+        isRunning = false;
+      }
+    } else if (key == Key::ESC) {
+      isRunning = false;
+    }
+  }
+
+  cursorInfo.bVisible = true;
+  SetConsoleCursorInfo(hConsole, &cursorInfo);
+  setColor(7);
+  clearScreen();
+
+  return 0;
 }
