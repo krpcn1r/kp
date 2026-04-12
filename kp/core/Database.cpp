@@ -1,11 +1,25 @@
 #include "Database.h"
 using namespace std;
 
-void writeUser() {}
-void readUser() {}
+void writeUser() {
 
-void writeClient() {}
-void readClient() {}
+}
+void readUser() {
 
-void writeSettings() {}
-void readSettings() {}
+}
+
+
+void writeClient() {
+
+}
+void readClient() {
+
+}
+
+
+void writeSettings() {
+
+}
+void readSettings() {
+
+}
