@@ -12,9 +12,10 @@ const string Database::CLIENTS_FILE = "data/clients.json";
 bool Database::saveUsers(const vector<User> &users) {
   json j = users;
   ofstream file(USERS_FILE);
-  if (!file.is_open()) return false;
-  
-  file << j.dump(4); // 4 spaces for indentation (pretty print)
+  if (!file.is_open())
+    return false;
+
+  file << j.dump(4);
   file.close();
   return true;
 }
@@ -22,14 +23,14 @@ bool Database::saveUsers(const vector<User> &users) {
 vector<User> Database::loadUsers() {
   vector<User> users;
   ifstream file(USERS_FILE);
-  if (!file.is_open()) return users;
-  
+  if (!file.is_open())
+    return users;
+
   try {
-      json j;
-      file >> j;
-      users = j.get<vector<User>>();
+    json j;
+    file >> j;
+    users = j.get<vector<User>>();
   } catch (...) {
-      // Handle empty or broken JSON gracefully
   }
   file.close();
   return users;
@@ -38,8 +39,9 @@ vector<User> Database::loadUsers() {
 bool Database::saveClients(const vector<Client> &clients) {
   json j = clients;
   ofstream file(CLIENTS_FILE);
-  if (!file.is_open()) return false;
-  
+  if (!file.is_open())
+    return false;
+
   file << j.dump(4);
   file.close();
   return true;
@@ -48,14 +50,14 @@ bool Database::saveClients(const vector<Client> &clients) {
 vector<Client> Database::loadClients() {
   vector<Client> clients;
   ifstream file(CLIENTS_FILE);
-  if (!file.is_open()) return clients;
-  
+  if (!file.is_open())
+    return clients;
+
   try {
-      json j;
-      file >> j;
-      clients = j.get<vector<Client>>();
+    json j;
+    file >> j;
+    clients = j.get<vector<Client>>();
   } catch (...) {
-      // Handle empty or broken JSON gracefully 
   }
   file.close();
   return clients;
