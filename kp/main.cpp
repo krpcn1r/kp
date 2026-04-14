@@ -5,8 +5,9 @@
 #include <string>
 #include <windows.h>
 
-#include "auth/AuthMenu.h"
 #include "auth/AuthManager.h"
+#include "auth/AuthMenu.h"
+
 
 #include "clients/Billing.h"
 #include "clients/ClientManager.h"
@@ -29,14 +30,12 @@ int main() {
   cursorInfo.bVisible = false;
   SetConsoleCursorInfo(hConsole, &cursorInfo);
 
-  // Запускаем меню входа/регистрации
   bool isAuthenticated = AuthMenu::show();
 
   if (isAuthenticated) {
-    // В будущем здесь будет запуск ClientManager (главного рабочего экрана)
     clearScreen();
     setColor(10);
-    cout << "Успешный вход в систему! Пользователь: " 
+    cout << "Успешный вход в систему! Пользователь: "
          << AuthManager::getCurrentUser().login << std::endl;
     setColor(8);
     cout << "\nНажмите любую кнопку для завершения работы...";
