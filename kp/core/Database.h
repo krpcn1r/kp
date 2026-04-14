@@ -1,5 +1,5 @@
 #pragma once
-#include "../auth/UserStruct.h"
+#include "../user/UserStruct.h"
 #include "../clients/ClientStruct.h"
 #include <string>
 #include <vector>

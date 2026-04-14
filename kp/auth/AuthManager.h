@@ -1,5 +1,5 @@
 #pragma once
-#include "UserStruct.h"
+#include "../user/UserStruct.h"
 #include <string>
 
 class AuthManager {
