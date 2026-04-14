@@ -19,7 +19,6 @@ void showRegisterScreen() {
   setColor(11);
   cout << "РЕГИСТРАЦИЯ";
 
-  // Сепаратор после заголовка
   setColor(8);
   setCursor(4, 6);
   cout << "╠";
@@ -38,14 +37,12 @@ void showRegisterScreen() {
   setCursor(7, 10);
   cout << "• Только английские буквы";
 
-  // Сепаратор после условий
   setCursor(4, 11);
   cout << "╠";
   for (int i = 0; i < 40; i++)
     cout << "═";
   cout << "╣";
 
-  // Исходная отрисовка полей
   drawInputContent(18, 12, 20, login, false, false);
   drawInputContent(18, 14, 20, password, true, false);
 
@@ -64,15 +61,12 @@ void showRegisterScreen() {
       setColor(7);
     cout << (activeField == 1 ? "> Пароль:" : "  Пароль:");
 
-    // Сепаратор между полями
     setCursor(4, 13);
     setColor(8);
     cout << "╠";
     for (int i = 0; i < 40; i++)
       cout << "═";
     cout << "╣";
-
-    // Кнопки управления внизу
     setColor(8);
     setCursor(2, 25);
     cout << "[Tab] Навигация  | [Enter] Выбрать   |  [Esc] Назад";
