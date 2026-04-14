@@ -4,6 +4,7 @@
 #include <windows.h>
 using namespace std;
 
+// показ экрана типа раздел еще не сделан
 void showPlaceholder(const string& title) {
   clearScreen();
   drawDoubleBox(10, 8, 60, 10, 14); // Желтая рамка
@@ -26,8 +27,9 @@ void showPlaceholder(const string& title) {
   InputHandler::waitAnyKey();
 }
 
+// маленькое окошко для подтверждения действия да или нет
 bool showConfirmation(const string& message) {
-  // Рисуем небольшое окно в центре
+  // отрисовка небольшого окна в центре
   int w = 46;
   int h = 7;
   int x = (80 - w) / 2;
@@ -35,7 +37,7 @@ bool showConfirmation(const string& message) {
   
   drawDoubleBox(x, y, w, h, 14); // Желтая рамка
   
-  // Закрашиваем внутренность черным, чтобы окно не было прозрачным
+  // закрашивание внутренней части черным чтобы окно не просвечивало
   setColor(0);
   for (int i = 1; i < h - 1; i++) {
     setCursor(x + 1, y + i);
@@ -59,6 +61,7 @@ bool showConfirmation(const string& message) {
   }
 }
 
+// отрисовка подсказок по кнопкам в нижней части экрана
 void drawFooter(int y, bool hasBack) {
     setColor(8);
     setCursor(2, y);
@@ -67,6 +70,7 @@ void drawFooter(int y, bool hasBack) {
     else std::cout << "   |  [Esc] Выход";
 }
 
+// отрисовка текста внутри поля ввода при печати
 void drawInputContent(int x, int y, int width, string input, bool isPassword, bool isActive) {
     int bgColor = isActive ? (1 * 16) : 0; 
     int fgColor = isActive ? 15 : 7;       
@@ -93,6 +97,7 @@ void drawInputContent(int x, int y, int width, string input, bool isPassword, bo
     setColor(7);
 }
 
+// перемещение невидимого курсора в координаты x y
 void setCursor(int x, int y) {
     COORD coord;
     coord.X = x;
@@ -101,15 +106,18 @@ void setCursor(int x, int y) {
     SetConsoleCursorPosition(hConsole, coord);
 }
 
+// меняет цвет букв в консоли
 void setColor(int color) {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hConsole, color);
 }
 
+// полная очистка всего с экрана
 void clearScreen() {
     system("cls");
 }
 
+// отрисовка обычной рамки из плюсиков и минусов
 void drawBox(int x, int y, int w, int h, int color) {
     setColor(color);
     setCursor(x, y);
@@ -137,6 +145,7 @@ void drawBox(int x, int y, int w, int h, int color) {
     setColor(7);
 }
 
+// отрисовка красивой рамки из двойных линий
 void drawDoubleBox(int x, int y, int w, int h, int color) {
     setColor(color);
     setCursor(x, y);
@@ -160,6 +169,7 @@ void drawDoubleBox(int x, int y, int w, int h, int color) {
     setColor(7);
 }
 
+// отрисовка рамки с текстом по центру
 void drawTextBox(int x, int y, int w, int h, string text, int textColor, int boxColor, int padding) {
     drawBox(x, y, w, h, boxColor);
 
@@ -180,6 +190,7 @@ void drawTextBox(int x, int y, int w, int h, string text, int textColor, int box
     setColor(7);
 }
 
+// функция для ввода текста юзером (старая версия)
 string inputField(int x, int y, int width, bool isPassword, int warningY) {
     string input = "";
     int choose;
@@ -230,6 +241,7 @@ string inputField(int x, int y, int width, bool isPassword, int warningY) {
     return input;
 }
 
+// основная функция для ввода текста с проверкой раскладки
 string processInput(int x, int y, int width, string currentInput, bool isPassword, int& exitKey, int warningY) {
     string input = currentInput;
     int choose;

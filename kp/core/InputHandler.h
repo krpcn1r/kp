@@ -1,5 +1,6 @@
 #pragma once
 
+// коды кнопок чтобы не запоминать цифры
 namespace Key {
 const int UP = 256;
 const int DOWN = 257;
@@ -11,9 +12,12 @@ const int ESC = 27;
 const int BACKSPACE = 8;
 } // namespace Key
 
+// класс для захвата нажатий клавиш
 class InputHandler {
 public:
+  // захват нажатой кнопки с пониманием стрелочек
   static int getExtKey();
 
+  // ожидание нажатия любой клавиши
   static void waitAnyKey();
 };

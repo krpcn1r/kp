@@ -6,5 +6,13 @@
         "isActive": true,
         "phoneNumber": "123",
         "tariffName": ""
+    },
+    {
+        "balance": 0.0,
+        "fullName": "sdffg",
+        "id": 2,
+        "isActive": true,
+        "phoneNumber": "324432",
+        "tariffName": ""
     }
 ]
