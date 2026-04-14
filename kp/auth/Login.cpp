@@ -20,7 +20,6 @@ void showLoginScreen() {
   setColor(11);
   cout << "АВТОРИЗАЦИЯ";
 
-  // Сепаратор
   setColor(8);
   setCursor(4, 7);
   cout << "╠";
