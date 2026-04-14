@@ -5,8 +5,8 @@
 using namespace std;
 
 void drawInputContent(int x, int y, int width, string input, bool isPassword, bool isActive) {
-    int bgColor = isActive ? (1 * 16) : 0; // 1*16 = темно-синий фон, 0 = черный
-    int fgColor = isActive ? 15 : 7;       // 15 = ярко-белый, 7 = серый
+    int bgColor = isActive ? (1 * 16) : 0; 
+    int fgColor = isActive ? 15 : 7;       
     setColor(bgColor + fgColor);
 
     setCursor(x, y);
