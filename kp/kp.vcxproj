@@ -137,6 +137,7 @@
     <ClCompile Include="clients\Billing.cpp" />
     <ClCompile Include="clients\ClientManager.cpp" />
     <ClCompile Include="core\Database.cpp" />
+    <ClCompile Include="core\HomeMenu.cpp" />
     <ClCompile Include="core\InputHandler.cpp" />
     <ClCompile Include="core\Render.cpp" />
     <ClCompile Include="core\Utils.cpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="clients\ClientManager.h" />
     <ClInclude Include="clients\ClientStruct.h" />
     <ClInclude Include="core\Database.h" />
+    <ClInclude Include="core\HomeMenu.h" />
     <ClInclude Include="core\InputHandler.h" />
     <ClInclude Include="core\json.hpp" />
     <ClInclude Include="core\Render.h" />
