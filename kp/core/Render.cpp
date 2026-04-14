@@ -4,6 +4,61 @@
 #include <windows.h>
 using namespace std;
 
+void showPlaceholder(const string& title) {
+  clearScreen();
+  drawDoubleBox(10, 8, 60, 10, 14); // Желтая рамка
+  
+  setCursor(26, 10);
+  setColor(14);
+  cout << "РАЗДЕЛ В РАЗРАБОТКЕ";
+  
+  setCursor(15, 12);
+  setColor(15);
+  cout << "Раздел: " << title;
+  
+  setCursor(15, 14);
+  setColor(8);
+  cout << "Данный функционал будет доступен в будущих версиях.";
+  
+  setCursor(15, 16);
+  cout << "Нажмите любую клавишу для возврата...";
+  
+  InputHandler::waitAnyKey();
+}
+
+bool showConfirmation(const string& message) {
+  // Рисуем небольшое окно в центре
+  int w = 46;
+  int h = 7;
+  int x = (80 - w) / 2;
+  int y = 10;
+  
+  drawDoubleBox(x, y, w, h, 14); // Желтая рамка
+  
+  // Закрашиваем внутренность черным, чтобы окно не было прозрачным
+  setColor(0);
+  for (int i = 1; i < h - 1; i++) {
+    setCursor(x + 1, y + i);
+    for (int j = 0; j < w - 2; j++) cout << " ";
+  }
+  
+  setCursor(x + (w - message.length())/2, y + 2);
+  setColor(15);
+  cout << message;
+  
+  setCursor(x + 10, y + 4);
+  setColor(10); cout << "[Enter] Да";
+  
+  setCursor(x + w - 18, y + 4);
+  setColor(12); cout << "[Esc] Нет";
+  
+  while (true) {
+    int key = InputHandler::getExtKey();
+    if (key == Key::ENTER || key == 'y' || key == 'Y') return true;
+    if (key == Key::ESC || key == 'n' || key == 'N') return false;
+  }
+}
+
 void drawFooter(int y, bool hasBack) {
     setColor(8);
     setCursor(2, y);

@@ -7,29 +7,9 @@
 #include <string>
 #include <vector>
 
-using namespace std;
+#include "../clients/ClientMenu.h"
 
-void showPlaceholder(const string& title) {
-  clearScreen();
-  drawDoubleBox(10, 8, 60, 10, 14); // Желтая рамка
-  
-  setCursor(26, 10);
-  setColor(14);
-  cout << "РАЗДЕЛ В РАЗРАБОТКЕ";
-  
-  setCursor(15, 12);
-  setColor(15);
-  cout << "Раздел: " << title;
-  
-  setCursor(15, 14);
-  setColor(8);
-  cout << "Данный функционал будет доступен в будущих версиях.";
-  
-  setCursor(15, 16);
-  cout << "Нажмите любую клавишу для возврата в меню...";
-  
-  InputHandler::waitAnyKey();
-}
+using namespace std;
 
 HomeResult HomeMenu::show() {
   int selectedOption = 0;
@@ -140,30 +120,28 @@ HomeResult HomeMenu::show() {
       selectedOption = (selectedOption + 1) % numOptions;
     } else if (key == Key::UP) {
       selectedOption = (selectedOption - 1 + numOptions) % numOptions;
-    } else if (key >= '1' && key <= '8') {
-      selectedOption = key - '1';
-      // Сразу выполняем действие при нажатии цифры
-      if (selectedOption == 6)
-        return HomeResult::LOGOUT;
-      if (selectedOption == 7)
-        return HomeResult::EXIT_APP;
-
-      setCursor(30, 27);
-      setColor(14);
-      cout << "Раздел \"" << options[selectedOption] << "\" в разработке...";
-      InputHandler::waitAnyKey();
-      needFullRedraw = true;
-    } else if (key == Key::ENTER) {
-      if (selectedOption == 6)
-        return HomeResult::LOGOUT;
-      if (selectedOption == 7)
-        return HomeResult::EXIT_APP;
-
-      // Для остальных пока просто заглушка
-      showPlaceholder(options[selectedOption]);
+    } else if ((key >= '1' && key <= '8') || key == Key::ENTER) {
+      if (key >= '1' && key <= '8') {
+          selectedOption = key - '1';
+      }
+      
+      // Выполняем действие
+      if (selectedOption == 0) ClientMenu::showList();
+      else if (selectedOption == 1) ClientMenu::showSearch();
+      else if (selectedOption == 3) ClientMenu::showAddClient();
+      else if (selectedOption == 4) ClientMenu::showEditClient(0);
+      else if (selectedOption == 6) return HomeResult::LOGOUT;
+      else if (selectedOption == 7) return HomeResult::EXIT_APP;
+      else {
+        showPlaceholder(options[selectedOption]);
+      }
+      
       needFullRedraw = true;
     } else if (key == Key::ESC) {
-      return HomeResult::LOGOUT;
+      if (showConfirmation("Выйти из учетной записи?")) {
+          return HomeResult::LOGOUT;
+      }
+      needFullRedraw = true;
     }
   }
 }
