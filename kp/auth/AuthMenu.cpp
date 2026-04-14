@@ -54,9 +54,7 @@ bool AuthMenu::show() {
       cout << " Статус БД: ОК   |   Пользователей: " << users.size()
            << "   |   Сессия: [Гость]         ";
 
-      setColor(8);
-      setCursor(2, 25);
-      cout << "[Tab] Навигация  | [Enter] Выбрать   |  [Esc] Выход";
+      drawFooter(26, false);
 
       setColor(9);
       setCursor(16, 2);
@@ -96,10 +94,16 @@ bool AuthMenu::show() {
       int yPos = 18 + i + (i == 2 ? 1 : 0);
       setCursor(6, yPos);
       if (i == selectedOption) {
-        setColor(10);
+        if (i == 2)
+          setColor(12);
+        else
+          setColor(10);
         cout << "> " << options[i];
       } else {
-        setColor(8);
+        if (i == 2)
+          setColor(4);
+        else
+          setColor(8);
         cout << "  " << options[i];
       }
     }

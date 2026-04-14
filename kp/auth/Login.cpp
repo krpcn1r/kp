@@ -55,15 +55,13 @@ void showLoginScreen() {
     cout << "╣";
 
     // Кнопки управления внизу
-    setColor(8);
-    setCursor(2, 25);
-    cout << "[Tab] Навигация  | [Enter] Выбрать   |  [Esc] Назад";
+    drawFooter(18);
 
     int exitKey = 0;
     if (activeField == 0) {
-      login = processInput(18, 9, 20, login, false, exitKey);
+      login = processInput(18, 9, 20, login, false, exitKey, 16);
     } else {
-      password = processInput(18, 12, 20, password, true, exitKey);
+      password = processInput(18, 12, 20, password, true, exitKey, 16);
     }
 
     if (exitKey == Key::TAB || exitKey == Key::UP || exitKey == Key::DOWN) {

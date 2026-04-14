@@ -1,130 +1,169 @@
 #include "HomeMenu.h"
 #include "../auth/AuthManager.h"
-#include "../core/Render.h"
-#include "../core/InputHandler.h"
 #include "../core/Database.h"
+#include "../core/InputHandler.h"
+#include "../core/Render.h"
 #include <iostream>
-#include <vector>
 #include <string>
+#include <vector>
 
 using namespace std;
 
+void showPlaceholder(const string& title) {
+  clearScreen();
+  drawDoubleBox(10, 8, 60, 10, 14); // Желтая рамка
+  
+  setCursor(26, 10);
+  setColor(14);
+  cout << "РАЗДЕЛ В РАЗРАБОТКЕ";
+  
+  setCursor(15, 12);
+  setColor(15);
+  cout << "Раздел: " << title;
+  
+  setCursor(15, 14);
+  setColor(8);
+  cout << "Данный функционал будет доступен в будущих версиях.";
+  
+  setCursor(15, 16);
+  cout << "Нажмите любую клавишу для возврата в меню...";
+  
+  InputHandler::waitAnyKey();
+}
+
 HomeResult HomeMenu::show() {
-    int selectedOption = 0;
-    const int numOptions = 8;
-    bool needFullRedraw = true;
+  int selectedOption = 0;
+  const int numOptions = 8;
+  bool needFullRedraw = true;
 
-    while (true) {
-        if (needFullRedraw) {
-            clearScreen();
-            
-            // 1) Блок 1: Логотип и информация
-            setColor(9);
-            setCursor(16, 1);
-            cout << "███╗   ███╗ ██████╗ ██████╗ ██╗██╗     ███████╗";
-            setCursor(16, 2);
-            cout << "████╗ ████║██╔═══██╗██╔══██╗██║██║     ██╔════╝";
-            setCursor(16, 3);
-            cout << "██╔████╔██║██║   ██║██████╔╝██║██║     █████╗  ";
-            setCursor(16, 4);
-            cout << "██║╚██╔╝██║██║   ██║██╔══██╗██║██║     ██╔══╝  ";
-            setCursor(16, 5);
-            cout << "██║ ╚═╝ ██║╚██████╔╝██████╔╝██║███████╗███████╗";
-            setCursor(16, 6);
-            cout << "╚═╝     ╚═╝ ╚═════╝ ╚═════╝ ╚═╝╚══════╝╚══════╝";
+  while (true) {
+    if (needFullRedraw) {
+      clearScreen();
 
-            setCursor(16, 7);
-            cout << "██╗  ██╗███████╗██╗     ██████╗ ███████╗██████╗ ";
-            setCursor(16, 8);
-            cout << "██║  ██║██╔════╝██║     ██╔══██╗██╔════╝██╔══██╗";
-            setCursor(16, 9);
-            cout << "███████║█████╗  ██║     ██████╔╝█████╗  ██████╔╝";
-            setCursor(16, 10);
-            cout << "██╔══██║██╔══╝  ██║     ██╔═══╝ ██╔══╝  ██╔══██╗";
-            setCursor(16, 11);
-            cout << "██║  ██║███████╗███████╗██║     ███████╗██║  ██║";
-            setCursor(16, 12);
-            cout << "╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝";
+      drawDoubleBox(2, 1, 76, 28, 15);
 
-            setColor(15);
-            setCursor(2, 13);
-            cout << "╠══════════════════════════════════════════════════════════════════════════╣";
-            
-            setColor(7);
-            setCursor(4, 14);
-            User u = AuthManager::getCurrentUser();
-            string roleStr = (u.role == Role::ADMIN) ? "Администратор" : "Оператор";
-            cout << "Пользователь: " << u.login << "   |   Статус: " << roleStr;
+      // 1) Блок 1: Логотип и информация
+      setColor(9);
+      setCursor(16, 2);
+      cout << "███╗   ███╗ ██████╗ ██████╗ ██╗██╗     ███████╗";
+      setCursor(16, 3);
+      cout << "████╗ ████║██╔═══██╗██╔══██╗██║██║     ██╔════╝";
+      setCursor(16, 4);
+      cout << "██╔████╔██║██║   ██║██████╔╝██║██║     █████╗  ";
+      setCursor(16, 5);
+      cout << "██║╚██╔╝██║██║   ██║██╔══██╗██║██║     ██╔══╝  ";
+      setCursor(16, 6);
+      cout << "██║ ╚═╝ ██║╚██████╔╝██████╔╝██║███████╗███████╗";
+      setCursor(16, 7);
+      cout << "╚═╝     ╚═╝ ╚═════╝ ╚═════╝ ╚═╝╚══════╝╚══════╝";
 
-            setColor(15);
-            setCursor(2, 15);
-            cout << "╠══════════════════════════════════════════════════════════════════════════╣";
+      setCursor(16, 8);
+      cout << "██╗  ██╗███████╗██╗     ██████╗ ███████╗██████╗ ";
+      setCursor(16, 9);
+      cout << "██║  ██║██╔════╝██║     ██╔══██╗██╔════╝██╔══██╗";
+      setCursor(16, 10);
+      cout << "███████║█████╗  ██║     ██████╔╝█████╗  ██████╔╝";
+      setCursor(16, 11);
+      cout << "██╔══██║██╔══╝  ██║     ██╔═══╝ ██╔══╝  ██╔══██╗";
+      setCursor(16, 12);
+      cout << "██║  ██║███████╗███████╗██║     ███████╗██║  ██║";
+      setCursor(16, 13);
+      cout << "╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝";
 
-            setColor(8);
-            setCursor(2, 25);
-            cout << "[Tab] Навигация  | [Enter] Выбрать   |  [Esc] Выход";
+      setColor(15);
+      setCursor(2, 14);
+      cout << "╠═══════════════════════════════════════════════════════════════"
+              "═══════════╣";
 
-            needFullRedraw = false;
-        }
+      setColor(7);
+      setCursor(4, 15);
+      User u = AuthManager::getCurrentUser();
+      string roleStr = (u.role == Role::ADMIN) ? "Администратор" : "Оператор";
+      cout << "Пользователь: " << u.login << "   |   Статус: " << roleStr;
 
-        // Рендерим опции
-        string options[numOptions] = {
-            "Просмотр базы клиентов", 
-            "Поиск по базе", 
-            "Просмотр текущих тарифов",
-            "Оформление нового клиента",
-            "Редактирование записей",
-            "Сменить пароль",
-            "Выход в меню авторизации",
-            "Закрыть программу"
-        };
+      setColor(15);
+      setCursor(2, 16);
+      cout << "╠═══════════════════════════════════════════════════════════════"
+              "═══════════╣";
 
-        for (int i = 0; i < numOptions; i++) {
-            // Расчет y-позиции с учетом сепараторов
-            int yPos = 16 + i;
-            if (i >= 3) yPos += 1; // Сепаратор после 3-й опции
-            if (i >= 5) yPos += 1; // Сепаратор после 5-й опции
-
-            // Рисуем сепараторы
-            if (i == 3) {
-                setCursor(2, 16 + 3);
-                setColor(15);
-                cout << "╠══════════════════════════════════════════════════════════════════════════╣";
-            }
-            if (i == 5) {
-                setCursor(2, 16 + 5 + 1);
-                setColor(15);
-                cout << "╠══════════════════════════════════════════════════════════════════════════╣";
-            }
-
-            setCursor(6, yPos);
-            if (i == selectedOption) {
-                setColor(10);
-                cout << "> " << options[i] << "         ";
-            } else {
-                setColor(8);
-                cout << "  " << options[i] << "         ";
-            }
-        }
-
-        int key = InputHandler::getExtKey();
-
-        if (key == Key::TAB || key == Key::DOWN) {
-            selectedOption = (selectedOption + 1) % numOptions;
-        } else if (key == Key::UP) {
-            selectedOption = (selectedOption - 1 + numOptions) % numOptions;
-        } else if (key == Key::ENTER) {
-            if (selectedOption == 6) return HomeResult::LOGOUT;
-            if (selectedOption == 7) return HomeResult::EXIT_APP;
-            
-            // Для остальных пока просто заглушка
-            setCursor(30, 26);
-            setColor(14);
-            cout << "Раздел \"" << options[selectedOption] << "\" в разработке...";
-            InputHandler::waitAnyKey();
-            needFullRedraw = true;
-        } else if (key == Key::ESC) {
-            return HomeResult::LOGOUT;
-        }
+      needFullRedraw = false;
     }
+
+    drawFooter(29, false);
+
+    // Рендерим опции
+    string options[numOptions] = {
+        "1. Просмотр базы клиентов ", "2. Поиск по базе          ",
+        "3. Просмотр текущих тарифов", "4. Оформление нового клиента",
+        "5. Редактирование записей  ", "6. Сменить пароль          ",
+        "7. Выход в меню авторизации", "8. Закрыть программу       "};
+
+    for (int i = 0; i < numOptions; i++) {
+      int yPos = 17 + i;
+      if (i >= 3)
+        yPos += 1; // Сепаратор после 3-й опции
+      if (i >= 5)
+        yPos += 1; // Сепаратор после 5-й опции
+
+      // Рисуем сепараторы
+      if (i == 3) {
+        setCursor(2, 17 + 3);
+        setColor(15);
+        cout << "╠═════════════════════════════════════════════════════════════"
+                "═════════════╣";
+      }
+      if (i == 5) {
+        setCursor(2, 17 + 5 + 1);
+        setColor(15);
+        cout << "╠═════════════════════════════════════════════════════════════"
+                "═════════════╣";
+      }
+      setCursor(6, yPos);
+      if (i == selectedOption) {
+        if (i == 7)
+          setColor(12); // Ярко-красный только для выхода из программы
+        else
+          setColor(10); // Зеленый для всех остальных
+        cout << "> " << options[i] << "         ";
+      } else {
+        if (i == 7)
+          setColor(4); // Темно-красный только для выхода из программы
+        else
+          setColor(8); // Серый для остальных
+        cout << "  " << options[i] << "         ";
+      }
+    }
+
+    int key = InputHandler::getExtKey();
+
+    if (key == Key::TAB || key == Key::DOWN) {
+      selectedOption = (selectedOption + 1) % numOptions;
+    } else if (key == Key::UP) {
+      selectedOption = (selectedOption - 1 + numOptions) % numOptions;
+    } else if (key >= '1' && key <= '8') {
+      selectedOption = key - '1';
+      // Сразу выполняем действие при нажатии цифры
+      if (selectedOption == 6)
+        return HomeResult::LOGOUT;
+      if (selectedOption == 7)
+        return HomeResult::EXIT_APP;
+
+      setCursor(30, 27);
+      setColor(14);
+      cout << "Раздел \"" << options[selectedOption] << "\" в разработке...";
+      InputHandler::waitAnyKey();
+      needFullRedraw = true;
+    } else if (key == Key::ENTER) {
+      if (selectedOption == 6)
+        return HomeResult::LOGOUT;
+      if (selectedOption == 7)
+        return HomeResult::EXIT_APP;
+
+      // Для остальных пока просто заглушка
+      showPlaceholder(options[selectedOption]);
+      needFullRedraw = true;
+    } else if (key == Key::ESC) {
+      return HomeResult::LOGOUT;
+    }
+  }
 }

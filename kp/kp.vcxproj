@@ -137,11 +137,11 @@
     <ClCompile Include="clients\Billing.cpp" />
     <ClCompile Include="clients\ClientManager.cpp" />
     <ClCompile Include="core\Database.cpp" />
-    <ClCompile Include="core\HomeMenu.cpp" />
     <ClCompile Include="core\InputHandler.cpp" />
     <ClCompile Include="core\Render.cpp" />
     <ClCompile Include="core\Utils.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="user\HomeMenu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="admin\AdminPanel.h" />

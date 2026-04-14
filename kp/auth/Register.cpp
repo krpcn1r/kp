@@ -67,15 +67,13 @@ void showRegisterScreen() {
     for (int i = 0; i < 40; i++)
       cout << "═";
     cout << "╣";
-    setColor(8);
-    setCursor(2, 25);
-    cout << "[Tab] Навигация  | [Enter] Выбрать   |  [Esc] Назад";
+    drawFooter(20);
 
     int exitKey = 0;
     if (activeField == 0) {
-      login = processInput(18, 12, 20, login, false, exitKey);
+      login = processInput(18, 12, 20, login, false, exitKey, 16);
     } else {
-      password = processInput(18, 14, 20, password, true, exitKey);
+      password = processInput(18, 14, 20, password, true, exitKey, 16);
     }
 
     if (exitKey == Key::TAB || exitKey == Key::UP || exitKey == Key::DOWN) {

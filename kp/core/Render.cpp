@@ -4,24 +4,37 @@
 #include <windows.h>
 using namespace std;
 
+void drawFooter(int y, bool hasBack) {
+    setColor(8);
+    setCursor(2, y);
+    std::cout << "[Tab] Навигация  | [Enter] Выбрать";
+    if (hasBack) std::cout << "   |  [Esc] Назад";
+    else std::cout << "   |  [Esc] Выход";
+}
+
 void drawInputContent(int x, int y, int width, string input, bool isPassword, bool isActive) {
     int bgColor = isActive ? (1 * 16) : 0; 
     int fgColor = isActive ? 15 : 7;       
     setColor(bgColor + fgColor);
 
     setCursor(x, y);
-    for(int i = 0; i < width; i++) cout << "_"; 
     
-    setCursor(x, y);
+    string displayString = "";
     if (isPassword) {
-        for(size_t i = 0; i < input.length(); i++) cout << "*";
+        displayString = string(input.length(), '*');
     } else {
-        cout << input;
+        displayString = input;
     }
-    
-    if (isActive && input.length() < width) {
-        cout << "|"; // Каретка
+
+    if (isActive && displayString.length() < (size_t)width) {
+        displayString += "|";
     }
+
+    while (displayString.length() < (size_t)width) {
+        displayString += "_";
+    }
+
+    cout << displayString;
     setColor(7);
 }
 
@@ -112,7 +125,7 @@ void drawTextBox(int x, int y, int w, int h, string text, int textColor, int box
     setColor(7);
 }
 
-string inputField(int x, int y, int width, bool isPassword) {
+string inputField(int x, int y, int width, bool isPassword, int warningY) {
     string input = "";
     int choose;
 
@@ -122,14 +135,19 @@ string inputField(int x, int y, int width, bool isPassword) {
 
         if (choose == Key::ENTER) break;
 
+        if (choose > 127) {
+            if (warningY > 0) {
+                setCursor(x - 12, warningY);
+                setColor(12);
+                cout << " Ошибка: Переключитесь на английский! ";
+                setColor(7);
+            }
+            continue;
+        }
+
         if (choose == Key::BACKSPACE) {
             if (input.length() > 0) {
-                if ((unsigned char)input.back() > 127 && input.length() > 1) {
-                    input.pop_back();
-                    input.pop_back();
-                } else {
-                    input.pop_back();
-                }
+                input.pop_back();
                 setCursor(x, y);
                 for(int i=0; i< width; i++) cout << " ";
                 setCursor(x, y);
@@ -141,6 +159,10 @@ string inputField(int x, int y, int width, bool isPassword) {
             }
         }
         else if (input.length() < width - 2 && isprint(static_cast<unsigned char>(choose))) {
+            if (warningY > 0) {
+                setCursor(x - 12, warningY);
+                cout << "                                       ";
+            }
             input += choose;
             setCursor(x, y);
             if (isPassword) {
@@ -153,7 +175,7 @@ string inputField(int x, int y, int width, bool isPassword) {
     return input;
 }
 
-string processInput(int x, int y, int width, string currentInput, bool isPassword, int& exitKey) {
+string processInput(int x, int y, int width, string currentInput, bool isPassword, int& exitKey, int warningY) {
     string input = currentInput;
     int choose;
 
@@ -167,18 +189,27 @@ string processInput(int x, int y, int width, string currentInput, bool isPasswor
             break;
         }
 
+        if (choose > 127) {
+            if (warningY > 0) {
+                setCursor(x - 12, warningY);
+                setColor(12);
+                cout << " Ошибка: Переключитесь на английский! ";
+                setColor(7);
+            }
+            continue;
+        }
+
         if (choose == Key::BACKSPACE) {
             if (input.length() > 0) {
-                if ((unsigned char)input.back() > 127 && input.length() > 1) {
-                    input.pop_back();
-                    input.pop_back();
-                } else {
-                    input.pop_back();
-                }
+                input.pop_back();
                 drawInputContent(x, y, width, input, isPassword, true);
             }
         }
         else if (input.length() < width - 1 && isprint(static_cast<unsigned char>(choose))) {
+            if (warningY > 0) {
+                setCursor(x - 12, warningY);
+                cout << "                                       ";
+            }
             input += choose;
             drawInputContent(x, y, width, input, isPassword, true);
         }
