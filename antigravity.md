@@ -54,8 +54,9 @@ struct User {
     int id;
     std::string login;
     std::string password_hash;
-    int role; 
+    int role; // 0 - Admin, 1 - Operator
     bool is_active;
 
+    // Макрос для nlohmann/json
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(User, id, login, password_hash, role, is_active)
 };

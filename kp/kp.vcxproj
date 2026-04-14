@@ -131,6 +131,7 @@
     <ClCompile Include="admin\ConfigWizard.cpp" />
     <ClCompile Include="admin\LogViewer.cpp" />
     <ClCompile Include="auth\AuthManager.cpp" />
+    <ClCompile Include="auth\AuthMenu.cpp" />
     <ClCompile Include="auth\Login.cpp" />
     <ClCompile Include="auth\Register.cpp" />
     <ClCompile Include="clients\Billing.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="admin\ConfigWizard.h" />
     <ClInclude Include="admin\LogViewer.h" />
     <ClInclude Include="auth\AuthManager.h" />
+    <ClInclude Include="auth\AuthMenu.h" />
     <ClInclude Include="auth\Login.h" />
     <ClInclude Include="auth\Register.h" />
     <ClInclude Include="auth\UserStruct.h" />

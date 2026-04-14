@@ -7,7 +7,6 @@
 
 #include "auth/AuthMenu.h"
 #include "auth/AuthManager.h"
-#include "core/HomeMenu.h"
 
 #include "clients/Billing.h"
 #include "clients/ClientManager.h"
@@ -30,25 +29,18 @@ int main() {
   cursorInfo.bVisible = false;
   SetConsoleCursorInfo(hConsole, &cursorInfo);
 
-  while (true) {
-    // 1. Экран авторизации
-    if (!AuthManager::isUserLoggedIn()) {
-      if (!AuthMenu::show()) {
-        break; // Выход из программы
-      }
-    }
+  // Запускаем меню входа/регистрации
+  bool isAuthenticated = AuthMenu::show();
 
-    // 2. Главное меню (Dashboard) после входа
-    if (AuthManager::isUserLoggedIn()) {
-      HomeResult result = HomeMenu::show();
-      
-      if (result == HomeResult::LOGOUT) {
-        AuthManager::logout();
-        continue; // Возвращаемся в AuthMenu
-      } else if (result == HomeResult::EXIT_APP) {
-        break; // Полный выход
-      }
-    }
+  if (isAuthenticated) {
+    // В будущем здесь будет запуск ClientManager (главного рабочего экрана)
+    clearScreen();
+    setColor(10);
+    cout << "Успешный вход в систему! Пользователь: " 
+         << AuthManager::getCurrentUser().login << std::endl;
+    setColor(8);
+    cout << "\nНажмите любую кнопку для завершения работы...";
+    InputHandler::waitAnyKey();
   }
 
   cursorInfo.bVisible = true;
