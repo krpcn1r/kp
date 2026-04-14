@@ -13,3 +13,5 @@ std::string processInput(int x, int y, int width, std::string currentInput, bool
 // Новые функции
 void drawFooter(int y, bool hasBack = true);
 void drawInputContent(int x, int y, int width, std::string input, bool isPassword, bool isActive);
+void showPlaceholder(const std::string& title);
+bool showConfirmation(const std::string& message);
