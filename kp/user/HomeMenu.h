@@ -11,4 +11,5 @@ class HomeMenu {
 public:
     // показывает главное меню с кучей кнопок
     static HomeResult show();
+    static void showChangePassword();
 };

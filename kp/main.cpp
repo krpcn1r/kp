@@ -22,10 +22,10 @@ using namespace std;
 
 // главная точка входа всей проги
 int main() {
+
   // установка кодировки чтобы русский текст показывался нормально
   SetConsoleOutputCP(65001);
   SetConsoleCP(65001);
-
   // скрытие курсора в консоли чтобы не мешал
   HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
   CONSOLE_CURSOR_INFO cursorInfo;
@@ -51,7 +51,7 @@ int main() {
         AuthManager::logout();
         continue;
       } else if (result == HomeResult::EXIT_APP) {
-        // выход из цикла и закрытие проги
+        // выход из программы
         break;
       }
     }

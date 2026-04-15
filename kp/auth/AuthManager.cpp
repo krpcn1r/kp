@@ -87,6 +87,52 @@ void AuthManager::logout() {
   currentUser = {};
 }
 
+// смена пароля для главного меню
+int AuthManager::changePassword(std::string& currentPassword, const std::string& newPassword) {
+    if (newPassword.empty() || currentPassword.empty())
+        return 3;
+    if (newPassword.length() < 8)
+        return 4;
+
+    bool hasDigit = false;
+    bool hasSpecial = false;
+    for (char c : newPassword) {
+        if (isdigit((unsigned char)c))
+            hasDigit = true;
+        if (ispunct((unsigned char)c))
+            hasSpecial = true;
+    }
+    if (!hasDigit || !hasSpecial)
+        return 5;
+
+    for (unsigned char c : currentPassword)
+        if (c > 127)
+            return 6; // если ввели русскую букву
+    for (unsigned char c : newPassword)
+        if (c > 127)
+            return 6;
+
+    vector<User> users = Database::loadUsers();
+    User currentUser = getCurrentUser();
+    bool found = false;
+    for (auto& u : users) {
+        if (u.login == currentUser.login) {
+            if (currentPassword != currentUser.password) {
+                return 2;
+            }
+            u.password = newPassword;
+            found = true;
+        }
+    }
+
+    if (found) {
+        Database::saveUsers(users);
+        return 0;
+    }
+
+    return 1;
+}
+
 bool AuthManager::isUserLoggedIn() { return isLoggedIn; }
 
 User AuthManager::getCurrentUser() { return currentUser; }

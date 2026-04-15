@@ -21,6 +21,8 @@ public:
   // получение данных того кто сейчас в системе
   static User getCurrentUser();
 
+  static int changePassword(std::string& currentPassword, const std::string& newPassword);
+
 private:
   static bool isLoggedIn; // статус входа
   static User currentUser; // данные текущего юзера

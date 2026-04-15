@@ -158,11 +158,11 @@
     <ClInclude Include="clients\ClientMenu.h" />
     <ClInclude Include="clients\ClientStruct.h" />
     <ClInclude Include="core\Database.h" />
-    <ClInclude Include="core\HomeMenu.h" />
     <ClInclude Include="core\InputHandler.h" />
     <ClInclude Include="core\json.hpp" />
     <ClInclude Include="core\Render.h" />
     <ClInclude Include="core\Utils.h" />
+    <ClInclude Include="user\HomeMenu.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="data\clients.dat" />

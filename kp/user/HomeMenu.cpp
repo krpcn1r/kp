@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "../clients/ClientMenu.h"
-
+#include "../clients/ClientManager.h"
 using namespace std;
 
 // рисует главное меню после того как юзер зашел в систему
@@ -139,6 +139,7 @@ HomeResult HomeMenu::show() {
       else if (selectedOption == 1) ClientMenu::showSearch(); // идем искать
       else if (selectedOption == 3) ClientMenu::showAddClient(); // создаем нового чела
       else if (selectedOption == 4) ClientMenu::showEditClient(0); // пока просто заглушка
+      else if (selectedOption == 5) showChangePassword();
       else if (selectedOption == 6) return HomeResult::LOGOUT; // разлогиниться
       else if (selectedOption == 7) return HomeResult::EXIT_APP; // закрыть всё
       else {
@@ -154,4 +155,124 @@ HomeResult HomeMenu::show() {
       needFullRedraw = true;
     }
   }
+}
+
+void HomeMenu::showChangePassword() {
+    string oldPassword = "";
+    string newPassword = "";
+    int activeField = 0; // 0 это ввод логина а 1 пароля
+
+    clearScreen(); // очистка экрана перед отрисовкой нового окна
+
+    // отрисовка большой рамки для регистрации
+    drawDoubleBox(4, 4, 45, 12, 8);
+
+    setCursor(19, 5);
+    setColor(11);
+    cout << "СМЕНА ПАРОЛЯ";
+
+    // полоска под заголовком
+    setColor(8);
+    setCursor(4, 6);
+    cout << "╠";
+    for (int i = 0; i < 43; i++)
+        cout << "═";
+    cout << "╣";
+
+    // вывод условий безопасности пароля
+    setCursor(6, 7);
+    setColor(7);
+    cout << "Условия безопасности:";
+    setCursor(7, 8);
+    setColor(8);
+    cout << "• Минимум 8 символов";
+    setCursor(7, 9);
+    cout << "• 1 цифра + 1 спецсимвол";
+    setCursor(7, 10);
+    cout << "• Только английские буквы";
+
+    setCursor(4, 11);
+    cout << "╠";
+    for (int i = 0; i < 43; i++)
+        cout << "═";
+    cout << "╣";
+
+    drawInputContent(24, 12, 20, oldPassword, false, false);
+    drawInputContent(24, 14, 20, newPassword, false, false);
+
+    // запуск цикла для заполнения полей
+    while (true) {
+        // подсветка поля логин если фокус на нем
+        setCursor(6, 12);
+        if (activeField == 0)
+            setColor(10);
+        else
+            setColor(7);
+        cout << (activeField == 0 ? "> Старый пароль:" : "  Старый пароль:");
+
+        // тоже самое для пароля
+        setCursor(6, 14);
+        if (activeField == 1)
+            setColor(10);
+        else
+            setColor(7);
+        cout << (activeField == 1 ? "> Новый пароль:" : "  Новый пароль:");
+
+        // отрисовка кнопок в нижней части
+        drawFooter(20);
+
+        int exitKey = 0;
+        // вызов функции ввода текста
+        if (activeField == 0) {
+            oldPassword = processInput(24, 12, 20, oldPassword, false, exitKey, 16);
+        }
+        else {
+            newPassword = processInput(24, 14, 20, newPassword, false, exitKey, 16);
+        }
+
+        // управление переключением полей или сохранение
+        if (exitKey == Key::TAB || exitKey == Key::UP || exitKey == Key::DOWN) {
+            activeField = (activeField == 0) ? 1 : 0;
+        }
+        else if (exitKey == Key::ENTER) {
+            if (activeField == 0)
+                activeField = 1; // переход к полю пароля
+            else
+                break; // попытка создания юзера
+        }
+        else if (exitKey == Key::ESC) {
+            return; // выход без регистрации
+        }
+    }
+
+    setCursor(8, 17);
+    // попытка добавления нового пользователя в базу
+    int result = AuthManager::changePassword(oldPassword, newPassword);
+    if (result == 0) {
+        setColor(10);
+        cout << "Пароль успешно сменился!    ";
+    }
+    else {
+        // вывод ошибки красным цветом
+        setColor(12);
+        if (result == 1)
+            cout << "Ошибка: неверные данные                                   ";
+        else if (result == 2)
+            cout << "Ошибка: старый пароль не совпадает                        ";
+        else if (result == 3)
+            cout << "Ошибка: одно из полей пустое                              ";
+        else if (result == 4)
+            cout << "Ошибка: длина пароля меньше 8 символов                    ";
+        else if (result == 5)
+            cout << "Ошибка: в пароле отсутствуют специальные символы или цифры";
+        else if (result == 6)
+            cout << "Ошибка: только английские буквы                           ";
+        else
+            cout << "Ошибка записи в базу данных                               ";
+    }
+
+    setCursor(8, 18);
+    setColor(8);
+    cout << "Нажмите любую кнопку...";
+    InputHandler::waitAnyKey();
 }
