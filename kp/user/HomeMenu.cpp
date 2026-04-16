@@ -3,6 +3,7 @@
 #include "../core/Database.h"
 #include "../core/InputHandler.h"
 #include "../core/Render.h"
+#include "../admin/AdminPanel.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -16,6 +17,9 @@ HomeResult HomeMenu::show() {
   int selectedOption = 0; // какая кнопка сейчас выбрана
   const int numOptions = 8; // всего 8 пунктов меню
   bool needFullRedraw = true; // флаг полной перерисовки окна
+  
+  User u = AuthManager::getCurrentUser();
+  string roleStr = (u.role == Role::ADMIN) ? "Администратор" : "Оператор";
 
   while (true) {
     if (needFullRedraw) {
@@ -81,7 +85,9 @@ HomeResult HomeMenu::show() {
         "3. Просмотр текущих тарифов", "4. Оформление нового клиента",
         "5. Редактирование записей  ", "6. Сменить пароль          ",
         "7. Выход в меню авторизации", "8. Закрыть программу       "};
-
+    if (roleStr == "Администратор") {
+        options[5] = "6. Админ-панель";
+    }
     // выводим пункты меню и красиво их красим
     for (int i = 0; i < numOptions; i++) {
       int yPos = 17 + i;
@@ -108,6 +114,8 @@ HomeResult HomeMenu::show() {
         // подсвечиваем ту кнопку на которой стоит курсор
         if (i == 7)
           setColor(12); // красная если это выход
+        else if (i == 5 && roleStr == "Администратор")
+          setColor(14); // желтая для админ-панели
         else
           setColor(10); // зеленая для работы
         cout << "> " << options[i] << "         ";
@@ -115,6 +123,8 @@ HomeResult HomeMenu::show() {
         // серые если не выбраны
         if (i == 7)
           setColor(4);
+        else if (i == 5 && roleStr == "Администратор")
+          setColor(6); // тёмно-желтая для админ-панели
         else
           setColor(8);
         cout << "  " << options[i] << "         ";
@@ -139,7 +149,12 @@ HomeResult HomeMenu::show() {
       else if (selectedOption == 1) ClientMenu::showSearch(); // идем искать
       else if (selectedOption == 3) ClientMenu::showAddClient(); // создаем нового чела
       else if (selectedOption == 4) ClientMenu::showEditClient(0); // пока просто заглушка
-      else if (selectedOption == 5) showChangePassword();
+      else if (selectedOption == 5 && roleStr == "Оператор") {
+          showChangePassword();
+      }
+      else if (selectedOption == 5 && roleStr == "Администратор") {
+          AdminPanel::showAdminPanel();
+      }
       else if (selectedOption == 6) return HomeResult::LOGOUT; // разлогиниться
       else if (selectedOption == 7) return HomeResult::EXIT_APP; // закрыть всё
       else {

@@ -1,3 +1,6 @@
 #pragma once
-
-// тут будут функции для панели администратора (в разработке)
+#include <vector>
+class AdminPanel {
+public:
+	static void showAdminPanel();
+};
