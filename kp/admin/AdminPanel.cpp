@@ -10,7 +10,18 @@ void AdminPanel::showAdminPanel()
 {
 	clearScreen();
 	setColor(4);
-	setCursor(5, 5);
-	std::cout << "Test admin panel";
+
+	drawDoubleBox(1,1,61,25,7);
+	setCursor(24, 2);
+	setColor(6);
+	std::cout << "Admin panel";
+	setColor(7);
+	setCursor(1, 3);
+	std::cout << "╠═══════════════════════════════════════════════════════════╣";
+
+
+
+
+	drawFooter(27);
 	InputHandler::waitAnyKey();
 }
