@@ -38,14 +38,14 @@ int main() {
     // показ меню входа если юзер не залогинился
     if (!AuthManager::isUserLoggedIn()) {
       if (!AuthMenu::show()) {
-        break; 
+        break;
       }
     }
 
     // открытие главного меню если зашел
     if (AuthManager::isUserLoggedIn()) {
       HomeResult result = HomeMenu::show();
-      
+
       // сброс логина при нажатии выхода
       if (result == HomeResult::LOGOUT) {
         AuthManager::logout();
