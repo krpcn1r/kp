@@ -63,8 +63,6 @@ HomeResult HomeMenu::show() {
       // пишем кто сейчас зашел и какая у него роль
       setColor(7);
       setCursor(4, 15);
-      User u = AuthManager::getCurrentUser();
-      string roleStr = (u.role == Role::ADMIN) ? "Администратор" : "Оператор";
       cout << "Пользователь: " << u.login << "   |   Статус: " << roleStr;
 
       // рисуем разделительную линию

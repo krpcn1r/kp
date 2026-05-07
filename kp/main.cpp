@@ -26,13 +26,15 @@ int main() {
   //// установка кодировки чтобы русский текст показывался нормально
   SetConsoleOutputCP(65001);
   SetConsoleCP(65001);
+  HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+  CONSOLE_CURSOR_INFO cursorInfo;
+  GetConsoleCursorInfo(hConsole, &cursorInfo);
+  cursorInfo.bVisible = false;
+  SetConsoleCursorInfo(hConsole, &cursorInfo);
   AdminPanel::showAdminPanel();
   //// скрытие курсора в консоли чтобы не мешал
-  //HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-  //CONSOLE_CURSOR_INFO cursorInfo;
-  //GetConsoleCursorInfo(hConsole, &cursorInfo);
-  //cursorInfo.bVisible = false;
-  //SetConsoleCursorInfo(hConsole, &cursorInfo);
+
+ 
 
   //// запуск бесконечного цикла работы
   //while (true) {

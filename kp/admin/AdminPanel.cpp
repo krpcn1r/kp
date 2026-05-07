@@ -4,7 +4,6 @@
 #include "../core/InputHandler.h"
 #include "../core/Database.h"
 #include "../auth/AuthManager.h"
-#include <vector>
 
 void AdminPanel::showAdminPanel()
 {
@@ -18,9 +17,6 @@ void AdminPanel::showAdminPanel()
 	setColor(7);
 	setCursor(1, 3);
 	std::cout << "╠═══════════════════════════════════════════════════════════╣";
-
-
-
 
 	drawFooter(27);
 	InputHandler::waitAnyKey();
