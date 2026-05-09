@@ -24,8 +24,8 @@ using namespace std;
 int main() {
 
   //// установка кодировки чтобы русский текст показывался нормально
-  SetConsoleOutputCP(65001);
-  SetConsoleCP(65001);
+  SetConsoleOutputCP(CP_UTF8);
+  SetConsoleCP(CP_UTF8);
   HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
   CONSOLE_CURSOR_INFO cursorInfo;
   GetConsoleCursorInfo(hConsole, &cursorInfo);

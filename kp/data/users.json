@@ -7,7 +7,7 @@
     {
         "login": "User2",
         "password": "!!!qwe123",
-        "role": "OPERATOR"
+        "role": "ADMIN"
     },
     {
         "login": "User1",
