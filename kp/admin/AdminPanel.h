@@ -1,3 +1,16 @@
 #pragma once
+#include <vector>
+#include <string>
 
-// тут будут функции для панели администратора (в разработке)
+class AdminPanel {
+public:
+	static void showAdminPanel();
+
+private:
+	static void showUsersList();
+	static void editUser();
+	static void deleteUser();
+	static void createBackup();
+	static void showBackups();
+	static void restoreBackup();
+};

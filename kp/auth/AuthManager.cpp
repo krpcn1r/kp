@@ -40,14 +40,24 @@ int AuthManager::registerUser(const string &login, const string &password,
   if (!hasDigit || !hasSpecial)
     return 2;
 
+  string lowerLogin = login;
+  for (char& c : lowerLogin) {
+      c = (unsigned char)tolower(c);
+  }
+
   // загрузка списка всех юзеров из базы
   vector<User> users = Database::loadUsers();
 
-  // проверка занятости логина
-  for (const auto &u : users) {
-    if (u.login == login) {
-      return 3; // логин уже есть в базе
-    }
+  for (const auto& u : users) {
+      // Копируем логин пользователя из базы тоже в нижний регистр
+      string existingUserLower = u.login;
+      for (char& c : existingUserLower) {
+          c = (unsigned char)tolower(c);
+      }
+
+      if (existingUserLower == lowerLogin) {
+          return 3; // Логин занят (даже если регистр разный)
+      }
   }
 
   // создание нового юзера

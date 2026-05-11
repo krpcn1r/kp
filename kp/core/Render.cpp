@@ -1,5 +1,6 @@
 #include "Render.h"
 #include "InputHandler.h"
+#include <iomanip>
 #include <iostream>
 #include <windows.h>
 using namespace std;
@@ -94,6 +95,71 @@ void drawInputContent(int x, int y, int width, string input, bool isPassword, bo
     }
 
     cout << displayString;
+    setColor(7);
+}
+
+// очистка одной строки без полной перерисовки экрана
+void clearLine(int x, int y, int width, int color) {
+    setCursor(x, y);
+    setColor(color);
+    cout << string(width, ' ');
+    setColor(7);
+}
+
+string truncateText(string value, size_t maxLen) {
+    size_t bytePos = 0;
+    size_t ellipsisBytePos = 0;
+    size_t charCount = 0;
+
+    while (bytePos < value.length() && charCount < maxLen) {
+        unsigned char c = static_cast<unsigned char>(value[bytePos]);
+        int step = 1;
+        if      ((c & 0xE0) == 0xC0) step = 2;
+        else if ((c & 0xF0) == 0xE0) step = 3;
+        else if ((c & 0xF8) == 0xF0) step = 4;
+
+        if (maxLen > 3 && charCount == maxLen - 3)
+            ellipsisBytePos = bytePos;
+
+        bytePos += step;
+        charCount++;
+    }
+
+    if (bytePos >= value.length()) return value;
+    if (maxLen <= 3) return value.substr(0, bytePos);
+    return value.substr(0, ellipsisBytePos) + "...";
+}
+
+void drawTableCell(int x, int y, int width, string value, int color) {
+    setCursor(x, y);
+    setColor(color);
+    cout << left << setw(width) << truncateText(value, width);
+    setColor(7);
+}
+
+void drawTableHeader(int y, const vector<TableColumn>& columns,
+                     const vector<int>& separatorXs, int textColor) {
+    for (int separatorX : separatorXs) {
+        drawTableCell(separatorX, y, 1, "│", textColor);
+    }
+
+    for (const auto& column : columns) {
+        drawTableCell(column.x, y, column.width, column.title, textColor);
+    }
+}
+
+void drawTableSeparator(int x, int y, int width, const vector<int>& separatorXs, int color) {
+    setCursor(x, y);
+    setColor(color);
+    for (int i = 0; i < width; ++i) {
+        cout << "═";
+    }
+
+    for (int separatorX : separatorXs) {
+        setCursor(separatorX, y);
+        cout << "╪";
+    }
+
     setColor(7);
 }
 
