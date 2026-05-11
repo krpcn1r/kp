@@ -143,7 +143,7 @@ HomeResult HomeMenu::show() {
       }
       
       // тут логика что делать для каждой кнопки
-      if (selectedOption == 0) ClientManager::getAllClients(), ClientMenu::showList(); // заходим в список
+      if (selectedOption == 0) ClientMenu::showList(); // заходим в список
       else if (selectedOption == 1) ClientMenu::showSearch(); // идем искать
       else if (selectedOption == 3) ClientMenu::showAddClient(); // создаем нового чела
       else if (selectedOption == 4) ClientMenu::showEditClient(0); // пока просто заглушка
