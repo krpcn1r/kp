@@ -29,7 +29,7 @@ static const int USER_ROLE_WIDTH = 14;
 static const int USER_LOGIN_SEPARATOR_X = 8;
 static const int USER_PASSWORD_SEPARATOR_X = 32;
 static const int USER_ROLE_SEPARATOR_X = 56;
-static const int BACKUP_TABLE_PAGE_SIZE = 12;
+static const int BACKUP_TABLE_PAGE_SIZE = 8;
 static const int BACKUP_ROW_START_Y = 7;
 static const int BACKUP_ROW_STEP = 2;
 static const int BACKUP_ROW_CLEAR_WIDTH = 70;
@@ -243,9 +243,9 @@ static vector<string> loadBackupNames() {
 	return backups;
 }
 
-static void drawBackupsTable(const vector<string>& backups, int startIdx,
+static void drawBackupsTable(const vector<string>& backups, int startIdx, int selectedIdx,
 							 const string& message, int messageColor,
-							 bool fullRedraw) {
+							 bool fullRedraw, const string& hint) {
 	vector<TableColumn> columns = {
 		{BACKUP_NUMBER_X, BACKUP_NUMBER_WIDTH, "N"},
 		{BACKUP_NAME_X, BACKUP_NAME_WIDTH, "Папка бэкапа"}
@@ -268,13 +268,15 @@ static void drawBackupsTable(const vector<string>& backups, int startIdx,
 		int curIdx = startIdx + i;
 		int y = BACKUP_ROW_START_Y + i * BACKUP_ROW_STEP;
 		bool hasBackup = curIdx < (int)backups.size();
+		bool isSelected = hasBackup && curIdx == selectedIdx;
+		int rowColor = isSelected ? 240 : 7;
 
-		clearLine(2, y, BACKUP_ROW_CLEAR_WIDTH, 7);
+		clearLine(2, y, BACKUP_ROW_CLEAR_WIDTH, rowColor);
 
 		if (hasBackup) {
-			drawTableCell(BACKUP_NUMBER_X, y, BACKUP_NUMBER_WIDTH, to_string(curIdx + 1), 7);
+			drawTableCell(BACKUP_NUMBER_X, y, BACKUP_NUMBER_WIDTH, to_string(curIdx + 1), rowColor);
 			drawTableCell(BACKUP_SEPARATOR_X, y, 1, "│", 15);
-			drawTableCell(BACKUP_NAME_X, y, BACKUP_NAME_WIDTH, backups[curIdx], 7);
+			drawTableCell(BACKUP_NAME_X, y, BACKUP_NAME_WIDTH, backups[curIdx], rowColor);
 		}
 
 		drawTableSeparator(2, y + 1, BACKUP_ROW_CLEAR_WIDTH, separators, 8);
@@ -288,7 +290,7 @@ static void drawBackupsTable(const vector<string>& backups, int startIdx,
 	} else if (backups.empty()) {
 		cout << "Бэкапы не найдены.";
 	} else {
-		cout << "Список последних бэкапов базы данных.";
+		cout << hint;
 	}
 
 	clearLine(3, 27, 84);
@@ -392,7 +394,6 @@ void AdminPanel::showAdminPanel()
 }
 
 void AdminPanel::showUsersList() {
-	{
 	vector<User> users = Database::loadUsers();
 	int selectedIdx = users.empty() ? -1 : 0;
 	int startIdx = 0;
@@ -405,7 +406,7 @@ void AdminPanel::showUsersList() {
 
 		drawUsersTable("СПИСОК ПОЛЬЗОВАТЕЛЕЙ", users, startIdx, selectedIdx,
 					   -1, 0, emptyUser, "", 8, needFullRedraw,
-					   "Tab/стрелки - навигация. Esc - назад.", "", statusText);
+					   "", "", statusText);
 		needFullRedraw = false;
 
 		int key = InputHandler::getExtKey();
@@ -424,8 +425,6 @@ void AdminPanel::showUsersList() {
 			}
 		}
 	}
-	}
-
 }
 
 void AdminPanel::editUser() {
@@ -439,49 +438,17 @@ void AdminPanel::editUser() {
 	int messageColor = 8;
 	bool needFullRedraw = true;
 
-	auto ensureSelectedVisible = [&]() {
-		if (selectedIdx < 0) return;
-		if (selectedIdx < startIdx) startIdx = selectedIdx;
-		if (selectedIdx >= startIdx + USER_TABLE_PAGE_SIZE) {
-			startIdx = selectedIdx - USER_TABLE_PAGE_SIZE + 1;
-		}
-	};
-
-	auto trySaveDraft = [&]() {
-		string validationMessage;
-		int invalidField = activeField;
-		if (!validateUserEdit(users, editingIdx, draftUser, validationMessage, invalidField)) {
-			message = validationMessage;
-			messageColor = 12;
-			activeField = invalidField;
-			return false;
-		}
-
-		vector<User> updatedUsers = users;
-		updatedUsers[editingIdx] = draftUser;
-		if (!Database::saveUsers(updatedUsers)) {
-			message = "Ошибка: не удалось сохранить пользователей.";
-			messageColor = 12;
-			return false;
-		}
-
-		users = Database::loadUsers();
-		selectedIdx = editingIdx;
-		editingIdx = -1;
-		activeField = 0;
-		message = "Пользователь успешно изменен.";
-		messageColor = 10;
-		return true;
-	};
-
 	while (true) {
+		// выравниваем selectedIdx и startIdx по границам
 		if (users.empty()) {
 			selectedIdx = -1;
 			startIdx = 0;
 		} else {
 			if (selectedIdx < 0) selectedIdx = 0;
 			if (selectedIdx >= (int)users.size()) selectedIdx = (int)users.size() - 1;
-			ensureSelectedVisible();
+			if (selectedIdx < startIdx) startIdx = selectedIdx;
+			if (selectedIdx >= startIdx + USER_TABLE_PAGE_SIZE)
+				startIdx = selectedIdx - USER_TABLE_PAGE_SIZE + 1;
 		}
 
 		string statusText;
@@ -501,19 +468,16 @@ void AdminPanel::editUser() {
 					   statusText);
 		needFullRedraw = false;
 
+		// режим выбора пользователя
 		if (editingIdx == -1) {
 			int key = InputHandler::getExtKey();
 			if (key == Key::ESC) return;
 			if (users.empty()) continue;
 
 			if (key == Key::DOWN || key == Key::TAB) {
-				if (selectedIdx < (int)users.size() - 1) {
-					selectedIdx++;
-				}
+				if (selectedIdx < (int)users.size() - 1) selectedIdx++;
 			} else if (key == Key::UP) {
-				if (selectedIdx > 0) {
-					selectedIdx--;
-				}
+				if (selectedIdx > 0) selectedIdx--;
 			} else if (key == Key::ENTER) {
 				editingIdx = selectedIdx;
 				draftUser = users[editingIdx];
@@ -524,10 +488,11 @@ void AdminPanel::editUser() {
 			continue;
 		}
 
-		int rowY = visibleUserRowY(editingIdx, startIdx);
-
+		// режим редактирования — поля логин и пароль
 		if (activeField == 0 || activeField == 1) {
+			int rowY = visibleUserRowY(editingIdx, startIdx);
 			int exitKey = 0;
+
 			if (activeField == 0) {
 				draftUser.login = processInput(USER_LOGIN_X, rowY, USER_LOGIN_WIDTH,
 											   draftUser.login, false, exitKey, 0);
@@ -554,6 +519,7 @@ void AdminPanel::editUser() {
 			continue;
 		}
 
+		// режим редактирования — поле роли
 		int key = InputHandler::getExtKey();
 		message = "";
 		messageColor = 8;
@@ -569,7 +535,27 @@ void AdminPanel::editUser() {
 		} else if (key == 'o' || key == 'O') {
 			draftUser.role = Role::OPERATOR;
 		} else if (key == Key::ENTER) {
-			trySaveDraft();
+			string validationMsg;
+			int invalidField = activeField;
+			if (!validateUserEdit(users, editingIdx, draftUser, validationMsg, invalidField)) {
+				message = validationMsg;
+				messageColor = 12;
+				activeField = invalidField;
+			} else {
+				vector<User> updatedUsers = users;
+				updatedUsers[editingIdx] = draftUser;
+				if (!Database::saveUsers(updatedUsers)) {
+					message = "Ошибка: не удалось сохранить пользователей.";
+					messageColor = 12;
+				} else {
+					users = Database::loadUsers();
+					selectedIdx = editingIdx;
+					editingIdx = -1;
+					activeField = 0;
+					message = "Пользователь успешно изменен.";
+					messageColor = 10;
+				}
+			}
 		} else if (key == Key::ESC) {
 			editingIdx = -1;
 			activeField = 0;
@@ -606,8 +592,7 @@ void AdminPanel::deleteUser() {
 
 		drawUsersTable("УДАЛЕНИЕ ПОЛЬЗОВАТЕЛЕЙ", users, startIdx, selectedIdx,
 					   -1, 0, emptyUser, message, messageColor, needFullRedraw,
-					   "Enter - удалить выбранного пользователя. Esc - назад.", "",
-					   statusText);
+					   "", "", statusText);
 		needFullRedraw = false;
 
 		int key = InputHandler::getExtKey();
@@ -744,16 +729,15 @@ void AdminPanel::showBackups() {
 	bool needFullRedraw = true;
 
 	while (true) {
-		drawBackupsTable(backups, startIdx, "", 8, needFullRedraw);
+		drawBackupsTable(backups, startIdx, -1, "", 8, needFullRedraw,
+						 "Список последних бэкапов базы данных.");
 		needFullRedraw = false;
 
 		int key = InputHandler::getExtKey();
 		if (key == Key::ESC) return;
 
 		if (key == Key::DOWN || key == Key::TAB) {
-			if (startIdx + BACKUP_TABLE_PAGE_SIZE < (int)backups.size()) {
-				startIdx++;
-			}
+			if (startIdx + BACKUP_TABLE_PAGE_SIZE < (int)backups.size()) startIdx++;
 		} else if (key == Key::UP) {
 			if (startIdx > 0) startIdx--;
 		}
@@ -761,5 +745,61 @@ void AdminPanel::showBackups() {
 }
 
 void AdminPanel::restoreBackup() {
-	showPlaceholder("Загрузка бэкапов");
+	vector<string> backups = loadBackupNames();
+	int selectedIdx = backups.empty() ? -1 : 0;
+	int startIdx = 0;
+	string message = "";
+	int messageColor = 8;
+	bool needFullRedraw = true;
+
+	while (true) {
+		drawBackupsTable(backups, startIdx, selectedIdx, message, messageColor, needFullRedraw,
+						 "Enter - восстановить выбранный бэкап. Esc - назад.");
+		needFullRedraw = false;
+
+		int key = InputHandler::getExtKey();
+		message = "";
+		messageColor = 8;
+
+		if (key == Key::ESC) return;
+		if (backups.empty()) continue;
+
+		if (key == Key::DOWN || key == Key::TAB) {
+			if (selectedIdx < (int)backups.size() - 1) {
+				selectedIdx++;
+				if (selectedIdx >= startIdx + BACKUP_TABLE_PAGE_SIZE) startIdx++;
+			}
+		} else if (key == Key::UP) {
+			if (selectedIdx > 0) {
+				selectedIdx--;
+				if (selectedIdx < startIdx) startIdx--;
+			}
+		} else if (key == Key::ENTER) {
+			string backupName = backups[selectedIdx];
+			if (!showConfirmation("Восстановить бэкап " + backupName + "?")) {
+				needFullRedraw = true;
+				message = "Восстановление отменено.";
+				messageColor = 8;
+				continue;
+			}
+
+			try {
+				string backupPath = "data/backups/" + backupName;
+				if (filesystem::exists(backupPath + "/users.json")) {
+					filesystem::copy(backupPath + "/users.json", "data/users.json",
+									 filesystem::copy_options::overwrite_existing);
+				}
+				if (filesystem::exists(backupPath + "/clients.json")) {
+					filesystem::copy(backupPath + "/clients.json", "data/clients.json",
+									 filesystem::copy_options::overwrite_existing);
+				}
+				message = "Бэкап " + backupName + " успешно восстановлен.";
+				messageColor = 10;
+			} catch (const exception&) {
+				message = "Ошибка: не удалось восстановить бэкап.";
+				messageColor = 12;
+			}
+			needFullRedraw = true;
+		}
+	}
 }

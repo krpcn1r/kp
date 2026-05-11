@@ -107,46 +107,27 @@ void clearLine(int x, int y, int width, int color) {
 }
 
 string truncateText(string value, size_t maxLen) {
-    size_t bytes = 0;
-    size_t chars = 0;
+    size_t bytePos = 0;
+    size_t ellipsisBytePos = 0;
+    size_t charCount = 0;
 
-    while (bytes < value.length() && chars < maxLen) {
-        unsigned char c = static_cast<unsigned char>(value[bytes]);
-        if ((c & 0x80) == 0) {
-            bytes += 1;
-        } else if ((c & 0xE0) == 0xC0) {
-            bytes += 2;
-        } else if ((c & 0xF0) == 0xE0) {
-            bytes += 3;
-        } else if ((c & 0xF8) == 0xF0) {
-            bytes += 4;
-        } else {
-            bytes += 1;
-        }
-        chars++;
+    while (bytePos < value.length() && charCount < maxLen) {
+        unsigned char c = static_cast<unsigned char>(value[bytePos]);
+        int step = 1;
+        if      ((c & 0xE0) == 0xC0) step = 2;
+        else if ((c & 0xF0) == 0xE0) step = 3;
+        else if ((c & 0xF8) == 0xF0) step = 4;
+
+        if (maxLen > 3 && charCount == maxLen - 3)
+            ellipsisBytePos = bytePos;
+
+        bytePos += step;
+        charCount++;
     }
 
-    if (bytes >= value.length()) return value;
-    if (maxLen <= 3) return value.substr(0, bytes);
-
-    size_t ellipsisBytes = 0;
-    size_t ellipsisChars = 0;
-    while (ellipsisBytes < value.length() && ellipsisChars < maxLen - 3) {
-        unsigned char c = static_cast<unsigned char>(value[ellipsisBytes]);
-        if ((c & 0x80) == 0) {
-            ellipsisBytes += 1;
-        } else if ((c & 0xE0) == 0xC0) {
-            ellipsisBytes += 2;
-        } else if ((c & 0xF0) == 0xE0) {
-            ellipsisBytes += 3;
-        } else if ((c & 0xF8) == 0xF0) {
-            ellipsisBytes += 4;
-        } else {
-            ellipsisBytes += 1;
-        }
-        ellipsisChars++;
-    }
-    return value.substr(0, ellipsisBytes) + "...";
+    if (bytePos >= value.length()) return value;
+    if (maxLen <= 3) return value.substr(0, bytePos);
+    return value.substr(0, ellipsisBytePos) + "...";
 }
 
 void drawTableCell(int x, int y, int width, string value, int color) {
