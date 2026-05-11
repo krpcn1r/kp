@@ -1,5 +1,15 @@
 [
     {
+        "login": "user1",
+        "password": "!!!qwe123",
+        "role": "ADMIN"
+    },
+    {
+        "login": "User2",
+        "password": "!!!qwe123",
+        "role": "ADMIN"
+    },
+    {
         "login": "User1",
         "password": "!!!qwe123",
         "role": "ADMIN"

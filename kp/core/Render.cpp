@@ -1,5 +1,6 @@
 #include "Render.h"
 #include "InputHandler.h"
+#include <iomanip>
 #include <iostream>
 #include <windows.h>
 using namespace std;
@@ -94,6 +95,90 @@ void drawInputContent(int x, int y, int width, string input, bool isPassword, bo
     }
 
     cout << displayString;
+    setColor(7);
+}
+
+// очистка одной строки без полной перерисовки экрана
+void clearLine(int x, int y, int width, int color) {
+    setCursor(x, y);
+    setColor(color);
+    cout << string(width, ' ');
+    setColor(7);
+}
+
+string truncateText(string value, size_t maxLen) {
+    size_t bytes = 0;
+    size_t chars = 0;
+
+    while (bytes < value.length() && chars < maxLen) {
+        unsigned char c = static_cast<unsigned char>(value[bytes]);
+        if ((c & 0x80) == 0) {
+            bytes += 1;
+        } else if ((c & 0xE0) == 0xC0) {
+            bytes += 2;
+        } else if ((c & 0xF0) == 0xE0) {
+            bytes += 3;
+        } else if ((c & 0xF8) == 0xF0) {
+            bytes += 4;
+        } else {
+            bytes += 1;
+        }
+        chars++;
+    }
+
+    if (bytes >= value.length()) return value;
+    if (maxLen <= 3) return value.substr(0, bytes);
+
+    size_t ellipsisBytes = 0;
+    size_t ellipsisChars = 0;
+    while (ellipsisBytes < value.length() && ellipsisChars < maxLen - 3) {
+        unsigned char c = static_cast<unsigned char>(value[ellipsisBytes]);
+        if ((c & 0x80) == 0) {
+            ellipsisBytes += 1;
+        } else if ((c & 0xE0) == 0xC0) {
+            ellipsisBytes += 2;
+        } else if ((c & 0xF0) == 0xE0) {
+            ellipsisBytes += 3;
+        } else if ((c & 0xF8) == 0xF0) {
+            ellipsisBytes += 4;
+        } else {
+            ellipsisBytes += 1;
+        }
+        ellipsisChars++;
+    }
+    return value.substr(0, ellipsisBytes) + "...";
+}
+
+void drawTableCell(int x, int y, int width, string value, int color) {
+    setCursor(x, y);
+    setColor(color);
+    cout << left << setw(width) << truncateText(value, width);
+    setColor(7);
+}
+
+void drawTableHeader(int y, const vector<TableColumn>& columns,
+                     const vector<int>& separatorXs, int textColor) {
+    for (int separatorX : separatorXs) {
+        drawTableCell(separatorX, y, 1, "│", textColor);
+    }
+
+    for (const auto& column : columns) {
+        drawTableCell(column.x, y, column.width, column.title, textColor);
+    }
+}
+
+void drawTableSeparator(int x, int y, int width, const vector<int>& separatorXs, int color) {
+    setCursor(x, y);
+    setColor(color);
+    for (int i = 0; i < width; ++i) {
+        cout << "═";
+    }
+
+    for (int separatorX : separatorXs) {
+        setCursor(separatorX, y);
+        cout << "╪";
+    }
+
     setColor(7);
 }
 
