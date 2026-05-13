@@ -5,32 +5,30 @@
 
 // добавление нового абонента в список
 int ClientManager::addClient(const std::string &name,
-                             const std::string &phone) {
-  // проверка на пустые строки
+                             const std::string &phone,
+                             const std::string &tariff,
+                             double balance) {
   if (name.empty() || phone.empty()) {
     return 1;
   }
 
-  std::vector<Client> clients = Database::loadClients(); // загрузка всех из базы
+  std::vector<Client> clients = Database::loadClients();
 
-  // проверка занятости телефона другим абонентом
   for (const auto &c : clients) {
     if (c.phoneNumber == phone) {
-      return 2; // такой номер уже есть
+      return 2;
     }
   }
 
-  // создание нового абонента и заполнение данных
   Client newClient;
-  newClient.fullName = name;
+  newClient.fullName    = name;
   newClient.phoneNumber = phone;
-  // выдача ID по порядку
-  newClient.id = clients.empty() ? 1 : clients.back().id + 1;
-  newClient.balance = 0.0; // начальный баланс ноль
-  newClient.isActive = true; // статус активен по умолчанию
+  newClient.tariffName  = tariff;
+  newClient.balance     = balance;
+  newClient.id          = clients.empty() ? 1 : clients.back().id + 1;
+  newClient.isActive    = true;
 
-  clients.push_back(newClient); // добавление в вектор
-  // сохранение в файл и возврат результата
+  clients.push_back(newClient);
   return Database::saveClients(clients) ? 0 : 3;
 }
 

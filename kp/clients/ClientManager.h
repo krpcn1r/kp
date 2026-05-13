@@ -7,7 +7,8 @@
 class ClientManager {
 public:
     // добавление нового человека в базу
-    static int addClient(const std::string &name, const std::string &phone);
+    static int addClient(const std::string &name, const std::string &phone,
+                         const std::string &tariff = "", double balance = 0.0);
     // получение полного списка всех абонентов из базы
     static std::vector<Client> getAllClients();
     // поиск людей по имени или телефону
