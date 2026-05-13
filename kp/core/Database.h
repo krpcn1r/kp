@@ -1,6 +1,7 @@
 #pragma once
 #include "../user/UserStruct.h"
 #include "../clients/ClientStruct.h"
+#include "../clients/TariffStruct.h"
 #include <string>
 #include <vector>
 
@@ -17,8 +18,12 @@ public:
 	// загрузка списка абонентов из файла
 	static std::vector<Client> loadClients();
 
+	// загрузка тарифов из файла
+	static std::vector<Tariff> loadTariffs();
+
 private:
 	// пути к файлам с данными
 	static const std::string USERS_FILE;
 	static const std::string CLIENTS_FILE;
+	static const std::string TARIFFS_FILE;
 };

@@ -4,12 +4,15 @@
 #include "../core/InputHandler.h"
 #include "../core/Render.h"
 #include "../admin/AdminPanel.h"
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
 #include "../clients/ClientMenu.h"
 #include "../clients/ClientManager.h"
+#include "../clients/TariffStruct.h"
 using namespace std;
 
 // рисует главное меню после того как юзер зашел в систему
@@ -145,6 +148,7 @@ HomeResult HomeMenu::show() {
       // тут логика что делать для каждой кнопки
       if (selectedOption == 0) ClientMenu::showList(); // заходим в список
       else if (selectedOption == 1) ClientMenu::showSearch(); // идем искать
+      else if (selectedOption == 2) showTariffs(); // просмотр тарифов
       else if (selectedOption == 3) ClientMenu::showAddClient(); // создаем нового чела
       else if (selectedOption == 4) ClientMenu::showEditClient(0); // пока просто заглушка
       else if (selectedOption == 5 && roleStr == "Оператор") {
@@ -168,6 +172,111 @@ HomeResult HomeMenu::show() {
       needFullRedraw = true;
     }
   }
+}
+
+// колонки таблицы тарифов
+static const int TCOL_ID_X    = 3,  TCOL_ID_W    = 4;
+static const int TCOL_NAME_X  = 10, TCOL_NAME_W  = 16;
+static const int TCOL_PRICE_X = 29, TCOL_PRICE_W = 12;
+static const int TCOL_SPEED_X = 44, TCOL_SPEED_W = 12;
+static const int TCOL_DESC_X  = 59, TCOL_DESC_W  = 28;
+
+static string priceToStr(double price) {
+    ostringstream oss;
+    oss << fixed << setprecision(2) << price;
+    return oss.str() + " руб.";
+}
+
+void HomeMenu::showTariffs() {
+    vector<Tariff> tariffs = Database::loadTariffs();
+    int selectedIdx = tariffs.empty() ? -1 : 0;
+    int startIdx = 0;
+    const int PAGE_SIZE = 10;
+    bool needFullRedraw = true;
+
+    vector<TableColumn> cols = {
+        {TCOL_ID_X,    TCOL_ID_W,    "ID"},
+        {TCOL_NAME_X,  TCOL_NAME_W,  "Название"},
+        {TCOL_PRICE_X, TCOL_PRICE_W, "Цена/мес"},
+        {TCOL_SPEED_X, TCOL_SPEED_W, "Скорость"},
+        {TCOL_DESC_X,  TCOL_DESC_W,  "Описание"},
+    };
+    vector<int> seps = {8, 27, 42, 57};
+
+    while (true) {
+        if (!tariffs.empty()) {
+            if (selectedIdx < 0) selectedIdx = 0;
+            if (selectedIdx >= (int)tariffs.size()) selectedIdx = (int)tariffs.size() - 1;
+            if (selectedIdx < startIdx) startIdx = selectedIdx;
+            if (selectedIdx >= startIdx + PAGE_SIZE) startIdx = selectedIdx - PAGE_SIZE + 1;
+        }
+
+        if (needFullRedraw) {
+            clearScreen();
+            drawDoubleBox(1, 1, 90, 26, 15);
+
+            setCursor(36, 2);
+            setColor(11);
+            cout << "ТАРИФНЫЕ ПЛАНЫ";
+
+            drawTableHeader(4, cols, seps, 15);
+            drawTableSeparator(2, 5, 87, seps, 15);
+
+            needFullRedraw = false;
+        }
+
+        for (int i = 0; i < PAGE_SIZE; i++) {
+            int idx = startIdx + i;
+            int y = 6 + i;
+            bool hasRow = idx < (int)tariffs.size();
+            bool isSelected = hasRow && idx == selectedIdx;
+            int rowColor = isSelected ? 240 : 7;
+
+            clearLine(2, y, 87, rowColor);
+
+            if (hasRow) {
+                const Tariff& t = tariffs[idx];
+
+                drawTableCell(TCOL_ID_X,    y, TCOL_ID_W,    to_string(t.id),          rowColor);
+                drawTableCell(8,            y, 1,             "│",                       rowColor);
+                drawTableCell(TCOL_NAME_X,  y, TCOL_NAME_W,  t.name,                    rowColor);
+                drawTableCell(27,           y, 1,             "│",                       rowColor);
+
+                // цена — желтая если не выделено
+                int priceColor = isSelected ? 240 : 14;
+                drawTableCell(TCOL_PRICE_X, y, TCOL_PRICE_W, priceToStr(t.pricePerMonth), priceColor);
+                drawTableCell(42,           y, 1,             "│",                       rowColor);
+
+                // скорость — голубая если не выделено
+                int speedColor = isSelected ? 240 : 11;
+                string speedStr = to_string(t.speedMbps) + " Мбит/с";
+                drawTableCell(TCOL_SPEED_X, y, TCOL_SPEED_W, speedStr,                   speedColor);
+                drawTableCell(57,           y, 1,             "│",                       rowColor);
+
+                drawTableCell(TCOL_DESC_X,  y, TCOL_DESC_W,  t.description,             rowColor);
+            }
+        }
+
+        // статус-строка
+        setColor(15);
+        setCursor(1, 16);
+        cout << "╠═══════════════════════════════════════════════════════════════════"
+                "═════════════════════╣";
+        setCursor(3, 17);
+        setColor(8);
+        cout << "Всего тарифов: " << tariffs.size()
+             << "  |  [↑][↓] Навигация  |  [Esc] Назад";
+
+        drawFooter(29, true);
+
+        int key = InputHandler::getExtKey();
+        if (key == Key::ESC) return;
+        if (key == Key::DOWN || key == Key::TAB) {
+            if (selectedIdx < (int)tariffs.size() - 1) selectedIdx++;
+        } else if (key == Key::UP) {
+            if (selectedIdx > 0) selectedIdx--;
+        }
+    }
 }
 
 void HomeMenu::showChangePassword() {
