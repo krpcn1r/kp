@@ -22,4 +22,6 @@ public:
     static bool updateClient(int id, const Client& updatedData);
     // переключение статуса активности абонента (блокировка)
     static bool toggleClientStatus(int id);
+    // удаление абонента по ID
+    static bool deleteClient(int id);
 };

@@ -10,6 +10,7 @@ const int ENTER = 13;
 const int TAB = 9;
 const int ESC = 27;
 const int BACKSPACE = 8;
+const int DEL = 260;
 } // namespace Key
 
 // класс для захвата нажатий клавиш

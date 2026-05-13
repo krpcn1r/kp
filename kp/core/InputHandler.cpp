@@ -16,6 +16,8 @@ int InputHandler::getExtKey() {
       return Key::LEFT;
     if (ext == 77)
       return Key::RIGHT;
+    if (ext == 83)
+      return Key::DEL;
   }
 
   return key; // возврат кода обычной кнопки

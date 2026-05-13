@@ -89,6 +89,17 @@ bool ClientManager::updateClient(int id, const Client& updatedData) {
   return false;
 }
 
+bool ClientManager::deleteClient(int id) {
+  std::vector<Client> clients = Database::loadClients();
+  for (auto it = clients.begin(); it != clients.end(); ++it) {
+    if (it->id == id) {
+      clients.erase(it);
+      return Database::saveClients(clients);
+    }
+  }
+  return false;
+}
+
 // смена статуса активности абонента
 bool ClientManager::toggleClientStatus(int id) {
   std::vector<Client> clients = Database::loadClients();
