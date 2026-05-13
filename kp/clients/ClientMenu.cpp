@@ -475,50 +475,113 @@ void ClientMenu::showList() {
 
 // меню поиска абонентов
 void ClientMenu::showSearch() {
-  string query = ""; // тут будет то что мы ищем
+  string queryId     = "";
+  string queryName   = "";
+  string queryPhone  = "";
+  string queryTariff = "";
   int activeField = 0;
+  // 0=ID, 1=ФИО, 2=Телефон, 3=Тариф
 
-  clearScreen();
-  drawDoubleBox(2, 1, 76, 22, 8); // средняя рамка
+  auto drawSearchForm = [&](bool full) {
+    if (full) {
+      clearScreen();
+      drawDoubleBox(2, 1, 76, 24, 8);
 
-  setCursor(30, 2);
-  setColor(11);
-  cout << "ПОИСК ПО БАЗЕ";
+      setCursor(30, 2);
+      setColor(11);
+      cout << "ПОИСК ПО БАЗЕ";
 
-  setColor(8);
-  setCursor(2, 4);
-  cout << "╠═══════════════════════════════════════════════════════════════════"
-          "═══════╣";
+      setColor(8);
+      setCursor(2, 3);
+      cout << "╠═══════════════════════════════════════════════════════════════════"
+              "═══════╣";
+    }
 
-  setCursor(6, 6);
-  setColor(7);
-  cout << "Введите ФИО, номер телефона или ID абонента:";
+    // ID
+    setCursor(6, 5);
+    setColor(activeField == 0 ? 10 : 7);
+    cout << (activeField == 0 ? "> ID:             " : "  ID:             ");
+    drawInputContent(25, 5, 36, queryId, false, activeField == 0);
 
-  // рисуем поле для ввода текста
-  drawInputContent(15, 8, 44, query, false, true);
+    setColor(8);
+    setCursor(2, 7);
+    cout << "╠═════════════════════════════════════════════════════════════════"
+            "═════════╣";
+
+    // ФИО
+    setCursor(6, 9);
+    setColor(activeField == 1 ? 10 : 7);
+    cout << (activeField == 1 ? "> ФИО:            " : "  ФИО:            ");
+    drawInputContent(25, 9, 36, queryName, false, activeField == 1);
+
+    setColor(8);
+    setCursor(2, 11);
+    cout << "╠═════════════════════════════════════════════════════════════════"
+            "═════════╣";
+
+    // Телефон
+    setCursor(6, 13);
+    setColor(activeField == 2 ? 10 : 7);
+    cout << (activeField == 2 ? "> Телефон:        " : "  Телефон:        ");
+    drawInputContent(25, 13, 36, queryPhone, false, activeField == 2);
+
+    setColor(8);
+    setCursor(2, 15);
+    cout << "╠═════════════════════════════════════════════════════════════════"
+            "═════════╣";
+
+    // Тариф
+    setCursor(6, 17);
+    setColor(activeField == 3 ? 10 : 7);
+    cout << (activeField == 3 ? "> Тариф:          " : "  Тариф:          ");
+    drawInputContent(25, 17, 36, queryTariff, false, activeField == 3);
+
+    setColor(8);
+    setCursor(2, 19);
+    cout << "╠═════════════════════════════════════════════════════════════════"
+            "═════════╣";
+
+    setCursor(6, 21);
+    setColor(8);
+    cout << "Незаполненные поля не учитываются. Enter на последнем поле — поиск.";
+
+    drawFooter(27);
+  };
+
+  drawSearchForm(true);
 
   while (true) {
-    setCursor(4, 8);
-    setColor(10);
-    cout << "> Запрос:";
-
-    drawFooter(26);
+    drawSearchForm(false);
 
     int exitKey = 0;
-    // ждем пока юзер напишет запрос
-    query = processInput(15, 8, 44, query, false, exitKey, 24);
+
+    if (activeField == 0) {
+      queryId = processInput(25, 5, 36, queryId, false, exitKey, 24);
+    } else if (activeField == 1) {
+      queryName = processInput(25, 9, 36, queryName, false, exitKey, 24);
+    } else if (activeField == 2) {
+      queryPhone = processInput(25, 13, 36, queryPhone, false, exitKey, 24);
+    } else {
+      queryTariff = processInput(25, 17, 36, queryTariff, false, exitKey, 24);
+    }
 
     if (exitKey == Key::ESC) {
-      return; // отмена поиска
+      return;
+    } else if (exitKey == Key::TAB || exitKey == Key::DOWN) {
+      activeField = (activeField + 1) % 4;
+    } else if (exitKey == Key::UP) {
+      activeField = (activeField - 1 + 4) % 4;
     } else if (exitKey == Key::ENTER) {
-      break; // подтверждение поиска
+      if (activeField < 3) {
+        activeField++;
+      } else {
+        break; // Enter на последнем поле — начинаем поиск
+      }
     }
   }
 
-  if (query.empty())
-    return;
+  auto results = ClientManager::findClientsByFields(queryId, queryName, queryPhone, queryTariff);
 
-  auto results = ClientManager::findClients(query);
   if (results.empty()) {
     clearScreen();
     drawDoubleBox(15, 9, 50, 7, 8);
@@ -527,26 +590,23 @@ void ClientMenu::showSearch() {
     cout << "Ничего не найдено";
     setCursor(20, 13);
     setColor(8);
-    cout << "По запросу \"" << query << "\" абоненты не найдены.";
+    cout << "По заданным критериям абоненты не найдены.";
     setCursor(20, 15);
     cout << "Нажмите любую клавишу для возврата...";
     InputHandler::waitAnyKey();
   } else {
     int start = 0;
-    const int pageSize = 19;
+    const int pageSize = 18;
     while (true) {
       drawClientTable(results, start);
-      setCursor(25, 2);
+      setCursor(22, 2);
       setColor(14);
-      cout << "РЕЗУЛЬТАТЫ ПОИСКА (" << results.size() << ")";
+      cout << "РЕЗУЛЬТАТЫ ПОИСКА (" << results.size() << ")   ";
 
       int key = InputHandler::getExtKey();
-      if (key == Key::ESC)
-        break;
-      if (key == Key::DOWN && (size_t)(start + pageSize) < results.size())
-        start++;
-      if (key == Key::UP && start > 0)
-        start--;
+      if (key == Key::ESC) break;
+      if (key == Key::DOWN && start + pageSize < (int)results.size()) start++;
+      if (key == Key::UP   && start > 0) start--;
     }
   }
 }

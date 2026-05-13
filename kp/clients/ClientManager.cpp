@@ -57,6 +57,26 @@ std::vector<Client> ClientManager::findClients(const std::string &query) {
   return results;
 }
 
+std::vector<Client> ClientManager::findClientsByFields(
+    const std::string &idQuery,  const std::string &nameQuery,
+    const std::string &phoneQuery, const std::string &tariffQuery) {
+  std::vector<Client> all = Database::loadClients();
+
+  bool allEmpty = idQuery.empty() && nameQuery.empty()
+               && phoneQuery.empty() && tariffQuery.empty();
+  if (allEmpty) return all;
+
+  std::vector<Client> results;
+  for (const auto &c : all) {
+    if (!idQuery.empty()     && std::to_string(c.id).find(idQuery)       == std::string::npos) continue;
+    if (!nameQuery.empty()   && c.fullName.find(nameQuery)                == std::string::npos) continue;
+    if (!phoneQuery.empty()  && c.phoneNumber.find(phoneQuery)            == std::string::npos) continue;
+    if (!tariffQuery.empty() && c.tariffName.find(tariffQuery)            == std::string::npos) continue;
+    results.push_back(c);
+  }
+  return results;
+}
+
 bool ClientManager::updateClient(int id, const Client& updatedData) {
   std::vector<Client> clients = Database::loadClients();
   for (auto &c : clients) {
