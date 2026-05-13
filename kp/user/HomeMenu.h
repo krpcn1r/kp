@@ -14,4 +14,6 @@ public:
     static void showChangePassword();
     // таблица с доступными тарифными планами
     static void showTariffs();
+    // редактирование клиентов
+    static void editClients();
 };

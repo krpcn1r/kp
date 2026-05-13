@@ -150,7 +150,7 @@ HomeResult HomeMenu::show() {
       else if (selectedOption == 1) ClientMenu::showSearch(); // идем искать
       else if (selectedOption == 2) showTariffs(); // просмотр тарифов
       else if (selectedOption == 3) ClientMenu::showAddClient(); // создаем нового чела
-      else if (selectedOption == 4) ClientMenu::showEditClient(0); // пока просто заглушка
+      else if (selectedOption == 4) editClients(); // редактирование клиентов
       else if (selectedOption == 5 && roleStr == "Оператор") {
           showChangePassword();
       }
@@ -213,14 +213,19 @@ void HomeMenu::showTariffs() {
 
         if (needFullRedraw) {
             clearScreen();
-            drawDoubleBox(1, 1, 90, 26, 15);
+            drawDoubleBox(1, 3, 90, 20, 15);
 
-            setCursor(36, 2);
+            setCursor(36, 4);
             setColor(11);
             cout << "ТАРИФНЫЕ ПЛАНЫ";
 
-            drawTableHeader(4, cols, seps, 15);
-            drawTableSeparator(2, 5, 87, seps, 15);
+            setColor(15);
+            setCursor(1, 5);
+            cout << "╠═══════════════════════════════════════════════════════════════════"
+                "═════════════════════╣";
+
+            drawTableHeader(7, cols, seps, 15);
+            drawTableSeparator(2, 8, 87, seps, 15);
 
             needFullRedraw = false;
         }
@@ -264,8 +269,7 @@ void HomeMenu::showTariffs() {
                 "═════════════════════╣";
         setCursor(3, 17);
         setColor(8);
-        cout << "Всего тарифов: " << tariffs.size()
-             << "  |  [↑][↓] Навигация  |  [Esc] Назад";
+        cout << "Всего тарифов: " << tariffs.size();
 
         drawFooter(29, true);
 
@@ -275,6 +279,291 @@ void HomeMenu::showTariffs() {
             if (selectedIdx < (int)tariffs.size() - 1) selectedIdx++;
         } else if (key == Key::UP) {
             if (selectedIdx > 0) selectedIdx--;
+        }
+    }
+}
+
+static const int CCOL_ID_X     = 3,  CCOL_ID_W     = 4;
+static const int CCOL_NAME_X   = 10, CCOL_NAME_W   = 20;
+static const int CCOL_PHONE_X  = 33, CCOL_PHONE_W  = 15;
+static const int CCOL_TARIFF_X = 51, CCOL_TARIFF_W = 12;
+static const int CCOL_BAL_X    = 66, CCOL_BAL_W    = 8;
+static const int CCOL_STAT_X   = 77, CCOL_STAT_W   = 10;
+
+static void drawClientsEditTable(const string& title, const vector<Client>& clients,
+                                 int startIdx, int selectedIdx,
+                                 int editingIdx, int activeField, const Client& draft,
+                                 const string& draftBalance, const string& message,
+                                 int messageColor, bool fullRedraw, const string& statusText) {
+    vector<TableColumn> cols = {
+        {CCOL_ID_X,     CCOL_ID_W,     "ID"},
+        {CCOL_NAME_X,   CCOL_NAME_W,   "ФИО"},
+        {CCOL_PHONE_X,  CCOL_PHONE_W,  "Телефон"},
+        {CCOL_TARIFF_X, CCOL_TARIFF_W, "Тариф"},
+        {CCOL_BAL_X,    CCOL_BAL_W,    "Баланс"},
+        {CCOL_STAT_X,   CCOL_STAT_W,   "Статус"}
+    };
+    vector<int> seps = {8, 31, 49, 64, 75};
+
+    if (fullRedraw) {
+        clearScreen();
+        drawDoubleBox(1, 1, 90, 28, 14);
+
+        setCursor(34 - (int)title.length() / 4, 2);
+        setColor(11);
+        cout << title;
+
+        drawTableHeader(4, cols, seps, 15);
+        drawTableSeparator(2, 5, 87, seps, 15);
+    }
+
+    const int PAGE_SIZE = 10;
+    for (int i = 0; i < PAGE_SIZE; i++) {
+        int idx = startIdx + i;
+        int y = 6 + i;
+        bool hasRow = idx < (int)clients.size();
+        bool isSelected = hasRow && idx == selectedIdx;
+        bool isEditing = hasRow && idx == editingIdx;
+        int rowColor = isSelected ? 240 : 7;
+
+        clearLine(2, y, 87, rowColor);
+
+        if (hasRow) {
+            const Client& c = isEditing ? draft : clients[idx];
+
+            // ID (только чтение)
+            drawTableCell(CCOL_ID_X, y, CCOL_ID_W, to_string(clients[idx].id), rowColor);
+            drawTableCell(8, y, 1, "│", rowColor);
+
+            // ФИО
+            if (isEditing && activeField == 0)
+                drawInputContent(CCOL_NAME_X, y, CCOL_NAME_W, draft.fullName, false, true);
+            else
+                drawTableCell(CCOL_NAME_X, y, CCOL_NAME_W, c.fullName, rowColor);
+
+            drawTableCell(31, y, 1, "│", rowColor);
+
+            // Телефон
+            if (isEditing && activeField == 1)
+                drawInputContent(CCOL_PHONE_X, y, CCOL_PHONE_W, draft.phoneNumber, false, true);
+            else
+                drawTableCell(CCOL_PHONE_X, y, CCOL_PHONE_W, c.phoneNumber, rowColor);
+
+            drawTableCell(49, y, 1, "│", rowColor);
+
+            // Тариф
+            if (isEditing && activeField == 2)
+                drawInputContent(CCOL_TARIFF_X, y, CCOL_TARIFF_W, draft.tariffName, false, true);
+            else
+                drawTableCell(CCOL_TARIFF_X, y, CCOL_TARIFF_W, c.tariffName.empty() ? "Базовый" : c.tariffName, rowColor);
+
+            drawTableCell(64, y, 1, "│", rowColor);
+
+            // Баланс
+            if (isEditing && activeField == 3)
+                drawInputContent(CCOL_BAL_X, y, CCOL_BAL_W, draftBalance, false, true);
+            else
+                drawTableCell(CCOL_BAL_X, y, CCOL_BAL_W, balanceToStr(c.balance), rowColor);
+
+            drawTableCell(75, y, 1, "│", rowColor);
+
+            // Статус
+            if (isEditing) {
+                string statStr = draft.isActive ? "Активен" : "Заблок.";
+                drawTableCell(CCOL_STAT_X, y, CCOL_STAT_W, statStr,
+                            activeField == 4 ? 31 : rowColor);
+            } else {
+                string statStr = c.isActive ? "Активен" : "Заблок.";
+                int statColor = isSelected ? 240 : (c.isActive ? 10 : 4);
+                drawTableCell(CCOL_STAT_X, y, CCOL_STAT_W, statStr, statColor);
+            }
+        }
+
+        drawTableSeparator(2, y + 1, 87, seps, 8);
+    }
+
+    clearLine(3, 24, 84);
+    setCursor(3, 24);
+    setColor(messageColor);
+    if (!message.empty())
+        cout << message;
+    else if (clients.empty())
+        cout << "Клиенты не найдены.";
+
+    clearLine(3, 27, 84);
+    setCursor(3, 27);
+    setColor(8);
+    cout << statusText;
+
+    clearLine(2, 29, 86);
+    drawFooter(29, true);
+}
+
+static bool validateClientEdit(const vector<Client>& clients, int editIdx,
+                               const Client& draft, const string& draftBalance,
+                               string& message, int& activeField) {
+    if (draft.fullName.empty()) {
+        message = "Ошибка: ФИО не может быть пустым.";
+        activeField = 0;
+        return false;
+    }
+    if (draft.phoneNumber.empty()) {
+        message = "Ошибка: номер телефона не может быть пустым.";
+        activeField = 1;
+        return false;
+    }
+    for (int i = 0; i < (int)clients.size(); i++) {
+        if (i != editIdx && clients[i].phoneNumber == draft.phoneNumber) {
+            message = "Ошибка: такой номер телефона уже занят.";
+            activeField = 1;
+            return false;
+        }
+    }
+    try {
+        stod(draftBalance);
+    } catch (...) {
+        message = "Ошибка: введите корректный баланс (например 100.50).";
+        activeField = 3;
+        return false;
+    }
+    return true;
+}
+
+void HomeMenu::editClients() {
+    vector<Client> clients = ClientManager::getAllClients();
+    int selectedIdx = clients.empty() ? -1 : 0;
+    int startIdx = 0;
+    int editingIdx = -1;
+    int activeField = 0;
+    Client draftClient = {};
+    string draftBalance = "";
+    string message = "";
+    int messageColor = 8;
+    bool needFullRedraw = true;
+
+    while (true) {
+        // выравниваем selectedIdx и startIdx по границам
+        if (clients.empty()) {
+            selectedIdx = -1;
+            startIdx = 0;
+        } else {
+            if (selectedIdx < 0) selectedIdx = 0;
+            if (selectedIdx >= (int)clients.size()) selectedIdx = (int)clients.size() - 1;
+            if (selectedIdx < startIdx) startIdx = selectedIdx;
+            if (selectedIdx >= startIdx + 10)
+                startIdx = selectedIdx - 10 + 1;
+        }
+
+        string statusText;
+        if (editingIdx >= 0) {
+            statusText = "Всего клиентов: " + to_string(clients.size()) +
+                         "  |  Режим: редактирование строки " + to_string(editingIdx + 1);
+        } else {
+            statusText = "Всего клиентов: " + to_string(clients.size()) +
+                         "  |  Выбран: " + to_string(clients.empty() ? 0 : selectedIdx + 1);
+        }
+
+        drawClientsEditTable("ИЗМЕНЕНИЕ КЛИЕНТОВ", clients, startIdx, selectedIdx,
+                            editingIdx, activeField, draftClient, draftBalance,
+                            message, messageColor, needFullRedraw, statusText);
+        needFullRedraw = false;
+
+        // режим выбора клиента
+        if (editingIdx == -1) {
+            int key = InputHandler::getExtKey();
+            if (key == Key::ESC) return;
+            if (clients.empty()) continue;
+
+            if (key == Key::DOWN || key == Key::TAB) {
+                if (selectedIdx < (int)clients.size() - 1) selectedIdx++;
+            } else if (key == Key::UP) {
+                if (selectedIdx > 0) selectedIdx--;
+            } else if (key == Key::ENTER) {
+                editingIdx = selectedIdx;
+                draftClient = clients[editingIdx];
+                draftBalance = balanceToStr(draftClient.balance);
+                activeField = 0;
+                message = "";
+                messageColor = 8;
+            }
+            continue;
+        }
+
+        // режим редактирования — текстовые поля (ФИО, Телефон, Тариф, Баланс)
+        if (activeField >= 0 && activeField <= 3) {
+            int rowY = 6 + (editingIdx - startIdx);
+            int exitKey = 0;
+
+            if (activeField == 0) {
+                draftClient.fullName = processInput(CCOL_NAME_X, rowY, CCOL_NAME_W,
+                                                   draftClient.fullName, false, exitKey, 0);
+            } else if (activeField == 1) {
+                draftClient.phoneNumber = processInput(CCOL_PHONE_X, rowY, CCOL_PHONE_W,
+                                                      draftClient.phoneNumber, false, exitKey, 0);
+            } else if (activeField == 2) {
+                draftClient.tariffName = processInput(CCOL_TARIFF_X, rowY, CCOL_TARIFF_W,
+                                                     draftClient.tariffName, false, exitKey, 0);
+            } else {
+                draftBalance = processInput(CCOL_BAL_X, rowY, CCOL_BAL_W,
+                                           draftBalance, false, exitKey, 0);
+            }
+
+            message = "";
+            messageColor = 8;
+
+            if (exitKey == Key::TAB || exitKey == Key::DOWN) {
+                activeField = (activeField + 1) % 5;
+            } else if (exitKey == Key::UP) {
+                activeField = (activeField - 1 + 5) % 5;
+            } else if (exitKey == Key::ENTER) {
+                activeField++;
+            } else if (exitKey == Key::ESC) {
+                editingIdx = -1;
+                activeField = 0;
+                message = "Редактирование отменено.";
+                messageColor = 8;
+            }
+            continue;
+        }
+
+        // режим редактирования — поле статуса
+        int key = InputHandler::getExtKey();
+        message = "";
+        messageColor = 8;
+
+        if (key == Key::TAB || key == Key::DOWN) {
+            activeField = (activeField + 1) % 5;
+        } else if (key == Key::UP) {
+            activeField = (activeField - 1 + 5) % 5;
+        } else if (key == Key::LEFT || key == Key::RIGHT || key == ' ') {
+            draftClient.isActive = !draftClient.isActive;
+        } else if (key == Key::ENTER) {
+            string validMsg;
+            int invalidField = activeField;
+            if (!validateClientEdit(clients, editingIdx, draftClient, draftBalance,
+                                   validMsg, invalidField)) {
+                message = validMsg;
+                messageColor = 12;
+                activeField = invalidField;
+            } else {
+                draftClient.balance = stod(draftBalance);
+                if (!ClientManager::updateClient(draftClient.id, draftClient)) {
+                    message = "Ошибка: не удалось сохранить изменения.";
+                    messageColor = 12;
+                } else {
+                    clients = ClientManager::getAllClients();
+                    selectedIdx = editingIdx;
+                    editingIdx = -1;
+                    activeField = 0;
+                    message = "Клиент успешно изменен.";
+                    messageColor = 10;
+                }
+            }
+        } else if (key == Key::ESC) {
+            editingIdx = -1;
+            activeField = 0;
+            message = "Редактирование отменено.";
+            messageColor = 8;
         }
     }
 }
