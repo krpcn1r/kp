@@ -472,7 +472,7 @@ void HomeMenu::editClients() {
         } else {
             statusText = "Всего клиентов: " + to_string(clients.size()) +
                          "  |  Выбран: " + to_string(clients.empty() ? 0 : selectedIdx + 1) +
-                         "  |  Enter - редактировать  Esc - назад";
+                         "  |  Enter - редактировать  Del - удалить  Esc - назад";
         }
 
         drawEditClientsTable("ИЗМЕНЕНИЕ КЛИЕНТОВ", clients, startIdx, selectedIdx,
@@ -498,6 +498,31 @@ void HomeMenu::editClients() {
                 activeField   = 0;
                 message       = "";
                 messageColor  = 8;
+            } else if (key == Key::DEL) {
+                string name = clients[selectedIdx].fullName;
+                if (!showConfirmation("Удалить клиента " + name + "?")) {
+                    needFullRedraw = true;
+                    message = "Удаление отменено.";
+                    messageColor = 8;
+                    continue;
+                }
+                int deletedId = clients[selectedIdx].id;
+                if (!ClientManager::deleteClient(deletedId)) {
+                    needFullRedraw = true;
+                    message = "Ошибка: не удалось удалить клиента.";
+                    messageColor = 12;
+                    continue;
+                }
+                clients = ClientManager::getAllClients();
+                if (clients.empty()) {
+                    selectedIdx = -1;
+                    startIdx = 0;
+                } else if (selectedIdx >= (int)clients.size()) {
+                    selectedIdx = (int)clients.size() - 1;
+                }
+                needFullRedraw = true;
+                message = "Клиент " + name + " удален.";
+                messageColor = 10;
             }
             continue;
         }
