@@ -556,13 +556,13 @@ void ClientMenu::showSearch() {
     int exitKey = 0;
 
     if (activeField == 0) {
-      queryId = processInput(25, 5, 36, queryId, false, exitKey, 24);
+      queryId = processInput(25, 5, 36, queryId, false, exitKey, 0);
     } else if (activeField == 1) {
-      queryName = processInput(25, 9, 36, queryName, false, exitKey, 24);
+      queryName = processInput(25, 9, 36, queryName, false, exitKey, 0);
     } else if (activeField == 2) {
-      queryPhone = processInput(25, 13, 36, queryPhone, false, exitKey, 24);
+      queryPhone = processInput(25, 13, 36, queryPhone, false, exitKey, 0);
     } else {
-      queryTariff = processInput(25, 17, 36, queryTariff, false, exitKey, 24);
+      queryTariff = processInput(25, 17, 36, queryTariff, false, exitKey, 0);
     }
 
     if (exitKey == Key::ESC) {
