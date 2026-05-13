@@ -595,18 +595,71 @@ void ClientMenu::showSearch() {
     cout << "Нажмите любую клавишу для возврата...";
     InputHandler::waitAnyKey();
   } else {
-    int start = 0;
-    const int pageSize = 18;
+    int idx   = 0;
+    int total = (int)results.size();
+
     while (true) {
-      drawClientTable(results, start);
-      setCursor(22, 2);
-      setColor(14);
-      cout << "РЕЗУЛЬТАТЫ ПОИСКА (" << results.size() << ")   ";
+      const Client& c = results[idx];
+
+      clearScreen();
+      drawDoubleBox(8, 2, 64, 22, 15);
+
+      // заголовок
+      setCursor(22, 3);
+      setColor(11);
+      cout << "РЕЗУЛЬТАТЫ ПОИСКА";
+
+      setColor(15);
+      setCursor(8, 4);
+      cout << "╠══════════════════════════════════════════════════════════════╣";
+
+      // счётчик
+      setCursor(10, 5);
+      setColor(8);
+      cout << "Найдено: " << total
+           << "  |  Запись " << (idx + 1) << " из " << total;
+
+      setColor(15);
+      setCursor(8, 6);
+      cout << "╠══════════════════════════════════════════════════════════════╣";
+
+      // поля клиента
+      auto field = [&](int y, const string& label, const string& value, int col) {
+        setCursor(11, y);
+        setColor(8);
+        cout << left << setw(12) << label;
+        setColor(col);
+        cout << value;
+      };
+
+      ostringstream balSS;
+      balSS << fixed << setprecision(2) << c.balance << " руб.";
+
+      field(8,  "ID:",       to_string(c.id),                         15);
+      field(10, "ФИО:",      c.fullName,                              7);
+      field(12, "Телефон:",  c.phoneNumber,                           7);
+      field(14, "Тариф:",    c.tariffName.empty() ? "-" : c.tariffName, 14);
+      field(16, "Баланс:",   balSS.str(),                             10);
+      field(18, "Статус:",   c.isActive ? "Активен" : "Заблокирован",
+                             c.isActive ? 10 : 12);
+
+      setColor(15);
+      setCursor(8, 20);
+      cout << "╠══════════════════════════════════════════════════════════════╣";
+
+      setCursor(10, 21);
+      setColor(8);
+      if (total > 1)
+        cout << "[↑] Пред.  [↓] След.  |  [Esc] Назад";
+      else
+        cout << "[Esc] Назад";
+
+      drawFooter(27, true);
 
       int key = InputHandler::getExtKey();
-      if (key == Key::ESC) break;
-      if (key == Key::DOWN && start + pageSize < (int)results.size()) start++;
-      if (key == Key::UP   && start > 0) start--;
+      if (key == Key::ESC)                              break;
+      if (key == Key::DOWN && idx < total - 1)         idx++;
+      if (key == Key::UP   && idx > 0)                 idx--;
     }
   }
 }
