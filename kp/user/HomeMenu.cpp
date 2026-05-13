@@ -283,6 +283,12 @@ void HomeMenu::showTariffs() {
     }
 }
 
+static string balanceToStr(double balance) {
+    ostringstream oss;
+    oss << fixed << setprecision(2) << balance;
+    return oss.str();
+}
+
 static const int CCOL_ID_X     = 3,  CCOL_ID_W     = 4;
 static const int CCOL_NAME_X   = 10, CCOL_NAME_W   = 20;
 static const int CCOL_PHONE_X  = 33, CCOL_PHONE_W  = 15;
