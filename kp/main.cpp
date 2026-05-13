@@ -23,7 +23,7 @@ using namespace std;
 // главная точка входа всей проги
 int main() {
 
-  //// установка кодировки чтобы русский текст показывался нормально
+  // установка кодировки чтобы русский текст показывался нормально
   SetConsoleOutputCP(CP_UTF8);
   SetConsoleCP(CP_UTF8);
   HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -31,40 +31,40 @@ int main() {
   GetConsoleCursorInfo(hConsole, &cursorInfo);
   cursorInfo.bVisible = false;
   SetConsoleCursorInfo(hConsole, &cursorInfo);
-  AdminPanel::showAdminPanel();
-  //// скрытие курсора в консоли чтобы не мешал
+  //AdminPanel::showAdminPanel();
+  // скрытие курсора в консоли чтобы не мешал
 
  
 
-  //// запуск бесконечного цикла работы
-  //while (true) {
-  //  // показ меню входа если юзер не залогинился
-  //  if (!AuthManager::isUserLoggedIn()) {
-  //    if (!AuthMenu::show()) {
-  //      break;
-  //    }
-  //  }
+  // запуск бесконечного цикла работы
+  while (true) {
+    // показ меню входа если юзер не залогинился
+    if (!AuthManager::isUserLoggedIn()) {
+      if (!AuthMenu::show()) {
+        break;
+      }
+    }
 
-  //  // открытие главного меню если зашел
-  //  if (AuthManager::isUserLoggedIn()) {
-  //    HomeResult result = HomeMenu::show();
+    // открытие главного меню если зашел
+    if (AuthManager::isUserLoggedIn()) {
+      HomeResult result = HomeMenu::show();
 
-  //    // сброс логина при нажатии выхода
-  //    if (result == HomeResult::LOGOUT) {
-  //      AuthManager::logout();
-  //      continue;
-  //    } else if (result == HomeResult::EXIT_APP) {
-  //      // выход из программы
-  //      break;
-  //    }
-  //  }
-  //}
+      // сброс логина при нажатии выхода
+      if (result == HomeResult::LOGOUT) {
+        AuthManager::logout();
+        continue;
+      } else if (result == HomeResult::EXIT_APP) {
+        // выход из программы
+        break;
+      }
+    }
+  }
 
-  //// возврат курсора и очистка экрана перед выходом
-  //cursorInfo.bVisible = true;
-  //SetConsoleCursorInfo(hConsole, &cursorInfo);
-  //setColor(7);
-  //clearScreen();
+  // возврат курсора и очистка экрана перед выходом
+  cursorInfo.bVisible = true;
+  SetConsoleCursorInfo(hConsole, &cursorInfo);
+  setColor(7);
+  clearScreen();
 
-  //return 0;
+  return 0;
 }
