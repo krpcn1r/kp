@@ -604,8 +604,8 @@ void ClientMenu::showSearch() {
       clearScreen();
       drawDoubleBox(8, 2, 64, 22, 15);
 
-      // заголовок
-      setCursor(22, 3);
+      // заголовок по центру: box x=8, w=64 → центр x=40, строка 17 симв → старт x=32
+      setCursor(32, 3);
       setColor(11);
       cout << "РЕЗУЛЬТАТЫ ПОИСКА";
 
@@ -623,11 +623,13 @@ void ClientMenu::showSearch() {
       setCursor(8, 6);
       cout << "╠══════════════════════════════════════════════════════════════╣";
 
-      // поля клиента
+      // значения выровнены по x=26 (после самого длинного "Телефон:" + отступ)
+      const int VAL_X = 26;
       auto field = [&](int y, const string& label, const string& value, int col) {
         setCursor(11, y);
         setColor(8);
-        cout << left << setw(12) << label;
+        cout << label;
+        setCursor(VAL_X, y);
         setColor(col);
         cout << value;
       };
@@ -635,11 +637,11 @@ void ClientMenu::showSearch() {
       ostringstream balSS;
       balSS << fixed << setprecision(2) << c.balance << " руб.";
 
-      field(8,  "ID:",       to_string(c.id),                         15);
-      field(10, "ФИО:",      c.fullName,                              7);
-      field(12, "Телефон:",  c.phoneNumber,                           7);
+      field(8,  "ID:",       to_string(c.id),                           15);
+      field(10, "ФИО:",      c.fullName,                                7);
+      field(12, "Телефон:",  c.phoneNumber,                             7);
       field(14, "Тариф:",    c.tariffName.empty() ? "-" : c.tariffName, 14);
-      field(16, "Баланс:",   balSS.str(),                             10);
+      field(16, "Баланс:",   balSS.str(),                               10);
       field(18, "Статус:",   c.isActive ? "Активен" : "Заблокирован",
                              c.isActive ? 10 : 12);
 
