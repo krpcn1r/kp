@@ -5,32 +5,30 @@
 
 // добавление нового абонента в список
 int ClientManager::addClient(const std::string &name,
-                             const std::string &phone) {
-  // проверка на пустые строки
+                             const std::string &phone,
+                             const std::string &tariff,
+                             double balance) {
   if (name.empty() || phone.empty()) {
     return 1;
   }
 
-  std::vector<Client> clients = Database::loadClients(); // загрузка всех из базы
+  std::vector<Client> clients = Database::loadClients();
 
-  // проверка занятости телефона другим абонентом
   for (const auto &c : clients) {
     if (c.phoneNumber == phone) {
-      return 2; // такой номер уже есть
+      return 2;
     }
   }
 
-  // создание нового абонента и заполнение данных
   Client newClient;
-  newClient.fullName = name;
+  newClient.fullName    = name;
   newClient.phoneNumber = phone;
-  // выдача ID по порядку
-  newClient.id = clients.empty() ? 1 : clients.back().id + 1;
-  newClient.balance = 0.0; // начальный баланс ноль
-  newClient.isActive = true; // статус активен по умолчанию
+  newClient.tariffName  = tariff;
+  newClient.balance     = balance;
+  newClient.id          = clients.empty() ? 1 : clients.back().id + 1;
+  newClient.isActive    = true;
 
-  clients.push_back(newClient); // добавление в вектор
-  // сохранение в файл и возврат результата
+  clients.push_back(newClient);
   return Database::saveClients(clients) ? 0 : 3;
 }
 
@@ -56,6 +54,26 @@ std::vector<Client> ClientManager::findClients(const std::string &query) {
     if (match) results.push_back(c); // добавление совпадения в результат
   }
 
+  return results;
+}
+
+std::vector<Client> ClientManager::findClientsByFields(
+    const std::string &idQuery,  const std::string &nameQuery,
+    const std::string &phoneQuery, const std::string &tariffQuery) {
+  std::vector<Client> all = Database::loadClients();
+
+  bool allEmpty = idQuery.empty() && nameQuery.empty()
+               && phoneQuery.empty() && tariffQuery.empty();
+  if (allEmpty) return all;
+
+  std::vector<Client> results;
+  for (const auto &c : all) {
+    if (!idQuery.empty()     && std::to_string(c.id).find(idQuery)       == std::string::npos) continue;
+    if (!nameQuery.empty()   && c.fullName.find(nameQuery)                == std::string::npos) continue;
+    if (!phoneQuery.empty()  && c.phoneNumber.find(phoneQuery)            == std::string::npos) continue;
+    if (!tariffQuery.empty() && c.tariffName.find(tariffQuery)            == std::string::npos) continue;
+    results.push_back(c);
+  }
   return results;
 }
 

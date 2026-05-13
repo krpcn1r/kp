@@ -8,6 +8,7 @@ using json = nlohmann::json;
 
 const string Database::USERS_FILE = "data/users.json";
 const string Database::CLIENTS_FILE = "data/clients.json";
+const string Database::TARIFFS_FILE = "data/tariffs.json";
 
 // сохранение списка юзеров в файл
 bool Database::saveUsers(const vector<User> &users) {
@@ -67,4 +68,22 @@ vector<Client> Database::loadClients() {
   }
   file.close();
   return clients;
+}
+
+// загрузка тарифов из файла в память
+vector<Tariff> Database::loadTariffs() {
+  vector<Tariff> tariffs;
+  ifstream file(TARIFFS_FILE);
+  if (!file.is_open())
+    return tariffs;
+
+  try {
+    json j;
+    file >> j;
+    tariffs = j.get<vector<Tariff>>();
+  } catch (...) {
+    // игнорирование ошибок кривой базы
+  }
+  file.close();
+  return tariffs;
 }

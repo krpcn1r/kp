@@ -1,7 +1,9 @@
 #include "ClientMenu.h"
 #include "../core/InputHandler.h"
 #include "../core/Render.h"
+#include "../core/Database.h"
 #include "ClientManager.h"
+#include "TariffStruct.h"
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
@@ -473,50 +475,113 @@ void ClientMenu::showList() {
 
 // меню поиска абонентов
 void ClientMenu::showSearch() {
-  string query = ""; // тут будет то что мы ищем
+  string queryId     = "";
+  string queryName   = "";
+  string queryPhone  = "";
+  string queryTariff = "";
   int activeField = 0;
+  // 0=ID, 1=ФИО, 2=Телефон, 3=Тариф
 
-  clearScreen();
-  drawDoubleBox(2, 1, 76, 22, 8); // средняя рамка
+  auto drawSearchForm = [&](bool full) {
+    if (full) {
+      clearScreen();
+      drawDoubleBox(2, 1, 76, 24, 8);
 
-  setCursor(30, 2);
-  setColor(11);
-  cout << "ПОИСК ПО БАЗЕ";
+      setCursor(30, 2);
+      setColor(11);
+      cout << "ПОИСК ПО БАЗЕ";
 
-  setColor(8);
-  setCursor(2, 4);
-  cout << "╠═══════════════════════════════════════════════════════════════════"
-          "═══════╣";
+      setColor(8);
+      setCursor(2, 3);
+      cout << "╠═══════════════════════════════════════════════════════════════════"
+              "═══════╣";
+    }
 
-  setCursor(6, 6);
-  setColor(7);
-  cout << "Введите ФИО, номер телефона или ID абонента:";
+    // ID
+    setCursor(6, 5);
+    setColor(activeField == 0 ? 10 : 7);
+    cout << (activeField == 0 ? "> ID:             " : "  ID:             ");
+    drawInputContent(25, 5, 36, queryId, false, activeField == 0);
 
-  // рисуем поле для ввода текста
-  drawInputContent(15, 8, 44, query, false, true);
+    setColor(8);
+    setCursor(2, 7);
+    cout << "╠═════════════════════════════════════════════════════════════════"
+            "═════════╣";
+
+    // ФИО
+    setCursor(6, 9);
+    setColor(activeField == 1 ? 10 : 7);
+    cout << (activeField == 1 ? "> ФИО:            " : "  ФИО:            ");
+    drawInputContent(25, 9, 36, queryName, false, activeField == 1);
+
+    setColor(8);
+    setCursor(2, 11);
+    cout << "╠═════════════════════════════════════════════════════════════════"
+            "═════════╣";
+
+    // Телефон
+    setCursor(6, 13);
+    setColor(activeField == 2 ? 10 : 7);
+    cout << (activeField == 2 ? "> Телефон:        " : "  Телефон:        ");
+    drawInputContent(25, 13, 36, queryPhone, false, activeField == 2);
+
+    setColor(8);
+    setCursor(2, 15);
+    cout << "╠═════════════════════════════════════════════════════════════════"
+            "═════════╣";
+
+    // Тариф
+    setCursor(6, 17);
+    setColor(activeField == 3 ? 10 : 7);
+    cout << (activeField == 3 ? "> Тариф:          " : "  Тариф:          ");
+    drawInputContent(25, 17, 36, queryTariff, false, activeField == 3);
+
+    setColor(8);
+    setCursor(2, 19);
+    cout << "╠═════════════════════════════════════════════════════════════════"
+            "═════════╣";
+
+    setCursor(6, 21);
+    setColor(8);
+    cout << "Незаполненные поля не учитываются. Enter на последнем поле — поиск.";
+
+    drawFooter(27);
+  };
+
+  drawSearchForm(true);
 
   while (true) {
-    setCursor(4, 8);
-    setColor(10);
-    cout << "> Запрос:";
-
-    drawFooter(26);
+    drawSearchForm(false);
 
     int exitKey = 0;
-    // ждем пока юзер напишет запрос
-    query = processInput(15, 8, 44, query, false, exitKey, 24);
+
+    if (activeField == 0) {
+      queryId = processInput(25, 5, 36, queryId, false, exitKey, 0);
+    } else if (activeField == 1) {
+      queryName = processInput(25, 9, 36, queryName, false, exitKey, 0);
+    } else if (activeField == 2) {
+      queryPhone = processInput(25, 13, 36, queryPhone, false, exitKey, 0);
+    } else {
+      queryTariff = processInput(25, 17, 36, queryTariff, false, exitKey, 0);
+    }
 
     if (exitKey == Key::ESC) {
-      return; // отмена поиска
+      return;
+    } else if (exitKey == Key::TAB || exitKey == Key::DOWN) {
+      activeField = (activeField + 1) % 4;
+    } else if (exitKey == Key::UP) {
+      activeField = (activeField - 1 + 4) % 4;
     } else if (exitKey == Key::ENTER) {
-      break; // подтверждение поиска
+      if (activeField < 3) {
+        activeField++;
+      } else {
+        break; // Enter на последнем поле — начинаем поиск
+      }
     }
   }
 
-  if (query.empty())
-    return;
+  auto results = ClientManager::findClientsByFields(queryId, queryName, queryPhone, queryTariff);
 
-  auto results = ClientManager::findClients(query);
   if (results.empty()) {
     clearScreen();
     drawDoubleBox(15, 9, 50, 7, 8);
@@ -525,142 +590,268 @@ void ClientMenu::showSearch() {
     cout << "Ничего не найдено";
     setCursor(20, 13);
     setColor(8);
-    cout << "По запросу \"" << query << "\" абоненты не найдены.";
+    cout << "По заданным критериям абоненты не найдены.";
     setCursor(20, 15);
     cout << "Нажмите любую клавишу для возврата...";
     InputHandler::waitAnyKey();
   } else {
-    int start = 0;
-    const int pageSize = 19;
+    int idx   = 0;
+    int total = (int)results.size();
+
     while (true) {
-      drawClientTable(results, start);
-      setCursor(25, 2);
-      setColor(14);
-      cout << "РЕЗУЛЬТАТЫ ПОИСКА (" << results.size() << ")";
+      const Client& c = results[idx];
+
+      clearScreen();
+      drawDoubleBox(8, 2, 64, 22, 15);
+
+      // заголовок по центру: box x=8, w=64 → центр x=40, строка 17 симв → старт x=32
+      setCursor(32, 3);
+      setColor(11);
+      cout << "РЕЗУЛЬТАТЫ ПОИСКА";
+
+      setColor(15);
+      setCursor(8, 4);
+      cout << "╠══════════════════════════════════════════════════════════════╣";
+
+      // счётчик
+      setCursor(10, 5);
+      setColor(8);
+      cout << "Найдено: " << total
+           << "  |  Запись " << (idx + 1) << " из " << total;
+
+      setColor(15);
+      setCursor(8, 6);
+      cout << "╠══════════════════════════════════════════════════════════════╣";
+
+      // значения выровнены по x=26 (после самого длинного "Телефон:" + отступ)
+      const int VAL_X = 26;
+      auto field = [&](int y, const string& label, const string& value, int col) {
+        setCursor(11, y);
+        setColor(8);
+        cout << label;
+        setCursor(VAL_X, y);
+        setColor(col);
+        cout << value;
+      };
+
+      ostringstream balSS;
+      balSS << fixed << setprecision(2) << c.balance << " руб.";
+
+      field(8,  "ID:",       to_string(c.id),                           15);
+      field(10, "ФИО:",      c.fullName,                                7);
+      field(12, "Телефон:",  c.phoneNumber,                             7);
+      field(14, "Тариф:",    c.tariffName.empty() ? "-" : c.tariffName, 14);
+      field(16, "Баланс:",   balSS.str(),                               10);
+      field(18, "Статус:",   c.isActive ? "Активен" : "Заблокирован",
+                             c.isActive ? 10 : 12);
+
+      setColor(15);
+      setCursor(8, 20);
+      cout << "╠══════════════════════════════════════════════════════════════╣";
+
+      setCursor(10, 21);
+      setColor(8);
+      if (total > 1)
+        cout << "[↑] Пред.  [↓] След.  |  [Esc] Назад";
+      else
+        cout << "[Esc] Назад";
+
+      drawFooter(27, true);
 
       int key = InputHandler::getExtKey();
-      if (key == Key::ESC)
-        break;
-      if (key == Key::DOWN && (size_t)(start + pageSize) < results.size())
-        start++;
-      if (key == Key::UP && start > 0)
-        start--;
+      if (key == Key::ESC)                              break;
+      if (key == Key::DOWN && idx < total - 1)         idx++;
+      if (key == Key::UP   && idx > 0)                 idx--;
     }
   }
 }
 
 // форма для добавления нового клиента
 void ClientMenu::showAddClient() {
+  vector<Tariff> tariffs = Database::loadTariffs();
+  int tariffIdx = 0;
+
   string fullName = "";
-  string phone = "";
-  string tariff = "";
-  int activeField = 0; // на каком поле сейчас стоим
-  const int numFields = 3;
+  string phone    = "";
+  string balance  = "0.00";
+  int activeField = 0;
+  // поля: 0=ФИО, 1=Телефон, 2=Тариф, 3=Баланс
 
-  clearScreen();
-  drawDoubleBox(2, 2, 76, 22, 8);
+  auto drawForm = [&](bool full) {
+    if (full) {
+      clearScreen();
+      drawDoubleBox(2, 1, 76, 24, 8);
 
-  setCursor(30, 3);
-  setColor(11);
-  cout << "НОВЫЙ КЛИЕНТ";
+      setCursor(30, 2);
+      setColor(11);
+      cout << "НОВЫЙ КЛИЕНТ";
 
-  setColor(8);
-  setCursor(2, 5);
-  cout << "╠═══════════════════════════════════════════════════════════════════"
-          "═══════╣";
+      setColor(8);
+      setCursor(2, 3);
+      cout << "╠═══════════════════════════════════════════════════════════════════"
+              "═══════╣";
+    }
 
-  // рисуем пустые поля
-  drawInputContent(25, 9, 36, fullName, false, false);
-  drawInputContent(25, 13, 36, phone, false, false);
-  drawInputContent(25, 17, 36, tariff, false, false);
-
-  setCursor(6, 21);
-  setColor(8);
-  cout << "Баланс и ID назначаются автоматически. Статус: Активен.";
-
-  while (true) {
-    // подсвечиваем поле ФИО
-    setCursor(6, 9);
+    // ФИО
+    setCursor(6, 5);
     setColor(activeField == 0 ? 10 : 7);
-    cout << (activeField == 0 ? "> ФИО / Имя:" : "  ФИО / Имя:");
+    cout << (activeField == 0 ? "> ФИО / Имя:      " : "  ФИО / Имя:      ");
+    drawInputContent(25, 5, 36, fullName, false, activeField == 0);
+
+    setColor(8);
+    setCursor(2, 7);
+    cout << "╠═════════════════════════════════════════════════════════════════"
+            "═════════╣";
+
+    // Телефон
+    setCursor(6, 9);
+    setColor(activeField == 1 ? 10 : 7);
+    cout << (activeField == 1 ? "> Номер телефона: " : "  Номер телефона: ");
+    drawInputContent(25, 9, 36, phone, false, activeField == 1);
 
     setColor(8);
     setCursor(2, 11);
     cout << "╠═════════════════════════════════════════════════════════════════"
             "═════════╣";
 
-    // подсвечиваем телефон
+    // Тариф
     setCursor(6, 13);
-    setColor(activeField == 1 ? 10 : 7);
-    cout << (activeField == 1 ? "> Номер телефона:" : "  Номер телефона:");
+    setColor(activeField == 2 ? 10 : 7);
+    cout << (activeField == 2 ? "> Тариф:          " : "  Тариф:          ");
+
+    string tariffDisplay;
+    if (tariffs.empty()) {
+      tariffDisplay = "(нет тарифов)";
+    } else {
+      tariffDisplay = activeField == 2
+          ? "[ " + tariffs[tariffIdx].name + " ]"
+          : tariffs[tariffIdx].name;
+    }
+    setColor(activeField == 2 ? 14 : 7);
+    setCursor(25, 13);
+    cout << left << setw(36) << tariffDisplay;
 
     setColor(8);
     setCursor(2, 15);
     cout << "╠═════════════════════════════════════════════════════════════════"
             "═════════╣";
 
-    // подсвечиваем поле тарифа
+    // Баланс
     setCursor(6, 17);
-    setColor(activeField == 2 ? 10 : 7);
-    cout << (activeField == 2 ? "> Название тарифа:" : "  Название тарифа:");
+    setColor(activeField == 3 ? 10 : 7);
+    cout << (activeField == 3 ? "> Баланс:         " : "  Баланс:         ");
+    drawInputContent(25, 17, 36, balance, false, activeField == 3);
 
-    drawFooter(26);
+    setColor(8);
+    setCursor(2, 19);
+    cout << "╠═════════════════════════════════════════════════════════════════"
+            "═════════╣";
 
-    int exitKey = 0;
-    // ввод данных в текущее поле
-    if (activeField == 0) {
-      fullName = processInput(25, 9, 36, fullName, false, exitKey, 22);
-    } else if (activeField == 1) {
-      phone = processInput(25, 13, 36, phone, false, exitKey, 22);
+    setCursor(6, 21);
+    setColor(8);
+    cout << "ID назначается автоматически. Статус: Активен.           ";
+
+    if (activeField == 2 && !tariffs.empty()) {
+      setCursor(6, 22);
+      setColor(8);
+      cout << "[" << tariffIdx + 1 << "/" << (int)tariffs.size() << "] "
+           << tariffs[tariffIdx].pricePerMonth << " руб/мес  "
+           << tariffs[tariffIdx].speedMbps << " Мбит/с          ";
     } else {
-      tariff = processInput(25, 17, 36, tariff, false, exitKey, 22);
+      setCursor(6, 22);
+      cout << "                                                       ";
     }
 
-    // управление прыгаем по полям
-    if (exitKey == Key::TAB || exitKey == Key::DOWN) {
-      activeField = (activeField + 1) % numFields;
-    } else if (exitKey == Key::UP) {
-      activeField = (activeField - 1 + numFields) % numFields;
-    } else if (exitKey == Key::ENTER) {
-      if (activeField < numFields - 1) {
-        activeField++; // идем на следующее поле
-      } else {
-        break; // все ввели сохраняем
-      }
-    } else if (exitKey == Key::ESC) {
-      return; // отмена ввода
+    drawFooter(27);
+  };
+
+  drawForm(true);
+
+  while (true) {
+    drawForm(false);
+
+    if (activeField == 0) {
+      int exitKey = 0;
+      fullName = processInput(25, 5, 36, fullName, false, exitKey, 24);
+      if (exitKey == Key::TAB || exitKey == Key::DOWN || exitKey == Key::ENTER)
+        activeField = 1;
+      else if (exitKey == Key::UP)
+        activeField = 3;
+      else if (exitKey == Key::ESC)
+        return;
+
+    } else if (activeField == 1) {
+      int exitKey = 0;
+      phone = processInput(25, 9, 36, phone, false, exitKey, 24);
+      if (exitKey == Key::TAB || exitKey == Key::DOWN || exitKey == Key::ENTER)
+        activeField = 2;
+      else if (exitKey == Key::UP)
+        activeField = 0;
+      else if (exitKey == Key::ESC)
+        return;
+
+    } else if (activeField == 2) {
+      int key = InputHandler::getExtKey();
+      if (key == Key::UP && !tariffs.empty())
+        tariffIdx = (tariffIdx - 1 + (int)tariffs.size()) % (int)tariffs.size();
+      else if (key == Key::DOWN && !tariffs.empty())
+        tariffIdx = (tariffIdx + 1) % (int)tariffs.size();
+      else if (key == Key::TAB || key == Key::ENTER)
+        activeField = 3;
+      else if (key == Key::ESC)
+        return;
+
+    } else { // activeField == 3
+      int exitKey = 0;
+      balance = processInput(25, 17, 36, balance, false, exitKey, 24);
+      if (exitKey == Key::TAB || exitKey == Key::DOWN)
+        activeField = 0;
+      else if (exitKey == Key::UP)
+        activeField = 2;
+      else if (exitKey == Key::ENTER)
+        break;
+      else if (exitKey == Key::ESC)
+        return;
     }
   }
 
-  int res = ClientManager::addClient(fullName, phone);
+  double balVal = 0.0;
+  try { balVal = stod(balance); } catch (...) {}
+
+  string tariffName = tariffs.empty() ? "" : tariffs[tariffIdx].name;
+  int res = ClientManager::addClient(fullName, phone, tariffName, balVal);
 
   clearScreen();
-  drawDoubleBox(15, 9, 50, 8, 8);
+  drawDoubleBox(15, 9, 50, 9, 8);
 
   if (res == 0) {
     setCursor(28, 11);
     setColor(10);
     cout << "Клиент добавлен!";
-    setCursor(20, 13);
+    setCursor(20, 12);
     setColor(7);
     cout << "ФИО: " << fullName;
-    setCursor(20, 14);
+    setCursor(20, 13);
     cout << "Тел: " << phone;
+    setCursor(20, 14);
+    cout << "Тариф: " << (tariffName.empty() ? "-" : tariffName);
+    setCursor(20, 15);
+    cout << "Баланс: " << balance;
   } else if (res == 2) {
-    setCursor(22, 11);
+    setCursor(22, 12);
     setColor(12);
     cout << "Ошибка: такой номер уже есть!";
   } else if (res == 1) {
-    setCursor(22, 11);
+    setCursor(22, 12);
     setColor(12);
-    cout << "Ошибка: заполните все поля!";
+    cout << "Ошибка: заполните ФИО и телефон!";
   } else {
-    setCursor(22, 11);
+    setCursor(22, 12);
     setColor(12);
     cout << "Ошибка сохранения.";
   }
 
-  setCursor(20, 16);
+  setCursor(20, 17);
   setColor(8);
   cout << "Нажмите любую клавишу...";
   InputHandler::waitAnyKey();

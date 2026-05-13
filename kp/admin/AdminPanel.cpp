@@ -686,6 +686,10 @@ void AdminPanel::createBackup() {
 			std::filesystem::copy("data/clients.json", backupPath + "/clients.json",
 								  std::filesystem::copy_options::overwrite_existing);
 		}
+		if (std::filesystem::exists("data/tariffs.json")) {
+			std::filesystem::copy("data/tariffs.json", backupPath + "/tariffs.json",
+								  std::filesystem::copy_options::overwrite_existing);
+		}
 	} catch (const exception&) {
 		resultText = "Ошибка создания бэкапа";
 		resultColor = 12;
@@ -778,6 +782,9 @@ void AdminPanel::restoreBackup() {
 									 filesystem::copy_options::overwrite_existing);
 				if (filesystem::exists(path + "/clients.json"))
 					filesystem::copy(path + "/clients.json", "data/clients.json",
+									 filesystem::copy_options::overwrite_existing);
+				if (filesystem::exists(path + "/tariffs.json"))
+					filesystem::copy(path + "/tariffs.json", "data/tariffs.json",
 									 filesystem::copy_options::overwrite_existing);
 				message = "Бэкап " + name + " успешно восстановлен.";
 				messageColor = 10;
