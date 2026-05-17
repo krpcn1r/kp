@@ -21,12 +21,12 @@ int ClientManager::addClient(const std::string &name,
   }
 
   Client newClient;
-  newClient.fullName    = name;
+  newClient.fullName = name;
   newClient.phoneNumber = phone;
-  newClient.tariffName  = tariff;
-  newClient.balance     = balance;
-  newClient.id          = clients.empty() ? 1 : clients.back().id + 1;
-  newClient.isActive    = true;
+  newClient.tariffName = tariff;
+  newClient.balance = balance;
+  newClient.id = clients.empty() ? 1 : clients.back().id + 1;
+  newClient.isActive = true;
 
   clients.push_back(newClient);
   return Database::saveClients(clients) ? 0 : 3;
@@ -68,10 +68,10 @@ std::vector<Client> ClientManager::findClientsByFields(
 
   std::vector<Client> results;
   for (const auto &c : all) {
-    if (!idQuery.empty()     && std::to_string(c.id).find(idQuery)       == std::string::npos) continue;
-    if (!nameQuery.empty()   && c.fullName.find(nameQuery)                == std::string::npos) continue;
-    if (!phoneQuery.empty()  && c.phoneNumber.find(phoneQuery)            == std::string::npos) continue;
-    if (!tariffQuery.empty() && c.tariffName.find(tariffQuery)            == std::string::npos) continue;
+    if (!idQuery.empty() && std::to_string(c.id).find(idQuery) == std::string::npos) continue;
+    if (!nameQuery.empty() && c.fullName.find(nameQuery) == std::string::npos) continue;
+    if (!phoneQuery.empty() && c.phoneNumber.find(phoneQuery) == std::string::npos) continue;
+    if (!tariffQuery.empty() && c.tariffName.find(tariffQuery) == std::string::npos) continue;
     results.push_back(c);
   }
   return results;
