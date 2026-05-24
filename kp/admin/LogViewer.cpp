@@ -14,11 +14,16 @@ static const int LOG_PAGE_SIZE = 16;
 // цвет строки в зависимости от категории
 static int colorForCategory(LogCategory cat) {
   switch (cat) {
-    case LogCategory::AUTH:    return 11; // светло-голубой
-    case LogCategory::USER:    return 14; // желтый
-    case LogCategory::CLIENT:  return 10; // зеленый
-    case LogCategory::BILLING: return 13; // фиолетовый
-    case LogCategory::SYSTEM:  return 8;  // серый
+    case LogCategory::AUTH:
+        return 11; // светло-голубой
+    case LogCategory::USER:
+        return 14; // желтый
+    case LogCategory::CLIENT:
+        return 10; // зеленый
+    case LogCategory::BILLING:
+        return 13; // фиолетовый
+    case LogCategory::SYSTEM:
+        return 8;  // серый
   }
   return 7;
 }
@@ -109,13 +114,12 @@ void LogViewer::show() {
       if (!has) continue;
 
       const LogEntry& e = view[idx];
-      drawTableCell(3,  y, 20, e.timestamp,                       rowColor);
-      drawTableCell(24, y, 1,  "|",                               7);
-      drawTableCell(26, y, 17, e.actor,                           rowColor);
-      drawTableCell(44, y, 1,  "|",                               7);
-      drawTableCell(46, y, 11, Logger::categoryToString(e.category),
-                    sel ? 240 : colorForCategory(e.category));
-      drawTableCell(58, y, 1,  "|",                               7);
+      drawTableCell(3,  y, 20, e.timestamp, rowColor);
+      drawTableCell(24, y, 1,  "|", 7);
+      drawTableCell(26, y, 17, e.actor, rowColor);
+      drawTableCell(44, y, 1,  "|", 7);
+      drawTableCell(46, y, 11, Logger::categoryToString(e.category), sel ? 240 : colorForCategory(e.category));
+      drawTableCell(58, y, 1,  "|", 7);
 
       string text = e.action;
       if (!e.details.empty()) text += " :: " + e.details;
@@ -134,12 +138,24 @@ void LogViewer::show() {
     setColor(8);
     string filterName;
     switch (filter) {
-      case -1: filterName = "Все"; break;
-      case (int)LogCategory::AUTH:    filterName = "AUTH";    break;
-      case (int)LogCategory::USER:    filterName = "USER";    break;
-      case (int)LogCategory::CLIENT:  filterName = "CLIENT";  break;
-      case (int)LogCategory::BILLING: filterName = "BILLING"; break;
-      case (int)LogCategory::SYSTEM:  filterName = "SYSTEM";  break;
+      case -1:
+          filterName = "Все";
+          break;
+      case (int)LogCategory::AUTH:
+          filterName = "AUTH";
+          break;
+      case (int)LogCategory::USER:
+          filterName = "USER";
+          break;
+      case (int)LogCategory::CLIENT:
+          filterName = "CLIENT";
+          break;
+      case (int)LogCategory::BILLING:
+          filterName = "BILLING";
+          break;
+      case (int)LogCategory::SYSTEM:
+          filterName = "SYSTEM";
+          break;
     }
     cout << "Всего записей: " << all.size()
          << "  |  Показано: " << view.size()

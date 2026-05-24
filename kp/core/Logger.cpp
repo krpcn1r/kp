@@ -53,7 +53,6 @@ void Logger::appendLine(const string& line) {
       filesystem::create_directories("data");
     }
   } catch (...) {
-    // не критично — если не получилось создать, просто запишем по доступному пути
   }
   ofstream file(LOG_FILE, ios::app);
   if (!file.is_open()) return;
@@ -86,8 +85,6 @@ vector<LogEntry> Logger::loadEntries() {
   while (getline(file, line)) {
     if (line.empty()) continue;
 
-    // ожидаемый формат: [TS] [ACTOR] [CAT] action :: details
-    // парсим аккуратно — если что-то не так, кладём целиком в action
     LogEntry e;
     size_t p = 0;
 

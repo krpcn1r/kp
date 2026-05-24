@@ -174,11 +174,11 @@ HomeResult HomeMenu::show() {
 }
 
 // колонки таблицы тарифов
-static const int TCOL_ID_X    = 3,  TCOL_ID_W    = 4;
-static const int TCOL_NAME_X  = 10, TCOL_NAME_W  = 16;
+static const int TCOL_ID_X = 3, TCOL_ID_W    = 4;
+static const int TCOL_NAME_X = 10, TCOL_NAME_W  = 16;
 static const int TCOL_PRICE_X = 29, TCOL_PRICE_W = 12;
 static const int TCOL_SPEED_X = 44, TCOL_SPEED_W = 12;
-static const int TCOL_DESC_X  = 59, TCOL_DESC_W  = 28;
+static const int TCOL_DESC_X = 59, TCOL_DESC_W  = 28;
 
 static string priceToStr(double price) {
     ostringstream oss;
@@ -194,11 +194,11 @@ void HomeMenu::showTariffs() {
     bool needFullRedraw = true;
 
     vector<TableColumn> cols = {
-        {TCOL_ID_X,    TCOL_ID_W,    "ID"},
-        {TCOL_NAME_X,  TCOL_NAME_W,  "Название"},
+        {TCOL_ID_X, TCOL_ID_W, "ID"},
+        {TCOL_NAME_X, TCOL_NAME_W, "Название"},
         {TCOL_PRICE_X, TCOL_PRICE_W, "Цена/мес"},
         {TCOL_SPEED_X, TCOL_SPEED_W, "Скорость"},
-        {TCOL_DESC_X,  TCOL_DESC_W,  "Описание"},
+        {TCOL_DESC_X, TCOL_DESC_W, "Описание"},
     };
     vector<int> seps = {8, 27, 42, 57};
 
@@ -242,23 +242,23 @@ void HomeMenu::showTariffs() {
             if (hasRow) {
                 const Tariff& t = tariffs[idx];
 
-                drawTableCell(TCOL_ID_X,    y, TCOL_ID_W,    to_string(t.id),          rowColor);
-                drawTableCell(8,            y, 1,             "|",                       rowColor);
-                drawTableCell(TCOL_NAME_X,  y, TCOL_NAME_W,  t.name,                    rowColor);
-                drawTableCell(27,           y, 1,             "|",                       rowColor);
+                drawTableCell(TCOL_ID_X, y, TCOL_ID_W, to_string(t.id), rowColor);
+                drawTableCell(8, y, 1, "|", rowColor);
+                drawTableCell(TCOL_NAME_X, y, TCOL_NAME_W, t.name, rowColor);
+                drawTableCell(27, y, 1, "|", rowColor);
 
                 // цена — желтая если не выделено
                 int priceColor = isSelected ? 240 : 14;
                 drawTableCell(TCOL_PRICE_X, y, TCOL_PRICE_W, priceToStr(t.pricePerMonth), priceColor);
-                drawTableCell(42,           y, 1,             "|",                       rowColor);
+                drawTableCell(42, y, 1, "|", rowColor);
 
                 // скорость — голубая если не выделено
                 int speedColor = isSelected ? 240 : 11;
                 string speedStr = to_string(t.speedMbps) + " Мбит/с";
-                drawTableCell(TCOL_SPEED_X, y, TCOL_SPEED_W, speedStr,                   speedColor);
-                drawTableCell(57,           y, 1,             "|",                       rowColor);
+                drawTableCell(TCOL_SPEED_X, y, TCOL_SPEED_W, speedStr, speedColor);
+                drawTableCell(57, y, 1, "|", rowColor);
 
-                drawTableCell(TCOL_DESC_X,  y, TCOL_DESC_W,  t.description,             rowColor);
+                drawTableCell(TCOL_DESC_X, y, TCOL_DESC_W, t.description, rowColor);
             }
         }
 
@@ -293,16 +293,16 @@ static string balanceToStr(double balance) {
 
 
 static const int CCOL_PAGE_SIZE = 8;
-static const int CCOL_ROW_Y    = 7;
+static const int CCOL_ROW_Y = 7;
 static const int CCOL_ROW_STEP = 2;
-static const int CCOL_ROW_W    = 87;
+static const int CCOL_ROW_W = 87;
 
-static const int CCOL_ID_X     = 3,  CCOL_ID_W     = 4;
-static const int CCOL_NAME_X   = 10, CCOL_NAME_W   = 18;
-static const int CCOL_PHONE_X  = 31, CCOL_PHONE_W  = 14;
+static const int CCOL_ID_X = 3, CCOL_ID_W = 4;
+static const int CCOL_NAME_X = 10, CCOL_NAME_W = 18;
+static const int CCOL_PHONE_X = 31, CCOL_PHONE_W = 14;
 static const int CCOL_TARIFF_X = 48, CCOL_TARIFF_W = 12;
-static const int CCOL_BAL_X    = 63, CCOL_BAL_W    = 9;
-static const int CCOL_STAT_X   = 75, CCOL_STAT_W   = 13;
+static const int CCOL_BAL_X = 63, CCOL_BAL_W = 9;
+static const int CCOL_STAT_X = 75, CCOL_STAT_W = 13;
 
 static void drawEditClientsTable(
     const string& title,
@@ -314,12 +314,12 @@ static void drawEditClientsTable(
     bool fullRedraw, const string& statusText)
 {
     vector<TableColumn> cols = {
-        {CCOL_ID_X,     CCOL_ID_W,     "ID"},
-        {CCOL_NAME_X,   CCOL_NAME_W,   "ФИО"},
-        {CCOL_PHONE_X,  CCOL_PHONE_W,  "Телефон"},
+        {CCOL_ID_X, CCOL_ID_W, "ID"},
+        {CCOL_NAME_X, CCOL_NAME_W, "ФИО"},
+        {CCOL_PHONE_X, CCOL_PHONE_W, "Телефон"},
         {CCOL_TARIFF_X, CCOL_TARIFF_W, "Тариф"},
-        {CCOL_BAL_X,    CCOL_BAL_W,    "Баланс"},
-        {CCOL_STAT_X,   CCOL_STAT_W,   "Статус"}
+        {CCOL_BAL_X, CCOL_BAL_W, "Баланс"},
+        {CCOL_STAT_X, CCOL_STAT_W,   "Статус"}
     };
     vector<int> seps = {8, 29, 46, 61, 73};
 
@@ -335,10 +335,10 @@ static void drawEditClientsTable(
 
     for (int i = 0; i < CCOL_PAGE_SIZE; i++) {
         int idx = startIdx + i;
-        int y   = CCOL_ROW_Y + i * CCOL_ROW_STEP;
-        bool hasRow    = idx < (int)clients.size();
+        int y = CCOL_ROW_Y + i * CCOL_ROW_STEP;
+        bool hasRow = idx < (int)clients.size();
         bool isSelected = hasRow && idx == selectedIdx;
-        bool isEditing  = hasRow && idx == editingIdx;
+        bool isEditing = hasRow && idx == editingIdx;
         int rowColor = isSelected ? 240 : 7;
 
         clearLine(2, y, CCOL_ROW_W, rowColor);
@@ -364,8 +364,7 @@ static void drawEditClientsTable(
             drawTableCell(46, y, 1, "|", rowColor);
 
             string tariffStr = c.tariffName.empty() ? "-" : c.tariffName;
-            drawTableCell(CCOL_TARIFF_X, y, CCOL_TARIFF_W, tariffStr,
-                          (isEditing && activeField == 2) ? 31 : rowColor);
+            drawTableCell(CCOL_TARIFF_X, y, CCOL_TARIFF_W, tariffStr, (isEditing && activeField == 2) ? 31 : rowColor);
 
             drawTableCell(61, y, 1, "|", rowColor);
 
@@ -378,9 +377,7 @@ static void drawEditClientsTable(
 
             bool activeStat = isEditing ? draft.isActive : c.isActive;
             string statStr  = activeStat ? "Активен" : "Заблок.";
-            int statColor   = (isEditing && activeField == 4) ? 31
-                            : isSelected ? 240
-                            : (c.isActive ? 10 : 4);
+            int statColor   = (isEditing && activeField == 4) ? 31 : isSelected ? 240 : (c.isActive ? 10 : 4);
             drawTableCell(CCOL_STAT_X, y, CCOL_STAT_W, statStr, statColor);
         }
 
@@ -404,9 +401,7 @@ static void drawEditClientsTable(
     drawFooter(29, true);
 }
 
-static bool validateClientEdit(const vector<Client>& clients, int editIdx,
-                               const Client& draft, const string& draftBalance,
-                               string& message, int& activeField) {
+static bool validateClientEdit(const vector<Client>& clients, int editIdx, const Client& draft, const string& draftBalance, string& message, int& activeField) {
     if (draft.fullName.empty()) {
         message = "Ошибка: ФИО не может быть пустым.";
         activeField = 0;
@@ -437,10 +432,10 @@ static bool validateClientEdit(const vector<Client>& clients, int editIdx,
 void HomeMenu::editClients() {
     vector<Client> clients = ClientManager::getAllClients();
     vector<Tariff> tariffs = Database::loadTariffs();
-    int selectedIdx   = clients.empty() ? -1 : 0;
-    int startIdx      = 0;
-    int editingIdx    = -1;
-    int activeField   = 0;
+    int selectedIdx = clients.empty() ? -1 : 0;
+    int startIdx = 0;
+    int editingIdx = -1;
+    int activeField = 0;
     int draftTariffIdx = 0;
     Client draftClient = {};
     string draftBalance = "";
@@ -468,17 +463,12 @@ void HomeMenu::editClients() {
 
         string statusText;
         if (editingIdx >= 0) {
-            statusText = "Редактирование #" + to_string(editingIdx + 1) +
-                         "  |  Tab - поле  ←→ тариф/статус  Enter - сохранить  Esc - отменить";
+            statusText = "Редактирование #" + to_string(editingIdx + 1) + "  |  Tab - поле  ←→ тариф/статус  Enter - сохранить  Esc - отменить";
         } else {
-            statusText = "Всего клиентов: " + to_string(clients.size()) +
-                         "  |  Выбран: " + to_string(clients.empty() ? 0 : selectedIdx + 1) +
-                         "  |  Enter - редактировать  Del - удалить  Esc - назад";
+            statusText = "Всего клиентов: " + to_string(clients.size()) + "  |  Выбран: " + to_string(clients.empty() ? 0 : selectedIdx + 1) + "  |  Enter - редактировать  Del - удалить  Esc - назад";
         }
 
-        drawEditClientsTable("ИЗМЕНЕНИЕ КЛИЕНТОВ", clients, startIdx, selectedIdx,
-                             editingIdx, activeField, draftClient, draftBalance,
-                             message, messageColor, needFullRedraw, statusText);
+        drawEditClientsTable("ИЗМЕНЕНИЕ КЛИЕНТОВ", clients, startIdx, selectedIdx, editingIdx, activeField, draftClient, draftBalance, message, messageColor, needFullRedraw, statusText);
         needFullRedraw = false;
 
         // --- режим выбора строки ---
@@ -534,11 +524,9 @@ void HomeMenu::editClients() {
             int exitKey = 0;
 
             if (activeField == 0)
-                draftClient.fullName = processInput(CCOL_NAME_X, rowY, CCOL_NAME_W,
-                                                   draftClient.fullName, false, exitKey, 0);
+                draftClient.fullName = processInput(CCOL_NAME_X, rowY, CCOL_NAME_W, draftClient.fullName, false, exitKey, 0);
             else
-                draftClient.phoneNumber = processInput(CCOL_PHONE_X, rowY, CCOL_PHONE_W,
-                                                      draftClient.phoneNumber, false, exitKey, 0);
+                draftClient.phoneNumber = processInput(CCOL_PHONE_X, rowY, CCOL_PHONE_W, draftClient.phoneNumber, false, exitKey, 0);
             message = "";
             messageColor = 8;
 
@@ -558,8 +546,7 @@ void HomeMenu::editClients() {
         if (activeField == 3) {
             int rowY = CCOL_ROW_Y + (editingIdx - startIdx) * CCOL_ROW_STEP;
             int exitKey = 0;
-            draftBalance = processInput(CCOL_BAL_X, rowY, CCOL_BAL_W,
-                                       draftBalance, false, exitKey, 0);
+            draftBalance = processInput(CCOL_BAL_X, rowY, CCOL_BAL_W, draftBalance, false, exitKey, 0);
             message = "";
             messageColor = 8;
 
@@ -586,9 +573,7 @@ void HomeMenu::editClients() {
             activeField = (activeField - 1 + 5) % 5;
         } else if (key == Key::LEFT || key == Key::RIGHT) {
             if (activeField == 2 && !tariffs.empty()) {
-                draftTariffIdx = key == Key::RIGHT
-                    ? (draftTariffIdx + 1) % (int)tariffs.size()
-                    : (draftTariffIdx - 1 + (int)tariffs.size()) % (int)tariffs.size();
+                draftTariffIdx = key == Key::RIGHT ? (draftTariffIdx + 1) % (int)tariffs.size() : (draftTariffIdx - 1 + (int)tariffs.size()) % (int)tariffs.size();
                 draftClient.tariffName = tariffs[draftTariffIdx].name;
             } else if (activeField == 4) {
                 draftClient.isActive = !draftClient.isActive;
@@ -602,8 +587,7 @@ void HomeMenu::editClients() {
             } else { // activeField == 4
                 string validMsg;
                 int invalidField = activeField;
-                if (!validateClientEdit(clients, editingIdx, draftClient, draftBalance,
-                                       validMsg, invalidField)) {
+                if (!validateClientEdit(clients, editingIdx, draftClient, draftBalance, validMsg, invalidField)) {
                     message = validMsg;
                     messageColor = 12;
                     activeField = invalidField;
