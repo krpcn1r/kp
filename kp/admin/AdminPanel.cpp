@@ -9,8 +9,11 @@
 #include "../core/Render.h"
 #include "../core/InputHandler.h"
 #include "../core/Database.h"
+#include "../core/Logger.h"
 #include "../auth/AuthManager.h"
 #include "../user/HomeMenu.h"
+#include "../clients/Billing.h"
+#include "LogViewer.h"
 
 using namespace std;
 
@@ -325,7 +328,7 @@ void AdminPanel::showAdminPanel()
 			"6. Загрузка бэкапов              ",
 			"7. Просмотр логов                ",
 			"8. Изменение пароля админа       ",
-			"9. Настройки                     ",
+			"9. Списать оплату за день вручную",
 			"10. Выход                        "
 		};
 
@@ -371,9 +374,9 @@ void AdminPanel::showAdminPanel()
 			else if (selectedOption == 3) createBackup();
 			else if (selectedOption == 4) showBackups();
 			else if (selectedOption == 5) restoreBackup();
-			else if (selectedOption == 6) showPlaceholder("Просмотр логов");
+			else if (selectedOption == 6) LogViewer::show();
 			else if (selectedOption == 7) HomeMenu::showChangePassword();
-			else if (selectedOption == 8) showPlaceholder("Настройки");
+			else if (selectedOption == 8) AdminPanel::runManualBilling();
 			else if (selectedOption == 9) return;
 			
 			needFullRedraw = true;
@@ -532,12 +535,21 @@ void AdminPanel::editUser() {
 				messageColor = 12;
 				activeField = invalidField;
 			} else {
+				User before = users[editingIdx];
 				vector<User> updatedUsers = users;
 				updatedUsers[editingIdx] = draftUser;
 				if (!Database::saveUsers(updatedUsers)) {
 					message = "Ошибка: не удалось сохранить пользователей.";
 					messageColor = 12;
 				} else {
+					string det = "login=" + before.login;
+					if (before.login != draftUser.login)
+						det += "; логин: " + before.login + " -> " + draftUser.login;
+					if (before.password != draftUser.password)
+						det += "; пароль изменён";
+					if (before.role != draftUser.role)
+						det += string("; роль: ") + roleToText(before.role) + " -> " + roleToText(draftUser.role);
+					Logger::log(LogCategory::USER, "Изменён пользователь", det);
 					users = Database::loadUsers();
 					selectedIdx = editingIdx;
 					editingIdx = -1;
@@ -617,6 +629,7 @@ void AdminPanel::deleteUser() {
 				continue;
 			}
 
+			User snapshot = users[selectedIdx];
 			vector<User> updatedUsers = users;
 			updatedUsers.erase(updatedUsers.begin() + selectedIdx);
 
@@ -626,6 +639,9 @@ void AdminPanel::deleteUser() {
 				messageColor = 12;
 				continue;
 			}
+
+			Logger::log(LogCategory::USER, "Удалён пользователь",
+			            "login=" + snapshot.login + ", role=" + roleToText(snapshot.role));
 
 			users = Database::loadUsers();
 			if (users.empty()) {
@@ -695,6 +711,12 @@ void AdminPanel::createBackup() {
 	} catch (const exception&) {
 		resultText = "Ошибка создания бэкапа";
 		resultColor = 12;
+	}
+
+	if (resultColor == 10) {
+		Logger::log(LogCategory::SYSTEM, "Создан бэкап БД", "папка=" + backupFolderName);
+	} else {
+		Logger::log(LogCategory::SYSTEM, "Ошибка создания бэкапа БД");
 	}
 
 	clearLine(4, 7, 72, 7);
@@ -790,12 +812,46 @@ void AdminPanel::restoreBackup() {
 									 filesystem::copy_options::overwrite_existing);
 				message = "Бэкап " + name + " успешно восстановлен.";
 				messageColor = 10;
+				Logger::log(LogCategory::SYSTEM, "Восстановлен бэкап БД", "папка=" + name);
 			} catch (const exception&) {
 				message = "Ошибка: не удалось восстановить бэкап.";
 				messageColor = 12;
+				Logger::log(LogCategory::SYSTEM, "Ошибка восстановления бэкапа", "папка=" + name);
 			}
 			needFullRedraw = true;
 		}
 	}
 }
 
+
+void AdminPanel::runManualBilling() {
+	BillingResult res = Billing::chargeOneDay();
+
+	clearScreen();
+	drawBox(15, 8, 50, 11, 14);
+
+	setCursor(28, 9);
+	setColor(11);
+	cout << "РУЧНАЯ ТАРИФИКАЦИЯ";
+
+	setColor(8);
+	setCursor(16, 10);
+	cout << "+";
+	for (int i = 0; i < 48; i++) cout << "-";
+	cout << "+";
+
+	setColor(7);
+	setCursor(18, 12);
+	cout << "Списано за: 1 день";
+	setCursor(18, 13);
+	cout << "Затронуто клиентов: " << res.clientsTouched;
+	setCursor(18, 14);
+	cout << fixed << setprecision(2);
+	cout << "Сумма списания:     " << res.totalCharged << " руб.";
+
+	setCursor(18, 16);
+	setColor(8);
+	cout << "Нажмите любую клавишу для возврата...";
+
+	InputHandler::waitAnyKey();
+}

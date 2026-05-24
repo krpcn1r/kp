@@ -145,6 +145,7 @@
     <ClCompile Include="clients\ClientMenu.cpp" />
     <ClCompile Include="core\Database.cpp" />
     <ClCompile Include="core\InputHandler.cpp" />
+    <ClCompile Include="core\Logger.cpp" />
     <ClCompile Include="core\Render.cpp" />
     <ClCompile Include="core\Utils.cpp" />
     <ClCompile Include="main.cpp" />
@@ -167,6 +168,7 @@
     <ClInclude Include="core\Database.h" />
     <ClInclude Include="core\InputHandler.h" />
     <ClInclude Include="core\json.hpp" />
+    <ClInclude Include="core\Logger.h" />
     <ClInclude Include="core\Render.h" />
     <ClInclude Include="core\Utils.h" />
     <ClInclude Include="user\HomeMenu.h" />

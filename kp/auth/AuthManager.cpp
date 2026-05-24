@@ -1,5 +1,6 @@
 #include "AuthManager.h"
 #include "../core/Database.h"
+#include "../core/Logger.h"
 #include <vector>
 
 using namespace std;
@@ -73,7 +74,11 @@ int AuthManager::registerUser(const string &login, const string &password,
   }
 
   users.push_back(newUser); // добавление в общий список
-  return Database::saveUsers(users) ? 0 : 4; // сохранение всё в файл
+  if (!Database::saveUsers(users)) return 4;
+  Logger::logAs("system", LogCategory::AUTH, "Регистрация нового пользователя",
+                "login=" + login +
+                ", role=" + (newUser.role == Role::ADMIN ? "ADMIN" : "OPERATOR"));
+  return 0;
 }
 
 // функция входа в систему по логину
@@ -85,14 +90,21 @@ bool AuthManager::loginUser(const string &login, const string &password) {
     if (u.login == login && u.password == password) {
       currentUser = u; // сохранение данных того кто зашел
       isLoggedIn = true; // установка флага входа
+      Logger::log(LogCategory::AUTH, "Успешный вход в систему",
+                  "role=" + string(u.role == Role::ADMIN ? "ADMIN" : "OPERATOR"));
       return true;
     }
   }
 
+  Logger::logAs(login.empty() ? "(пусто)" : login, LogCategory::AUTH,
+                "Неудачная попытка входа", "неверный логин или пароль");
   return false; // не нашли такого юзера
 }
 
 void AuthManager::logout() {
+  if (isLoggedIn) {
+    Logger::log(LogCategory::AUTH, "Выход из системы");
+  }
   isLoggedIn = false;
   currentUser = {};
 }
@@ -137,6 +149,8 @@ int AuthManager::changePassword(std::string& currentPassword, const std::string&
 
     if (found) {
         Database::saveUsers(users);
+        Logger::log(LogCategory::AUTH, "Смена пароля",
+                    "login=" + currentUser.login);
         return 0;
     }
 

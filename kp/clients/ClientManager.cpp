@@ -1,6 +1,8 @@
 #include "ClientManager.h"
 #include "ClientStruct.h"
 #include "../core/Database.h"
+#include "../core/Logger.h"
+#include <sstream>
 #include <vector>
 
 // добавление нового абонента в список
@@ -29,7 +31,14 @@ int ClientManager::addClient(const std::string &name,
   newClient.isActive = true;
 
   clients.push_back(newClient);
-  return Database::saveClients(clients) ? 0 : 3;
+  if (!Database::saveClients(clients)) return 3;
+
+  std::ostringstream det;
+  det << "id=" << newClient.id << ", ФИО=" << name
+      << ", тел=" << phone << ", тариф=" << (tariff.empty() ? "-" : tariff)
+      << ", баланс=" << balance;
+  Logger::log(LogCategory::CLIENT, "Добавлен клиент", det.str());
+  return 0;
 }
 
 // получение списка всех абонентов из базы
@@ -81,9 +90,26 @@ bool ClientManager::updateClient(int id, const Client& updatedData) {
   std::vector<Client> clients = Database::loadClients();
   for (auto &c : clients) {
     if (c.id == id) {
+      Client before = c;
       c = updatedData;
       c.id = id; // На всякий случай сохраняем ID
-      return Database::saveClients(clients);
+      if (!Database::saveClients(clients)) return false;
+
+      std::ostringstream det;
+      det << "id=" << id;
+      if (before.fullName != c.fullName)
+        det << "; ФИО: '" << before.fullName << "' -> '" << c.fullName << "'";
+      if (before.phoneNumber != c.phoneNumber)
+        det << "; тел: '" << before.phoneNumber << "' -> '" << c.phoneNumber << "'";
+      if (before.tariffName != c.tariffName)
+        det << "; тариф: '" << before.tariffName << "' -> '" << c.tariffName << "'";
+      if (before.balance != c.balance)
+        det << "; баланс: " << before.balance << " -> " << c.balance;
+      if (before.isActive != c.isActive)
+        det << "; статус: " << (before.isActive ? "Активен" : "Заблок.")
+            << " -> " << (c.isActive ? "Активен" : "Заблок.");
+      Logger::log(LogCategory::CLIENT, "Изменён клиент", det.str());
+      return true;
     }
   }
   return false;
@@ -93,8 +119,13 @@ bool ClientManager::deleteClient(int id) {
   std::vector<Client> clients = Database::loadClients();
   for (auto it = clients.begin(); it != clients.end(); ++it) {
     if (it->id == id) {
+      std::string snapshot = "id=" + std::to_string(it->id) +
+                             ", ФИО=" + it->fullName +
+                             ", тел=" + it->phoneNumber;
       clients.erase(it);
-      return Database::saveClients(clients);
+      if (!Database::saveClients(clients)) return false;
+      Logger::log(LogCategory::CLIENT, "Удалён клиент", snapshot);
+      return true;
     }
   }
   return false;
@@ -106,7 +137,11 @@ bool ClientManager::toggleClientStatus(int id) {
   for (auto &c : clients) {
     if (c.id == id) {
       c.isActive = !c.isActive; // инвертирование статуса
-      return Database::saveClients(clients); // сохранение обратно
+      if (!Database::saveClients(clients)) return false;
+      Logger::log(LogCategory::CLIENT, "Изменён статус клиента",
+                  "id=" + std::to_string(id) + ", новый статус=" +
+                  (c.isActive ? "Активен" : "Заблокирован"));
+      return true;
     }
   }
   return false;

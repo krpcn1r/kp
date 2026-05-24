@@ -15,6 +15,7 @@
 
 #include "core/Database.h"
 #include "core/InputHandler.h"
+#include "core/Logger.h"
 #include "core/Render.h"
 #include "core/Utils.h"
 
@@ -33,7 +34,9 @@ int main() {
   SetConsoleCursorInfo(hConsole, &cursorInfo);
   // скрытие курсора в консоли чтобы не мешал
 
- 
+  // лог запуска и автоматическая тарификация за пропущенные дни
+  Logger::logAs("system", LogCategory::SYSTEM, "Запуск программы");
+  Billing::runDailyChargeIfDue();
 
   // запуск бесконечного цикла работы
   while (true) {
@@ -60,6 +63,7 @@ int main() {
   }
 
   // возврат курсора и очистка экрана перед выходом
+  Logger::logAs("system", LogCategory::SYSTEM, "Завершение программы");
   cursorInfo.bVisible = true;
   SetConsoleCursorInfo(hConsole, &cursorInfo);
   setColor(7);

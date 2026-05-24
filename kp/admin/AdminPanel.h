@@ -13,4 +13,5 @@ private:
 	static void createBackup();
 	static void showBackups();
 	static void restoreBackup();
+	static void runManualBilling();
 };
