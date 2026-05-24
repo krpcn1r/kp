@@ -132,10 +132,3 @@ BillingResult Billing::runDailyChargeIfDue() {
   return chargeForDays(days, today);
 }
 
-BillingResult Billing::chargeOneDay() {
-  string today = todayDate();
-  string last = loadLastDate();
-  // если last пуст — задаём сегодня
-  if (last.empty()) last = today;
-  return chargeForDays(1, last); // не сдвигаем опорную дату вперёд от today
-}

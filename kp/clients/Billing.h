@@ -19,9 +19,6 @@ public:
   // последнего запуска (если их 0 — ничего не делает)
   static BillingResult runDailyChargeIfDue();
 
-  // принудительно списать ровно за один день (для админ-кнопки)
-  static BillingResult chargeOneDay();
-
   // дата последнего списания в формате YYYY-MM-DD ("" если ни разу не было)
   static std::string getLastChargeDate();
 

@@ -12,7 +12,6 @@
 #include "../core/Logger.h"
 #include "../auth/AuthManager.h"
 #include "../user/HomeMenu.h"
-#include "../clients/Billing.h"
 #include "LogViewer.h"
 
 using namespace std;
@@ -296,7 +295,7 @@ static void drawBackupsList(const string& title, const vector<string>& backups,
 void AdminPanel::showAdminPanel()
 {
 	int selectedOption = 0;
-	const int numOptions = 10;
+	const int numOptions = 9;
 	bool needFullRedraw = true;
 
 	while (true) {
@@ -328,8 +327,7 @@ void AdminPanel::showAdminPanel()
 			"6. Загрузка бэкапов              ",
 			"7. Просмотр логов                ",
 			"8. Изменение пароля админа       ",
-			"9. Списать оплату за день вручную",
-			"10. Выход                        "
+			"9. Выход                         "
 		};
 
 		for (int i = 0; i < numOptions; i++) {
@@ -351,11 +349,11 @@ void AdminPanel::showAdminPanel()
 
 			setCursor(6, yPos);
 			if (i == selectedOption) {
-				if (i == 9) setColor(12);
+				if (i == 8) setColor(12);
 				else setColor(10);
 				cout << "> " << options[i] << "         ";
 			} else {
-				if (i == 9) setColor(4);
+				if (i == 8) setColor(4);
 				else setColor(8);
 				cout << "  " << options[i] << "         ";
 			}
@@ -376,8 +374,7 @@ void AdminPanel::showAdminPanel()
 			else if (selectedOption == 5) restoreBackup();
 			else if (selectedOption == 6) LogViewer::show();
 			else if (selectedOption == 7) HomeMenu::showChangePassword();
-			else if (selectedOption == 8) AdminPanel::runManualBilling();
-			else if (selectedOption == 9) return;
+			else if (selectedOption == 8) return;
 			
 			needFullRedraw = true;
 		} else if (key == Key::ESC) {
@@ -821,37 +818,4 @@ void AdminPanel::restoreBackup() {
 			needFullRedraw = true;
 		}
 	}
-}
-
-
-void AdminPanel::runManualBilling() {
-	BillingResult res = Billing::chargeOneDay();
-
-	clearScreen();
-	drawBox(15, 8, 50, 11, 14);
-
-	setCursor(28, 9);
-	setColor(11);
-	cout << "РУЧНАЯ ТАРИФИКАЦИЯ";
-
-	setColor(8);
-	setCursor(16, 10);
-	cout << "+";
-	for (int i = 0; i < 48; i++) cout << "-";
-	cout << "+";
-
-	setColor(7);
-	setCursor(18, 12);
-	cout << "Списано за: 1 день";
-	setCursor(18, 13);
-	cout << "Затронуто клиентов: " << res.clientsTouched;
-	setCursor(18, 14);
-	cout << fixed << setprecision(2);
-	cout << "Сумма списания:     " << res.totalCharged << " руб.";
-
-	setCursor(18, 16);
-	setColor(8);
-	cout << "Нажмите любую клавишу для возврата...";
-
-	InputHandler::waitAnyKey();
 }
