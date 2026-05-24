@@ -102,7 +102,7 @@ static void drawUsersTable(const string& title, const vector<User>& users,
 
 	if (fullRedraw) {
 		clearScreen();
-		drawDoubleBox(1, 1, 90, 28, 14);
+		drawBox(1, 1, 90, 28, 14);
 
 		setCursor(34 - (int)title.length() / 4, 2);
 		setColor(11);
@@ -126,7 +126,7 @@ static void drawUsersTable(const string& title, const vector<User>& users,
 			const User& rowUser = isEditing ? draftUser : users[curIdx];
 
 			drawTableCell(USER_NUMBER_X, y, USER_NUMBER_WIDTH, to_string(curIdx + 1), rowColor);
-			drawTableCell(USER_LOGIN_SEPARATOR_X, y, 1, "│", rowColor);
+			drawTableCell(USER_LOGIN_SEPARATOR_X, y, 1, "|", rowColor);
 
 			if (isEditing && activeField == 0) {
 				drawInputContent(USER_LOGIN_X, y, USER_LOGIN_WIDTH, draftUser.login, false, true);
@@ -134,14 +134,14 @@ static void drawUsersTable(const string& title, const vector<User>& users,
 				drawTableCell(USER_LOGIN_X, y, USER_LOGIN_WIDTH, rowUser.login, rowColor);
 			}
 
-			drawTableCell(USER_PASSWORD_SEPARATOR_X, y, 1, "│", rowColor);
+			drawTableCell(USER_PASSWORD_SEPARATOR_X, y, 1, "|", rowColor);
 			if (isEditing && activeField == 1) {
 				drawInputContent(USER_PASSWORD_X, y, USER_PASSWORD_WIDTH, draftUser.password, true, true);
 			} else {
 				drawTableCell(USER_PASSWORD_X, y, USER_PASSWORD_WIDTH, maskedPassword(rowUser.password), rowColor);
 			}
 
-			drawTableCell(USER_ROLE_SEPARATOR_X, y, 1, "│", rowColor);
+			drawTableCell(USER_ROLE_SEPARATOR_X, y, 1, "|", rowColor);
 			if (isEditing) {
 				drawTableCell(USER_ROLE_X, y, USER_ROLE_WIDTH, roleToText(draftUser.role),
 							  activeField == 2 ? 31 : rowColor);
@@ -246,7 +246,7 @@ static void drawBackupsList(const string& title, const vector<string>& backups,
 
 	if (fullRedraw) {
 		clearScreen();
-		drawDoubleBox(1, 1, 90, 28, 14);
+		drawBox(1, 1, 90, 28, 14);
 
 		setCursor(34 - (int)title.length() / 4, 2);
 		setColor(11);
@@ -266,7 +266,7 @@ static void drawBackupsList(const string& title, const vector<string>& backups,
 		clearLine(2, y, 70, color);
 		if (exists) {
 			drawTableCell(5, y, 4, to_string(idx + 1), color);
-			drawTableCell(11, y, 1, "│", 15);
+			drawTableCell(11, y, 1, "|", 15);
 			drawTableCell(14, y, 50, backups[idx], color);
 		}
 		drawTableSeparator(2, y + 1, 70, seps, 8);
@@ -299,7 +299,7 @@ void AdminPanel::showAdminPanel()
 	while (true) {
 		if (needFullRedraw) {
 			clearScreen();
-			drawDoubleBox(2, 1, 76, 20, 11);
+			drawBox(2, 1, 76, 20, 11);
 
 			setCursor(30, 3);
 			setColor(14);
@@ -307,7 +307,9 @@ void AdminPanel::showAdminPanel()
 
 			setColor(11);
 			setCursor(2, 5);
-			cout << "╠══════════════════════════════════════════════════════════════════════════╣";
+			cout << "+";
+			for (int i = 0; i < 74; i++) cout << "-";
+			cout << "+";
 
 			needFullRedraw = false;
 		}
@@ -336,12 +338,12 @@ void AdminPanel::showAdminPanel()
 			if (i == 3) {
 				setCursor(2, 7 + 3);
 				setColor(11);
-				cout << "╠══════════════════════════════════════════════════════════════════════════╣";
+				{ cout << "+"; for (int j = 0; j < 74; j++) cout << "-"; cout << "+"; }
 			}
 			if (i == 6) {
 				setCursor(2, 7 + 6 + 1);
 				setColor(11);
-				cout << "╠══════════════════════════════════════════════════════════════════════════╣";
+				{ cout << "+"; for (int j = 0; j < 74; j++) cout << "-"; cout << "+"; }
 			}
 
 			setCursor(6, yPos);
@@ -642,7 +644,7 @@ void AdminPanel::deleteUser() {
 
 void AdminPanel::createBackup() {
 	clearScreen();
-	drawDoubleBox(1, 1, 90, 20, 10);
+	drawBox(1, 1, 90, 20, 10);
 
 	setCursor(34, 2);
 	setColor(11);
@@ -697,13 +699,13 @@ void AdminPanel::createBackup() {
 
 	clearLine(4, 7, 72, 7);
 	drawTableCell(6, 7, 18, "Статус", resultColor);
-	drawTableCell(25, 7, 1, "│", 15);
+	drawTableCell(25, 7, 1, "|", 15);
 	drawTableCell(28, 7, 45, resultText, resultColor);
 	drawTableSeparator(4, 8, 72, separators, 8);
 
 	clearLine(4, 9, 72, 7);
 	drawTableCell(6, 9, 18, "Папка", 7);
-	drawTableCell(25, 9, 1, "│", 15);
+	drawTableCell(25, 9, 1, "|", 15);
 	drawTableCell(28, 9, 45, backupFolderName, 7);
 	drawTableSeparator(4, 10, 72, separators, 8);
 

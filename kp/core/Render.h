@@ -9,9 +9,9 @@ struct TableColumn {
   std::string title;
 };
 
-// отрисовка рамки из обычных палочек
+// отрисовка простой ASCII-рамки из + - |
 void drawBox(int x, int y, int w, int h, int color = 7);
-// отрисовка двойной рамки чтобы было красивее
+// алиас на drawBox: оставлен ради совместимости со старыми вызовами
 void drawDoubleBox(int x, int y, int w, int h, int color = 7);
 // очистка экрана консоли
 void clearScreen();

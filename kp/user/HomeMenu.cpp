@@ -28,40 +28,25 @@ HomeResult HomeMenu::show() {
     if (needFullRedraw) {
       clearScreen(); // чистим всё перед рисованием
 
-      drawDoubleBox(2, 1, 76, 28, 15); // большая рамка
+      drawBox(2, 1, 76, 28, 15); // простая ASCII-рамка
 
-      // рисуем большой логотип программы (ASCII арт)
-      setColor(9);
-      setCursor(16, 2);
-      cout << "███╗   ███╗ ██████╗ ██████╗ ██╗██╗     ███████╗";
-      setCursor(16, 3);
-      cout << "████╗ ████║██╔═══██╗██╔══██╗██║██║     ██╔════╝";
-      setCursor(16, 4);
-      cout << "██╔████╔██║██║   ██║██████╔╝██║██║     █████╗  ";
-      setCursor(16, 5);
-      cout << "██║╚██╔╝██║██║   ██║██╔══██╗██║██║     ██╔══╝  ";
-      setCursor(16, 6);
-      cout << "██║ ╚═╝ ██║╚██████╔╝██████╔╝██║███████╗███████╗";
-      setCursor(16, 7);
-      cout << "╚═╝     ╚═╝ ╚═════╝ ╚═════╝ ╚═╝╚══════╝╚══════╝";
+      auto drawHLine = [](int y) {
+        setColor(15);
+        setCursor(2, y);
+        cout << "+";
+        for (int i = 0; i < 74; i++) cout << "-";
+        cout << "+";
+      };
 
-      setCursor(16, 8);
-      cout << "██╗  ██╗███████╗██╗     ██████╗ ███████╗██████╗ ";
-      setCursor(16, 9);
-      cout << "██║  ██║██╔════╝██║     ██╔══██╗██╔════╝██╔══██╗";
-      setCursor(16, 10);
-      cout << "███████║█████╗  ██║     ██████╔╝█████╗  ██████╔╝";
-      setCursor(16, 11);
-      cout << "██╔══██║██╔══╝  ██║     ██╔═══╝ ██╔══╝  ██╔══██╗";
-      setCursor(16, 12);
-      cout << "██║  ██║███████╗███████╗██║     ███████╗██║  ██║";
-      setCursor(16, 13);
-      cout << "╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝";
+      // заголовок-логотип в простом виде
+      setColor(11);
+      setCursor(26, 5);
+      cout << "=== MOBILE HELPER ===";
+      setColor(8);
+      setCursor(24, 8);
+      cout << "Система учета абонентов связи";
 
-      setColor(15);
-      setCursor(2, 14);
-      cout << "╠═══════════════════════════════════════════════════════════════"
-              "═══════════╣";
+      drawHLine(14);
 
       // пишем кто сейчас зашел и какая у него роль
       setColor(7);
@@ -69,10 +54,7 @@ HomeResult HomeMenu::show() {
       cout << "Пользователь: " << u.login << "   |   Статус: " << roleStr;
 
       // рисуем разделительную линию
-      setColor(15);
-      setCursor(2, 16);
-      cout << "╠═══════════════════════════════════════════════════════════════"
-              "═══════════╣";
+      drawHLine(16);
 
       needFullRedraw = false;
     }
@@ -97,19 +79,16 @@ HomeResult HomeMenu::show() {
       if (i >= 5)
         yPos += 1; // делаем отступ после 5-й кнопки
 
-      // рисуем линии между группами кнопок
-      if (i == 3) {
-        setCursor(2, 17 + 3);
+      // рисуем линии между группами кнопок: + ---- +
+      auto drawMenuHLine = [](int y) {
+        setCursor(2, y);
         setColor(15);
-        cout << "╠═════════════════════════════════════════════════════════════"
-                "═════════════╣";
-      }
-      if (i == 5) {
-        setCursor(2, 17 + 5 + 1);
-        setColor(15);
-        cout << "╠═════════════════════════════════════════════════════════════"
-                "═════════════╣";
-      }
+        cout << "+";
+        for (int j = 0; j < 74; j++) cout << "-";
+        cout << "+";
+      };
+      if (i == 3) drawMenuHLine(17 + 3);
+      if (i == 5) drawMenuHLine(17 + 5 + 1);
       setCursor(6, yPos);
       if (i == selectedOption) {
         // подсвечиваем ту кнопку на которой стоит курсор
@@ -213,7 +192,7 @@ void HomeMenu::showTariffs() {
 
         if (needFullRedraw) {
             clearScreen();
-            drawDoubleBox(1, 3, 90, 20, 15);
+            drawBox(1, 3, 90, 20, 15);
 
             setCursor(36, 4);
             setColor(11);
@@ -221,8 +200,9 @@ void HomeMenu::showTariffs() {
 
             setColor(15);
             setCursor(1, 5);
-            cout << "╠═══════════════════════════════════════════════════════════════════"
-                "═════════════════════╣";
+            cout << "+";
+            for (int i = 0; i < 88; i++) cout << "-";
+            cout << "+";
 
             drawTableHeader(7, cols, seps, 15);
             drawTableSeparator(2, 8, 87, seps, 15);
@@ -243,20 +223,20 @@ void HomeMenu::showTariffs() {
                 const Tariff& t = tariffs[idx];
 
                 drawTableCell(TCOL_ID_X,    y, TCOL_ID_W,    to_string(t.id),          rowColor);
-                drawTableCell(8,            y, 1,             "│",                       rowColor);
+                drawTableCell(8,            y, 1,             "|",                       rowColor);
                 drawTableCell(TCOL_NAME_X,  y, TCOL_NAME_W,  t.name,                    rowColor);
-                drawTableCell(27,           y, 1,             "│",                       rowColor);
+                drawTableCell(27,           y, 1,             "|",                       rowColor);
 
                 // цена — желтая если не выделено
                 int priceColor = isSelected ? 240 : 14;
                 drawTableCell(TCOL_PRICE_X, y, TCOL_PRICE_W, priceToStr(t.pricePerMonth), priceColor);
-                drawTableCell(42,           y, 1,             "│",                       rowColor);
+                drawTableCell(42,           y, 1,             "|",                       rowColor);
 
                 // скорость — голубая если не выделено
                 int speedColor = isSelected ? 240 : 11;
                 string speedStr = to_string(t.speedMbps) + " Мбит/с";
                 drawTableCell(TCOL_SPEED_X, y, TCOL_SPEED_W, speedStr,                   speedColor);
-                drawTableCell(57,           y, 1,             "│",                       rowColor);
+                drawTableCell(57,           y, 1,             "|",                       rowColor);
 
                 drawTableCell(TCOL_DESC_X,  y, TCOL_DESC_W,  t.description,             rowColor);
             }
@@ -265,8 +245,9 @@ void HomeMenu::showTariffs() {
         // статус-строка
         setColor(15);
         setCursor(1, 16);
-        cout << "╠═══════════════════════════════════════════════════════════════════"
-                "═════════════════════╣";
+        cout << "+";
+        for (int i = 0; i < 88; i++) cout << "-";
+        cout << "+";
         setCursor(3, 17);
         setColor(8);
         cout << "Всего тарифов: " << tariffs.size();
@@ -324,7 +305,7 @@ static void drawEditClientsTable(
 
     if (fullRedraw) {
         clearScreen();
-        drawDoubleBox(1, 1, 90, 28, 14);
+        drawBox(1, 1, 90, 28, 14);
         setCursor(36 - (int)title.length() / 4, 2);
         setColor(11);
         cout << title;
@@ -346,34 +327,34 @@ static void drawEditClientsTable(
             const Client& c = isEditing ? draft : clients[idx];
 
             drawTableCell(CCOL_ID_X, y, CCOL_ID_W, to_string(clients[idx].id), rowColor);
-            drawTableCell(8,  y, 1, "│", rowColor);
+            drawTableCell(8,  y, 1, "|", rowColor);
 
             if (isEditing && activeField == 0)
                 drawInputContent(CCOL_NAME_X, y, CCOL_NAME_W, draft.fullName, false, true);
             else
                 drawTableCell(CCOL_NAME_X, y, CCOL_NAME_W, c.fullName, rowColor);
 
-            drawTableCell(29, y, 1, "│", rowColor);
+            drawTableCell(29, y, 1, "|", rowColor);
 
             if (isEditing && activeField == 1)
                 drawInputContent(CCOL_PHONE_X, y, CCOL_PHONE_W, draft.phoneNumber, false, true);
             else
                 drawTableCell(CCOL_PHONE_X, y, CCOL_PHONE_W, c.phoneNumber, rowColor);
 
-            drawTableCell(46, y, 1, "│", rowColor);
+            drawTableCell(46, y, 1, "|", rowColor);
 
             string tariffStr = c.tariffName.empty() ? "-" : c.tariffName;
             drawTableCell(CCOL_TARIFF_X, y, CCOL_TARIFF_W, tariffStr,
                           (isEditing && activeField == 2) ? 31 : rowColor);
 
-            drawTableCell(61, y, 1, "│", rowColor);
+            drawTableCell(61, y, 1, "|", rowColor);
 
             if (isEditing && activeField == 3)
                 drawInputContent(CCOL_BAL_X, y, CCOL_BAL_W, draftBalance, false, true);
             else
                 drawTableCell(CCOL_BAL_X, y, CCOL_BAL_W, balanceToStr(c.balance), rowColor);
 
-            drawTableCell(73, y, 1, "│", rowColor);
+            drawTableCell(73, y, 1, "|", rowColor);
 
             bool activeStat = isEditing ? draft.isActive : c.isActive;
             string statStr  = activeStat ? "Активен" : "Заблок.";
@@ -638,8 +619,8 @@ void HomeMenu::showChangePassword() {
 
     clearScreen(); // очистка экрана перед отрисовкой нового окна
 
-    // отрисовка большой рамки для регистрации
-    drawDoubleBox(4, 4, 45, 12, 8);
+    // отрисовка простой ASCII-рамки
+    drawBox(4, 4, 45, 12, 8);
 
     setCursor(19, 5);
     setColor(11);
@@ -648,10 +629,10 @@ void HomeMenu::showChangePassword() {
     // полоска под заголовком
     setColor(8);
     setCursor(4, 6);
-    cout << "╠";
+    cout << "+";
     for (int i = 0; i < 43; i++)
-        cout << "═";
-    cout << "╣";
+        cout << "-";
+    cout << "+";
 
     // вывод условий безопасности пароля
     setCursor(6, 7);
@@ -659,17 +640,17 @@ void HomeMenu::showChangePassword() {
     cout << "Условия безопасности:";
     setCursor(7, 8);
     setColor(8);
-    cout << "• Минимум 8 символов";
+    cout << "- Минимум 8 символов";
     setCursor(7, 9);
-    cout << "• 1 цифра + 1 спецсимвол";
+    cout << "- 1 цифра + 1 спецсимвол";
     setCursor(7, 10);
-    cout << "• Только английские буквы";
+    cout << "- Только английские буквы";
 
     setCursor(4, 11);
-    cout << "╠";
+    cout << "+";
     for (int i = 0; i < 43; i++)
-        cout << "═";
-    cout << "╣";
+        cout << "-";
+    cout << "+";
 
     drawInputContent(24, 12, 20, oldPassword, false, false);
     drawInputContent(24, 14, 20, newPassword, false, false);

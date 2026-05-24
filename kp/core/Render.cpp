@@ -35,23 +35,23 @@ bool showConfirmation(const string& message) {
   int h = 7;
   int x = (80 - w) / 2;
   int y = 10;
-  
-  drawDoubleBox(x, y, w, h, 14); // Желтая рамка
-  
+
+  drawBox(x, y, w, h, 14); // простая рамка
+
   // закрашивание внутренней части черным чтобы окно не просвечивало
   setColor(0);
   for (int i = 1; i < h - 1; i++) {
     setCursor(x + 1, y + i);
     for (int j = 0; j < w - 2; j++) cout << " ";
   }
-  
+
   setCursor(x + (w - message.length())/2, y + 2);
   setColor(15);
   cout << message;
-  
+
   setCursor(x + 10, y + 4);
   setColor(10); cout << "[Enter] Да";
-  
+
   setCursor(x + w - 18, y + 4);
   setColor(12); cout << "[Esc] Нет";
   
@@ -140,7 +140,7 @@ void drawTableCell(int x, int y, int width, string value, int color) {
 void drawTableHeader(int y, const vector<TableColumn>& columns,
                      const vector<int>& separatorXs, int textColor) {
     for (int separatorX : separatorXs) {
-        drawTableCell(separatorX, y, 1, "│", textColor);
+        drawTableCell(separatorX, y, 1, "|", textColor);
     }
 
     for (const auto& column : columns) {
@@ -152,12 +152,12 @@ void drawTableSeparator(int x, int y, int width, const vector<int>& separatorXs,
     setCursor(x, y);
     setColor(color);
     for (int i = 0; i < width; ++i) {
-        cout << "═";
+        cout << "-";
     }
 
     for (int separatorX : separatorXs) {
         setCursor(separatorX, y);
-        cout << "╪";
+        cout << "+";
     }
 
     setColor(7);
@@ -211,28 +211,9 @@ void drawBox(int x, int y, int w, int h, int color) {
     setColor(7);
 }
 
-// отрисовка красивой рамки из двойных линий
+// раньше рисовала двойную рамку, теперь просто алиас на простую ASCII-рамку
 void drawDoubleBox(int x, int y, int w, int h, int color) {
-    setColor(color);
-    setCursor(x, y);
-
-    cout << "╔";
-    for (int i = 0; i < w - 2; i++) cout << "═";
-    cout << "╗";
-
-    for (int i = 1; i < h - 1; i++) {
-        setCursor(x, y + i);
-        cout << "║";
-        setCursor(x + w - 1, y + i);
-        cout << "║";
-    }
-
-    setCursor(x, y + h - 1);
-    cout << "╚";
-    for (int i = 0; i < w - 2; i++) cout << "═";
-    cout << "╝";
-
-    setColor(7);
+    drawBox(x, y, w, h, color);
 }
 
 // отрисовка рамки с текстом по центру

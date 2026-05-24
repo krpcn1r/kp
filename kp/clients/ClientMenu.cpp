@@ -58,7 +58,7 @@ static string balanceToStr(double balance) {
 void ClientMenu::drawClientTable(const vector<Client> &clients, int startIdx,
                                  int selectedIdx) {
   clearScreen();
-  drawDoubleBox(1, 1, 90, 26, 15); // большая рамка на весь экран
+  drawBox(1, 1, 90, 26, 15); // простая ASCII-рамка на весь экран
 
   setCursor(38, 2);
   setColor(11);
@@ -69,27 +69,27 @@ void ClientMenu::drawClientTable(const vector<Client> &clients, int startIdx,
   setCursor(2, 4);
   cout << "ID";
   setCursor(7, 4);
-  cout << "│";
+  cout << "|";
   setCursor(9, 4);
   cout << "ФИО";
   setCursor(48, 4);
-  cout << "│";
+  cout << "|";
   setCursor(50, 4);
   cout << "Телефон";
   setCursor(64, 4);
-  cout << "│";
+  cout << "|";
   setCursor(66, 4);
   cout << "Тариф";
   setCursor(78, 4);
-  cout << "│";
+  cout << "|";
   setCursor(80, 4);
   cout << "Статус";
 
-  // рисуем линию разделитель
+  // рисуем линию разделитель: + ----+----+----+----+----+
   setCursor(1, 5);
   setColor(15);
-  cout << "╠═════╪═══════════════════════════════════════╪═══════════════╪═════"
-          "════════╪══════════╣";
+  cout << "+-----+---------------------------------------+---------------+-----"
+          "--------+----------+";
 
   int firstRow = 6; // первая строка данных
   int pageSize = 18; // сколько человек влезет на экран
@@ -107,8 +107,8 @@ void ClientMenu::drawClientTable(const vector<Client> &clients, int startIdx,
               "                        ";
     } else {
       setColor(7);
-      cout << "     │                                       │               │  "
-              "           │          ";
+      cout << "     |                                       |               |  "
+              "           |          ";
     }
 
     if (curIdx < (int)clients.size()) {
@@ -130,7 +130,7 @@ void ClientMenu::drawClientTable(const vector<Client> &clients, int startIdx,
         setColor(240);
       else
         setColor(15);
-      cout << "│";
+      cout << "|";
       setCursor(9, y);
       setColor(focusColor);
       string name = safeTruncate(c.fullName, 37);
@@ -142,7 +142,7 @@ void ClientMenu::drawClientTable(const vector<Client> &clients, int startIdx,
         setColor(240);
       else
         setColor(15);
-      cout << "│";
+      cout << "|";
       setCursor(50, y);
       setColor(focusColor);
       cout << left << setw(13) << c.phoneNumber;
@@ -153,7 +153,7 @@ void ClientMenu::drawClientTable(const vector<Client> &clients, int startIdx,
         setColor(240);
       else
         setColor(15);
-      cout << "│";
+      cout << "|";
       setCursor(66, y);
       setColor(focusColor);
       string trfStr = c.tariffName.empty() ? "Базовый" : c.tariffName;
@@ -166,7 +166,7 @@ void ClientMenu::drawClientTable(const vector<Client> &clients, int startIdx,
         setColor(240);
       else
         setColor(15);
-      cout << "│";
+      cout << "|";
       setCursor(80, y);
       if (isSelected) {
         setColor(240);
@@ -177,16 +177,17 @@ void ClientMenu::drawClientTable(const vector<Client> &clients, int startIdx,
     }
   }
 
-  // рисуем низ таблицы
+  // рисуем низ таблицы: + ---- +
   setColor(15);
   setCursor(1, 24);
-  cout << "╠═══════════════════════════════════════════════════════════════════"
-          "═════════════════════╣";
+  cout << "+";
+  for (int i = 0; i < 88; i++) cout << "-";
+  cout << "+";
   setCursor(3, 25);
   setColor(8);
   int total = (int)clients.size();
   cout << "Абонент: " << (total > 0 ? selectedIdx + 1 : 0) << " / " << total
-       << "  |  [↑][↓] Навигация  |  [Enter] Редактировать  |  [Esc] Назад";
+       << "  |  [Up][Down] Навигация  |  [Enter] Редактировать  |  [Esc] Назад";
 
   drawFooter(29, true); // рисуем подсказки в подвале
 }
@@ -210,7 +211,7 @@ static void drawClientsTable(const string& title, const vector<Client>& clients,
 
     if (fullRedraw) {
         clearScreen();
-        drawDoubleBox(1, 1, 90, 28, 14);
+        drawBox(1, 1, 90, 28, 14);
 
         setCursor(34 - (int)title.length() / 4, 2);
         setColor(11);
@@ -235,7 +236,7 @@ static void drawClientsTable(const string& title, const vector<Client>& clients,
 
             // ID (только читаемый)
             drawTableCell(COL_ID_X, y, COL_ID_W, to_string(clients[idx].id), rowColor);
-            drawTableCell(8, y, 1, "│", rowColor);
+            drawTableCell(8, y, 1, "|", rowColor);
 
             // ФИО
             if (isEditing && activeField == 0)
@@ -243,7 +244,7 @@ static void drawClientsTable(const string& title, const vector<Client>& clients,
             else
                 drawTableCell(COL_NAME_X, y, COL_NAME_W, c.fullName, rowColor);
 
-            drawTableCell(35, y, 1, "│", rowColor);
+            drawTableCell(35, y, 1, "|", rowColor);
 
             // Телефон
             if (isEditing && activeField == 1)
@@ -251,7 +252,7 @@ static void drawClientsTable(const string& title, const vector<Client>& clients,
             else
                 drawTableCell(COL_PHONE_X, y, COL_PHONE_W, c.phoneNumber, rowColor);
 
-            drawTableCell(52, y, 1, "│", rowColor);
+            drawTableCell(52, y, 1, "|", rowColor);
 
             // Тариф
             string tariffStr = c.tariffName.empty() ? "Базовый" : c.tariffName;
@@ -260,7 +261,7 @@ static void drawClientsTable(const string& title, const vector<Client>& clients,
             else
                 drawTableCell(COL_TARIFF_X, y, COL_TARIFF_W, tariffStr, rowColor);
 
-            drawTableCell(67, y, 1, "│", rowColor);
+            drawTableCell(67, y, 1, "|", rowColor);
 
             // Баланс
             if (isEditing && activeField == 3)
@@ -268,7 +269,7 @@ static void drawClientsTable(const string& title, const vector<Client>& clients,
             else
                 drawTableCell(COL_BAL_X, y, COL_BAL_W, balanceToStr(c.balance), rowColor);
 
-            drawTableCell(78, y, 1, "│", rowColor);
+            drawTableCell(78, y, 1, "|", rowColor);
 
             // Статус
             if (isEditing) {
@@ -483,18 +484,23 @@ void ClientMenu::showSearch() {
   // 0=ID, 1=ФИО, 2=Телефон, 3=Тариф
 
   auto drawSearchForm = [&](bool full) {
+    auto drawHLine = [](int y) {
+      setColor(8);
+      setCursor(2, y);
+      cout << "+";
+      for (int i = 0; i < 74; i++) cout << "-";
+      cout << "+";
+    };
+
     if (full) {
       clearScreen();
-      drawDoubleBox(2, 1, 76, 24, 8);
+      drawBox(2, 1, 76, 24, 8);
 
       setCursor(30, 2);
       setColor(11);
       cout << "ПОИСК ПО БАЗЕ";
 
-      setColor(8);
-      setCursor(2, 3);
-      cout << "╠═══════════════════════════════════════════════════════════════════"
-              "═══════╣";
+      drawHLine(3);
     }
 
     // ID
@@ -503,10 +509,7 @@ void ClientMenu::showSearch() {
     cout << (activeField == 0 ? "> ID:             " : "  ID:             ");
     drawInputContent(25, 5, 36, queryId, false, activeField == 0);
 
-    setColor(8);
-    setCursor(2, 7);
-    cout << "╠═════════════════════════════════════════════════════════════════"
-            "═════════╣";
+    drawHLine(7);
 
     // ФИО
     setCursor(6, 9);
@@ -514,10 +517,7 @@ void ClientMenu::showSearch() {
     cout << (activeField == 1 ? "> ФИО:            " : "  ФИО:            ");
     drawInputContent(25, 9, 36, queryName, false, activeField == 1);
 
-    setColor(8);
-    setCursor(2, 11);
-    cout << "╠═════════════════════════════════════════════════════════════════"
-            "═════════╣";
+    drawHLine(11);
 
     // Телефон
     setCursor(6, 13);
@@ -525,10 +525,7 @@ void ClientMenu::showSearch() {
     cout << (activeField == 2 ? "> Телефон:        " : "  Телефон:        ");
     drawInputContent(25, 13, 36, queryPhone, false, activeField == 2);
 
-    setColor(8);
-    setCursor(2, 15);
-    cout << "╠═════════════════════════════════════════════════════════════════"
-            "═════════╣";
+    drawHLine(15);
 
     // Тариф
     setCursor(6, 17);
@@ -536,14 +533,11 @@ void ClientMenu::showSearch() {
     cout << (activeField == 3 ? "> Тариф:          " : "  Тариф:          ");
     drawInputContent(25, 17, 36, queryTariff, false, activeField == 3);
 
-    setColor(8);
-    setCursor(2, 19);
-    cout << "╠═════════════════════════════════════════════════════════════════"
-            "═════════╣";
+    drawHLine(19);
 
     setCursor(6, 21);
     setColor(8);
-    cout << "Незаполненные поля не учитываются. Enter на последнем поле — поиск.";
+    cout << "Незаполненные поля не учитываются. Enter на последнем поле = поиск.";
 
     drawFooter(27);
   };
@@ -584,7 +578,7 @@ void ClientMenu::showSearch() {
 
   if (results.empty()) {
     clearScreen();
-    drawDoubleBox(15, 9, 50, 7, 8);
+    drawBox(15, 9, 50, 7, 8);
     setCursor(25, 11);
     setColor(12);
     cout << "Ничего не найдено";
@@ -601,17 +595,23 @@ void ClientMenu::showSearch() {
     while (true) {
       const Client& c = results[idx];
 
-      clearScreen();
-      drawDoubleBox(8, 2, 64, 22, 15);
+      auto drawHLine = [](int y) {
+        setColor(15);
+        setCursor(8, y);
+        cout << "+";
+        for (int i = 0; i < 62; i++) cout << "-";
+        cout << "+";
+      };
 
-      // заголовок по центру: box x=8, w=64 → центр x=40, строка 17 симв → старт x=32
+      clearScreen();
+      drawBox(8, 2, 64, 22, 15);
+
+      // заголовок по центру: box x=8, w=64 -> центр x=40, строка 17 симв -> старт x=32
       setCursor(32, 3);
       setColor(11);
       cout << "РЕЗУЛЬТАТЫ ПОИСКА";
 
-      setColor(15);
-      setCursor(8, 4);
-      cout << "╠══════════════════════════════════════════════════════════════╣";
+      drawHLine(4);
 
       // счётчик
       setCursor(10, 5);
@@ -619,9 +619,7 @@ void ClientMenu::showSearch() {
       cout << "Найдено: " << total
            << "  |  Запись " << (idx + 1) << " из " << total;
 
-      setColor(15);
-      setCursor(8, 6);
-      cout << "╠══════════════════════════════════════════════════════════════╣";
+      drawHLine(6);
 
       // значения выровнены по x=26 (после самого длинного "Телефон:" + отступ)
       const int VAL_X = 26;
@@ -645,14 +643,12 @@ void ClientMenu::showSearch() {
       field(18, "Статус:",   c.isActive ? "Активен" : "Заблокирован",
                              c.isActive ? 10 : 12);
 
-      setColor(15);
-      setCursor(8, 20);
-      cout << "╠══════════════════════════════════════════════════════════════╣";
+      drawHLine(20);
 
       setCursor(10, 21);
       setColor(8);
       if (total > 1)
-        cout << "[↑] Пред.  [↓] След.  |  [Esc] Назад";
+        cout << "[Up] Пред.  [Down] След.  |  [Esc] Назад";
       else
         cout << "[Esc] Назад";
 
@@ -678,18 +674,23 @@ void ClientMenu::showAddClient() {
   // поля: 0=ФИО, 1=Телефон, 2=Тариф, 3=Баланс
 
   auto drawForm = [&](bool full) {
+    auto drawHLine = [](int y) {
+      setColor(8);
+      setCursor(2, y);
+      cout << "+";
+      for (int i = 0; i < 74; i++) cout << "-";
+      cout << "+";
+    };
+
     if (full) {
       clearScreen();
-      drawDoubleBox(2, 1, 76, 24, 8);
+      drawBox(2, 1, 76, 24, 8);
 
       setCursor(30, 2);
       setColor(11);
       cout << "НОВЫЙ КЛИЕНТ";
 
-      setColor(8);
-      setCursor(2, 3);
-      cout << "╠═══════════════════════════════════════════════════════════════════"
-              "═══════╣";
+      drawHLine(3);
     }
 
     // ФИО
@@ -698,10 +699,7 @@ void ClientMenu::showAddClient() {
     cout << (activeField == 0 ? "> ФИО / Имя:      " : "  ФИО / Имя:      ");
     drawInputContent(25, 5, 36, fullName, false, activeField == 0);
 
-    setColor(8);
-    setCursor(2, 7);
-    cout << "╠═════════════════════════════════════════════════════════════════"
-            "═════════╣";
+    drawHLine(7);
 
     // Телефон
     setCursor(6, 9);
@@ -709,10 +707,7 @@ void ClientMenu::showAddClient() {
     cout << (activeField == 1 ? "> Номер телефона: " : "  Номер телефона: ");
     drawInputContent(25, 9, 36, phone, false, activeField == 1);
 
-    setColor(8);
-    setCursor(2, 11);
-    cout << "╠═════════════════════════════════════════════════════════════════"
-            "═════════╣";
+    drawHLine(11);
 
     // Тариф
     setCursor(6, 13);
@@ -731,10 +726,7 @@ void ClientMenu::showAddClient() {
     setCursor(25, 13);
     cout << left << setw(36) << tariffDisplay;
 
-    setColor(8);
-    setCursor(2, 15);
-    cout << "╠═════════════════════════════════════════════════════════════════"
-            "═════════╣";
+    drawHLine(15);
 
     // Баланс
     setCursor(6, 17);
@@ -742,10 +734,7 @@ void ClientMenu::showAddClient() {
     cout << (activeField == 3 ? "> Баланс:         " : "  Баланс:         ");
     drawInputContent(25, 17, 36, balance, false, activeField == 3);
 
-    setColor(8);
-    setCursor(2, 19);
-    cout << "╠═════════════════════════════════════════════════════════════════"
-            "═════════╣";
+    drawHLine(19);
 
     setCursor(6, 21);
     setColor(8);
@@ -822,7 +811,7 @@ void ClientMenu::showAddClient() {
   int res = ClientManager::addClient(fullName, phone, tariffName, balVal);
 
   clearScreen();
-  drawDoubleBox(15, 9, 50, 9, 8);
+  drawBox(15, 9, 50, 9, 8);
 
   if (res == 0) {
     setCursor(28, 11);
