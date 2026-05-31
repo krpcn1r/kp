@@ -1,4 +1,4 @@
-﻿#include "AdminPanel.h"
+#include "AdminPanel.h"
 
 #include <algorithm>
 #include <cctype>
@@ -18,48 +18,13 @@
 
 using namespace std;
 
-static string toLowerAscii(string value) {
-    for (char& c : value) {
-        c = static_cast<char>(tolower(static_cast<unsigned char>(c)));
-    }
-    return value;
-}
-
-static string roleToText(Role role) {
-    return role == Role::ADMIN ? "ADMIN" : "OPERATOR";
-}
-
-static void toggleUserRole(User& user) {
-    user.role = user.role == Role::ADMIN ? Role::OPERATOR : Role::ADMIN;
-}
-
-static string maskedPassword(const string& password) {
-    return string(std::min<size_t>(password.length(), 20 - 2), '*');
-}
-
-static int visibleUserRowY(int index, int startIdx) {
-    return 7 + (index - startIdx) * 2;
-}
-
-static bool hasAnotherAdmin(const vector<User>& users, int ignoredIdx) {
-    for (int i = 0; i < (int)users.size(); ++i) {
-        if (i != ignoredIdx && users[i].role == Role::ADMIN) {
-            return true;
-        }
-    }
-    return false;
-}
-
 static void drawUsersTable(const string& title, const vector<User>& users, int startIdx, int selectedIdx, int editingIdx, int activeField, const User& draftUser, const string& message, int messageColor, bool fullRedraw, const string& defaultHint, const string& editHint, const string& statusText) {
     vector<TableColumn> columns = {
         {3, 4, "N"},
         {10, 20, "Логин"},
         {34, 20, "Пароль"},
         {58, 14, "Роль"}};
-    vector<int> separators = {
-        8,
-        32,
-        56};
+    vector<int> separators = {8, 32, 56};
 
     if (fullRedraw) {
         clearScreen();
@@ -96,17 +61,26 @@ static void drawUsersTable(const string& title, const vector<User>& users, int s
             }
 
             drawTableCell(32, y, 1, "|", rowColor);
+
             if (isEditing && activeField == 1) {
                 drawInputContent(34, y, 20, draftUser.password, true, true);
             } else {
-                drawTableCell(34, y, 20, maskedPassword(rowUser.password), rowColor);
+                size_t maskLen = rowUser.password.length();
+                if (maskLen > 18) {
+                    maskLen = 18;
+                }
+                drawTableCell(34, y, 20, string(maskLen, '*'), rowColor);
             }
 
             drawTableCell(56, y, 1, "|", rowColor);
+
             if (isEditing) {
-                drawTableCell(58, y, 14, roleToText(draftUser.role), activeField == 2 ? 31 : rowColor);
+                string roleStr = (draftUser.role == Role::ADMIN) ? "ADMIN" : "OPERATOR";
+                int roleColor = (activeField == 2) ? 31 : rowColor;
+                drawTableCell(58, y, 14, roleStr, roleColor);
             } else {
-                drawTableCell(58, y, 14, roleToText(rowUser.role), rowColor);
+                string roleStr = (rowUser.role == Role::ADMIN) ? "ADMIN" : "OPERATOR";
+                drawTableCell(58, y, 14, roleStr, rowColor);
             }
         }
 
@@ -154,20 +128,36 @@ static bool validateUserEdit(const vector<User>& users, int editIdx, const User&
         return false;
     }
 
-    string originalLogin = toLowerAscii(users[editIdx].login);
-    string newLogin = toLowerAscii(draft.login);
-    if (newLogin != originalLogin) {
-        for (int i = 0; i < (int)users.size(); ++i) {
-            if (i != editIdx && toLowerAscii(users[i].login) == newLogin) {
-                message = "Ошибка: такой логин уже занят.";
-                activeField = 0;
-                return false;
-            }
+    // проверка уникальности логина без учёта регистра
+    string newLoginLower = draft.login;
+    for (char& c : newLoginLower) {
+        c = (char)tolower((unsigned char)c);
+    }
+    for (int i = 0; i < (int)users.size(); ++i) {
+        if (i == editIdx) {
+            continue;
+        }
+        string existingLower = users[i].login;
+        for (char& c : existingLower) {
+            c = (char)tolower((unsigned char)c);
+        }
+        if (existingLower == newLoginLower) {
+            message = "Ошибка: такой логин уже занят.";
+            activeField = 0;
+            return false;
         }
     }
 
+    // проверка что остался хотя бы один администратор
     if (draft.role != Role::ADMIN) {
-        if (!hasAnotherAdmin(users, editIdx)) {
+        bool otherAdminExists = false;
+        for (int i = 0; i < (int)users.size(); ++i) {
+            if (i != editIdx && users[i].role == Role::ADMIN) {
+                otherAdminExists = true;
+                break;
+            }
+        }
+        if (!otherAdminExists) {
             message = "Ошибка: в системе должен остаться хотя бы один администратор.";
             activeField = 2;
             return false;
@@ -194,23 +184,21 @@ static vector<string> loadBackupNames() {
     return backups;
 }
 
-static void drawBackupsList(const string& title, const vector<string>& backups, int startIdx, int selectedIdx, const string& message, int messageColor, bool fullRedraw) {
+static void drawBackupsList(const string& title, const vector<string>& backups, int startIdx, int selectedIdx, const string& message, int messageColor) {
     vector<TableColumn> cols = {
         {5, 4, "N"},
         {14, 50, "Папка бэкапа"}};
     vector<int> seps = {11};
 
-    if (fullRedraw) {
-        clearScreen();
-        drawBox(1, 1, 90, 28, 14);
+    clearScreen();
+    drawBox(1, 1, 90, 28, 14);
 
-        setCursor(34 - (int)title.length() / 4, 2);
-        setColor(11);
-        cout << title;
+    setCursor(34 - (int)title.length() / 4, 2);
+    setColor(11);
+    cout << title;
 
-        drawTableHeader(4, cols, seps, 15);
-        drawTableSeparator(2, 5, 70, seps, 15);
-    }
+    drawTableHeader(4, cols, seps, 15);
+    drawTableSeparator(2, 5, 70, seps, 15);
 
     for (int i = 0; i < 8; i++) {
         int idx = startIdx + i;
@@ -297,24 +285,20 @@ void AdminPanel::showAdminPanel() {
             if (i == 3) {
                 setCursor(2, 7 + 3);
                 setColor(11);
-                {
-                    cout << "+";
-                    for (int j = 0; j < 74; j++) {
-                        cout << "-";
-                    }
-                    cout << "+";
+                cout << "+";
+                for (int j = 0; j < 74; j++) {
+                    cout << "-";
                 }
+                cout << "+";
             }
             if (i == 6) {
                 setCursor(2, 7 + 6 + 1);
                 setColor(11);
-                {
-                    cout << "+";
-                    for (int j = 0; j < 74; j++) {
-                        cout << "-";
-                    }
-                    cout << "+";
+                cout << "+";
+                for (int j = 0; j < 74; j++) {
+                    cout << "-";
                 }
+                cout << "+";
             }
 
             setCursor(6, yPos);
@@ -377,8 +361,7 @@ void AdminPanel::showUsersList() {
     bool needFullRedraw = true;
 
     while (true) {
-        string statusText = "Всего пользователей: " + to_string(users.size()) +
-                            "  |  Просмотр списка";
+        string statusText = "Всего пользователей: " + to_string(users.size()) + "  |  Просмотр списка";
 
         drawUsersTable("СПИСОК ПОЛЬЗОВАТЕЛЕЙ", users, startIdx, selectedIdx, -1, 0, emptyUser, "", 8, needFullRedraw, "", "", statusText);
         needFullRedraw = false;
@@ -421,7 +404,6 @@ void AdminPanel::editUser() {
     bool needFullRedraw = true;
 
     while (true) {
-        // выравниваем selectedIdx и startIdx по границам
         if (users.empty()) {
             selectedIdx = -1;
             startIdx = 0;
@@ -442,17 +424,14 @@ void AdminPanel::editUser() {
 
         string statusText;
         if (editingIdx >= 0) {
-            statusText = "Всего пользователей: " + to_string(users.size()) +
-                         "  |  Режим: редактирование строки " + to_string(editingIdx + 1);
+            statusText = "Всего пользователей: " + to_string(users.size()) + "  |  Режим: редактирование строки " + to_string(editingIdx + 1);
         } else {
-            statusText = "Всего пользователей: " + to_string(users.size()) +
-                         "  |  Выбран: " + to_string(users.empty() ? 0 : selectedIdx + 1);
+            statusText = "Всего пользователей: " + to_string(users.size()) + "  |  Выбран: " + to_string(users.empty() ? 0 : selectedIdx + 1);
         }
 
         drawUsersTable("ИЗМЕНЕНИЕ ПОЛЬЗОВАТЕЛЕЙ", users, startIdx, selectedIdx, editingIdx, activeField, draftUser, message, messageColor, needFullRedraw, "Enter - редактировать выбранную строку. Esc - назад.", "Tab - поле. Space/стрелки/A/O - роль. Enter - сохранить. Esc - отменить.", statusText);
         needFullRedraw = false;
 
-        // режим выбора пользователя
         if (editingIdx == -1) {
             int key = InputHandler::getExtKey();
             if (key == Key::ESC) {
@@ -480,9 +459,9 @@ void AdminPanel::editUser() {
             continue;
         }
 
-        // режим редактирования — поля логин и пароль
+        // поля логин и пароль — текстовый ввод
         if (activeField == 0 || activeField == 1) {
-            int rowY = visibleUserRowY(editingIdx, startIdx);
+            int rowY = 7 + (editingIdx - startIdx) * 2;
             int exitKey = 0;
 
             if (activeField == 0) {
@@ -509,7 +488,7 @@ void AdminPanel::editUser() {
             continue;
         }
 
-        // режим редактирования — поле роли
+        // поле роли — переключение стрелками
         int key = InputHandler::getExtKey();
         message = "";
         messageColor = 8;
@@ -519,7 +498,11 @@ void AdminPanel::editUser() {
         } else if (key == Key::UP) {
             activeField = (activeField + 2) % 3;
         } else if (key == Key::LEFT || key == Key::RIGHT || key == ' ') {
-            toggleUserRole(draftUser);
+            if (draftUser.role == Role::ADMIN) {
+                draftUser.role = Role::OPERATOR;
+            } else {
+                draftUser.role = Role::ADMIN;
+            }
         } else if (key == 'a' || key == 'A') {
             draftUser.role = Role::ADMIN;
         } else if (key == 'o' || key == 'O') {
@@ -547,7 +530,9 @@ void AdminPanel::editUser() {
                         det += "; пароль изменён";
                     }
                     if (before.role != draftUser.role) {
-                        det += string("; роль: ") + roleToText(before.role) + " -> " + roleToText(draftUser.role);
+                        string beforeRole = (before.role == Role::ADMIN) ? "ADMIN" : "OPERATOR";
+                        string newRole = (draftUser.role == Role::ADMIN) ? "ADMIN" : "OPERATOR";
+                        det += "; роль: " + beforeRole + " -> " + newRole;
                     }
                     Logger::log(LogCategory::USER, "Изменён пользователь", det);
                     users = Database::loadUsers();
@@ -595,8 +580,7 @@ void AdminPanel::deleteUser() {
             }
         }
 
-        string statusText = "Всего пользователей: " + to_string(users.size()) +
-                            "  |  Выбран: " + to_string(users.empty() ? 0 : selectedIdx + 1);
+        string statusText = "Всего пользователей: " + to_string(users.size()) + "  |  Выбран: " + to_string(users.empty() ? 0 : selectedIdx + 1);
 
         drawUsersTable("УДАЛЕНИЕ ПОЛЬЗОВАТЕЛЕЙ", users, startIdx, selectedIdx, -1, 0, emptyUser, message, messageColor, needFullRedraw, "", "", statusText);
         needFullRedraw = false;
@@ -627,10 +611,19 @@ void AdminPanel::deleteUser() {
                 }
             }
         } else if (key == Key::ENTER) {
-            if (users[selectedIdx].role == Role::ADMIN && !hasAnotherAdmin(users, selectedIdx)) {
-                message = "Ошибка: нельзя удалить последнего администратора.";
-                messageColor = 12;
-                continue;
+            if (users[selectedIdx].role == Role::ADMIN) {
+                bool otherAdminExists = false;
+                for (int i = 0; i < (int)users.size(); ++i) {
+                    if (i != selectedIdx && users[i].role == Role::ADMIN) {
+                        otherAdminExists = true;
+                        break;
+                    }
+                }
+                if (!otherAdminExists) {
+                    message = "Ошибка: нельзя удалить последнего администратора.";
+                    messageColor = 12;
+                    continue;
+                }
             }
 
             string login = users[selectedIdx].login;
@@ -652,7 +645,8 @@ void AdminPanel::deleteUser() {
                 continue;
             }
 
-            Logger::log(LogCategory::USER, "Удалён пользователь", "login=" + snapshot.login + ", role=" + roleToText(snapshot.role));
+            string snapshotRole = (snapshot.role == Role::ADMIN) ? "ADMIN" : "OPERATOR";
+            Logger::log(LogCategory::USER, "Удалён пользователь", "login=" + snapshot.login + ", role=" + snapshotRole);
 
             users = Database::loadUsers();
             if (users.empty()) {
@@ -743,17 +737,14 @@ void AdminPanel::createBackup() {
     cout << "Нажмите любую клавишу для возврата...";
 
     InputHandler::waitAnyKey();
-    return;
 }
 
 void AdminPanel::showBackups() {
     vector<string> backups = loadBackupNames();
     int startIdx = 0;
-    bool needFullRedraw = true;
 
     while (true) {
-        drawBackupsList("БЭКАПЫ БД", backups, startIdx, -1, "", 8, needFullRedraw);
-        needFullRedraw = false;
+        drawBackupsList("БЭКАПЫ БД", backups, startIdx, -1, "", 8);
 
         int key = InputHandler::getExtKey();
         if (key == Key::ESC) {
@@ -781,11 +772,9 @@ void AdminPanel::restoreBackup() {
     int startIdx = 0;
     string message = "";
     int messageColor = 8;
-    bool needFullRedraw = true;
 
     while (true) {
-        drawBackupsList("ВОССТАНОВЛЕНИЕ БЭКАПА", backups, startIdx, selectedIdx, message, messageColor, needFullRedraw);
-        needFullRedraw = false;
+        drawBackupsList("ВОССТАНОВЛЕНИЕ БЭКАПА", backups, startIdx, selectedIdx, message, messageColor);
 
         int key = InputHandler::getExtKey();
         message = "";
@@ -815,7 +804,6 @@ void AdminPanel::restoreBackup() {
         } else if (key == Key::ENTER) {
             string name = backups[selectedIdx];
             if (!showConfirmation("Восстановить бэкап " + name + "?")) {
-                needFullRedraw = true;
                 message = "Восстановление отменено.";
                 messageColor = 8;
                 continue;
@@ -840,7 +828,6 @@ void AdminPanel::restoreBackup() {
                 messageColor = 12;
                 Logger::log(LogCategory::SYSTEM, "Ошибка восстановления бэкапа", "папка=" + name);
             }
-            needFullRedraw = true;
         }
     }
 }
