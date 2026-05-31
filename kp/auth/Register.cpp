@@ -1,7 +1,5 @@
 #include "Register.h"
-
 #include <iostream>
-
 #include "../core/InputHandler.h"
 #include "../core/Render.h"
 #include "AuthManager.h"

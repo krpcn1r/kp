@@ -62,15 +62,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="data\settings.dat">
-      <Filter>Исходные файлы</Filter>
-    </None>
-    <None Include="data\users.dat">
-      <Filter>Исходные файлы</Filter>
-    </None>
-    <None Include="data\clients.dat" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="core\Render.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>

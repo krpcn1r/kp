@@ -169,11 +169,6 @@
     <ClInclude Include="core\Render.h" />
     <ClInclude Include="user\HomeMenu.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="data\clients.dat" />
-    <None Include="data\settings.dat" />
-    <None Include="data\users.dat" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

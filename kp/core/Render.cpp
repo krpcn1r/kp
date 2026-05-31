@@ -1,11 +1,9 @@
 #include "Render.h"
-
 #include <windows.h>
-
 #include <iomanip>
 #include <iostream>
-
 #include "InputHandler.h"
+
 using namespace std;
 
 // маленькое окошко для подтверждения действия да или нет
