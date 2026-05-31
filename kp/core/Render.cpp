@@ -8,29 +8,6 @@
 #include "InputHandler.h"
 using namespace std;
 
-// показ экрана типа раздел еще не сделан
-void showPlaceholder(const string& title) {
-    clearScreen();
-    drawBox(10, 8, 60, 10, 14);
-
-    setCursor(26, 10);
-    setColor(14);
-    cout << "РАЗДЕЛ В РАЗРАБОТКЕ";
-
-    setCursor(15, 12);
-    setColor(15);
-    cout << "Раздел: " << title;
-
-    setCursor(15, 14);
-    setColor(8);
-    cout << "Данный функционал будет доступен в будущих версиях.";
-
-    setCursor(15, 16);
-    cout << "Нажмите любую клавишу для возврата...";
-
-    InputHandler::waitAnyKey();
-}
-
 // маленькое окошко для подтверждения действия да или нет
 bool showConfirmation(const string& message) {
     // отрисовка небольшого окна в центре
