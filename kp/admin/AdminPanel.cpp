@@ -18,6 +18,27 @@
 
 using namespace std;
 
+// вариант 8: общая корректировка скролла для таблиц пользователей
+static void clampScroll(int& selectedIdx, int& startIdx, int size) {
+    if (size == 0) {
+        selectedIdx = -1;
+        startIdx = 0;
+        return;
+    }
+    if (selectedIdx < 0) {
+        selectedIdx = 0;
+    }
+    if (selectedIdx >= size) {
+        selectedIdx = size - 1;
+    }
+    if (selectedIdx < startIdx) {
+        startIdx = selectedIdx;
+    }
+    if (selectedIdx >= startIdx + 8) {
+        startIdx = selectedIdx - 8 + 1;
+    }
+}
+
 static void drawUsersTable(const string& title, const vector<User>& users, int startIdx, int selectedIdx, int editingIdx, int activeField, const User& draftUser, const string& message, int messageColor, bool fullRedraw, const string& defaultHint, const string& editHint, const string& statusText) {
     vector<TableColumn> columns = {
         {3, 4, "N"},
@@ -128,7 +149,6 @@ static bool validateUserEdit(const vector<User>& users, int editIdx, const User&
         return false;
     }
 
-    // проверка уникальности логина без учёта регистра
     string newLoginLower = draft.login;
     for (char& c : newLoginLower) {
         c = (char)tolower((unsigned char)c);
@@ -148,7 +168,6 @@ static bool validateUserEdit(const vector<User>& users, int editIdx, const User&
         }
     }
 
-    // проверка что остался хотя бы один администратор
     if (draft.role != Role::ADMIN) {
         bool otherAdminExists = false;
         for (int i = 0; i < (int)users.size(); ++i) {
@@ -167,6 +186,7 @@ static bool validateUserEdit(const vector<User>& users, int editIdx, const User&
     return true;
 }
 
+// вариант 3: сортировка в обратном порядке за один вызов
 static vector<string> loadBackupNames() {
     vector<string> backups;
     if (!std::filesystem::exists("data/backups")) {
@@ -179,8 +199,7 @@ static vector<string> loadBackupNames() {
         }
     }
 
-    sort(backups.begin(), backups.end());
-    reverse(backups.begin(), backups.end());
+    sort(backups.rbegin(), backups.rend());
     return backups;
 }
 
@@ -262,61 +281,44 @@ void AdminPanel::showAdminPanel() {
         drawFooter(28, true);
 
         string options[numOptions] = {
-            "1. Просмотр текущих пользователей",
-            "2. Изменение данных пользователя ",
-            "3. Удаление пользователей        ",
-            "4. Создать бэкап БД              ",
-            "5. Просмотреть бэкапы БД         ",
-            "6. Загрузка бэкапов              ",
-            "7. Просмотр логов                ",
-            "8. Изменение пароля админа       ",
-            "9. Выход                         "};
+            "1. Просмотр/изменение пользователей",
+            "2. Удаление пользователей           ",
+            "3. Создать бэкап БД                 ",
+            "4. Просмотреть бэкапы БД            ",
+            "5. Загрузка бэкапов                 ",
+            "6. Просмотр логов                   ",
+            "7. Изменение пароля админа          ",
+            "8. Выход                            "};
 
+        // вариант 4: разделители рисуем до цикла, не внутри него
+        setColor(11);
+        setCursor(2, 10);
+        cout << "+";
+        for (int i = 0; i < 74; i++) {
+            cout << "-";
+        }
+        cout << "+";
+
+        // вариант 5: цвет и префикс вычисляем один раз, выводим одним блоком
         for (int i = 0; i < numOptions; i++) {
             int yPos = 7 + i;
-
             if (i >= 3) {
-                yPos += 1;
-            }
-            if (i >= 6) {
-                yPos += 1;
+                yPos++;
             }
 
-            if (i == 3) {
-                setCursor(2, 7 + 3);
-                setColor(11);
-                cout << "+";
-                for (int j = 0; j < 74; j++) {
-                    cout << "-";
-                }
-                cout << "+";
-            }
-            if (i == 6) {
-                setCursor(2, 7 + 6 + 1);
-                setColor(11);
-                cout << "+";
-                for (int j = 0; j < 74; j++) {
-                    cout << "-";
-                }
-                cout << "+";
+            bool selected = (i == selectedOption);
+            bool isExit = (i == numOptions - 1);
+
+            int color;
+            if (selected) {
+                color = isExit ? 12 : 10;
+            } else {
+                color = isExit ? 4 : 8;
             }
 
             setCursor(6, yPos);
-            if (i == selectedOption) {
-                if (i == 8) {
-                    setColor(12);
-                } else {
-                    setColor(10);
-                }
-                cout << "> " << options[i] << "         ";
-            } else {
-                if (i == 8) {
-                    setColor(4);
-                } else {
-                    setColor(8);
-                }
-                cout << "  " << options[i] << "         ";
-            }
+            setColor(color);
+            cout << (selected ? "> " : "  ") << options[i] << "   ";
         }
 
         int key = InputHandler::getExtKey();
@@ -326,68 +328,28 @@ void AdminPanel::showAdminPanel() {
         } else if (key == Key::UP) {
             selectedOption = (selectedOption - 1 + numOptions) % numOptions;
         } else if (key == Key::ENTER) {
+            // вариант 7: showUsersList убран, пункт 1 ведёт в editUser
             if (selectedOption == 0) {
-                showUsersList();
-            } else if (selectedOption == 1) {
                 editUser();
-            } else if (selectedOption == 2) {
+            } else if (selectedOption == 1) {
                 deleteUser();
-            } else if (selectedOption == 3) {
+            } else if (selectedOption == 2) {
                 createBackup();
-            } else if (selectedOption == 4) {
+            } else if (selectedOption == 3) {
                 showBackups();
-            } else if (selectedOption == 5) {
+            } else if (selectedOption == 4) {
                 restoreBackup();
-            } else if (selectedOption == 6) {
+            } else if (selectedOption == 5) {
                 LogViewer::show();
-            } else if (selectedOption == 7) {
+            } else if (selectedOption == 6) {
                 HomeMenu::showChangePassword();
-            } else if (selectedOption == 8) {
+            } else if (selectedOption == 7) {
                 return;
             }
 
             needFullRedraw = true;
         } else if (key == Key::ESC) {
             return;
-        }
-    }
-}
-
-void AdminPanel::showUsersList() {
-    vector<User> users = Database::loadUsers();
-    int selectedIdx = users.empty() ? -1 : 0;
-    int startIdx = 0;
-    User emptyUser = {};
-    bool needFullRedraw = true;
-
-    while (true) {
-        string statusText = "Всего пользователей: " + to_string(users.size()) + "  |  Просмотр списка";
-
-        drawUsersTable("СПИСОК ПОЛЬЗОВАТЕЛЕЙ", users, startIdx, selectedIdx, -1, 0, emptyUser, "", 8, needFullRedraw, "", "", statusText);
-        needFullRedraw = false;
-
-        int key = InputHandler::getExtKey();
-        if (key == Key::ESC) {
-            return;
-        }
-        if (users.empty()) {
-            continue;
-        }
-
-        if (key == Key::DOWN || key == Key::TAB) {
-            if (selectedIdx < (int)users.size() - 1) {
-                selectedIdx++;
-                if (selectedIdx >= startIdx + 8) {
-                    startIdx++;
-                }
-            }
-        } else if (key == Key::UP) {
-            if (selectedIdx > 0) {
-                selectedIdx--;
-                if (selectedIdx < startIdx) {
-                    startIdx--;
-                }
-            }
         }
     }
 }
@@ -404,23 +366,8 @@ void AdminPanel::editUser() {
     bool needFullRedraw = true;
 
     while (true) {
-        if (users.empty()) {
-            selectedIdx = -1;
-            startIdx = 0;
-        } else {
-            if (selectedIdx < 0) {
-                selectedIdx = 0;
-            }
-            if (selectedIdx >= (int)users.size()) {
-                selectedIdx = (int)users.size() - 1;
-            }
-            if (selectedIdx < startIdx) {
-                startIdx = selectedIdx;
-            }
-            if (selectedIdx >= startIdx + 8) {
-                startIdx = selectedIdx - 8 + 1;
-            }
-        }
+        // вариант 8: корректировка скролла через общую функцию
+        clampScroll(selectedIdx, startIdx, (int)users.size());
 
         string statusText;
         if (editingIdx >= 0) {
@@ -459,7 +406,6 @@ void AdminPanel::editUser() {
             continue;
         }
 
-        // поля логин и пароль — текстовый ввод
         if (activeField == 0 || activeField == 1) {
             int rowY = 7 + (editingIdx - startIdx) * 2;
             int exitKey = 0;
@@ -488,7 +434,6 @@ void AdminPanel::editUser() {
             continue;
         }
 
-        // поле роли — переключение стрелками
         int key = InputHandler::getExtKey();
         message = "";
         messageColor = 8;
@@ -562,23 +507,8 @@ void AdminPanel::deleteUser() {
     bool needFullRedraw = true;
 
     while (true) {
-        if (users.empty()) {
-            selectedIdx = -1;
-            startIdx = 0;
-        } else {
-            if (selectedIdx < 0) {
-                selectedIdx = 0;
-            }
-            if (selectedIdx >= (int)users.size()) {
-                selectedIdx = (int)users.size() - 1;
-            }
-            if (selectedIdx < startIdx) {
-                startIdx = selectedIdx;
-            }
-            if (selectedIdx >= startIdx + 8) {
-                startIdx = selectedIdx - 8 + 1;
-            }
-        }
+        // вариант 8: корректировка скролла через общую функцию
+        clampScroll(selectedIdx, startIdx, (int)users.size());
 
         string statusText = "Всего пользователей: " + to_string(users.size()) + "  |  Выбран: " + to_string(users.empty() ? 0 : selectedIdx + 1);
 
@@ -700,23 +630,20 @@ void AdminPanel::createBackup() {
         string backupPath = "data/backups/" + backupFolderName;
         std::filesystem::create_directories(backupPath);
 
-        if (std::filesystem::exists("data/users.json")) {
-            std::filesystem::copy("data/users.json", backupPath + "/users.json", std::filesystem::copy_options::overwrite_existing);
+        // вариант 2: цикл по файлам вместо трёх одинаковых if-блоков
+        string files[] = {"users.json", "clients.json", "tariffs.json"};
+        for (const string& file : files) {
+            if (std::filesystem::exists("data/" + file)) {
+                std::filesystem::copy("data/" + file, backupPath + "/" + file, std::filesystem::copy_options::overwrite_existing);
+            }
         }
-        if (std::filesystem::exists("data/clients.json")) {
-            std::filesystem::copy("data/clients.json", backupPath + "/clients.json", std::filesystem::copy_options::overwrite_existing);
-        }
-        if (std::filesystem::exists("data/tariffs.json")) {
-            std::filesystem::copy("data/tariffs.json", backupPath + "/tariffs.json", std::filesystem::copy_options::overwrite_existing);
-        }
+
+        // вариант 1: логируем успех прямо внутри try
+        Logger::log(LogCategory::SYSTEM, "Создан бэкап БД", "папка=" + backupFolderName);
     } catch (const exception&) {
         resultText = "Ошибка создания бэкапа";
         resultColor = 12;
-    }
-
-    if (resultColor == 10) {
-        Logger::log(LogCategory::SYSTEM, "Создан бэкап БД", "папка=" + backupFolderName);
-    } else {
+        // вариант 1: логируем ошибку прямо внутри catch
         Logger::log(LogCategory::SYSTEM, "Ошибка создания бэкапа БД");
     }
 
@@ -811,14 +738,12 @@ void AdminPanel::restoreBackup() {
 
             try {
                 string path = "data/backups/" + name;
-                if (filesystem::exists(path + "/users.json")) {
-                    filesystem::copy(path + "/users.json", "data/users.json", filesystem::copy_options::overwrite_existing);
-                }
-                if (filesystem::exists(path + "/clients.json")) {
-                    filesystem::copy(path + "/clients.json", "data/clients.json", filesystem::copy_options::overwrite_existing);
-                }
-                if (filesystem::exists(path + "/tariffs.json")) {
-                    filesystem::copy(path + "/tariffs.json", "data/tariffs.json", filesystem::copy_options::overwrite_existing);
+                // вариант 2: цикл по файлам вместо трёх одинаковых if-блоков
+                string files[] = {"users.json", "clients.json", "tariffs.json"};
+                for (const string& file : files) {
+                    if (filesystem::exists(path + "/" + file)) {
+                        filesystem::copy(path + "/" + file, "data/" + file, filesystem::copy_options::overwrite_existing);
+                    }
                 }
                 message = "Бэкап " + name + " успешно восстановлен.";
                 messageColor = 10;
