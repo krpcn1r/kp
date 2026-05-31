@@ -33,7 +33,9 @@ int ClientManager::addClient(const std::string &name,
     newClient.isActive = true;
 
     clients.push_back(newClient);
-    if (!Database::saveClients(clients)) return 3;
+    if (!Database::saveClients(clients)) {
+        return 3;
+    }
 
     std::ostringstream det;
     det << "id=" << newClient.id << ", ФИО=" << name
@@ -56,32 +58,49 @@ std::vector<Client> ClientManager::findClients(const std::string &query) {
     for (const auto &c : all) {
         bool match = false;
         // поиск по id если введено число
-        if (std::to_string(c.id) == query) match = true;
+        if (std::to_string(c.id) == query) {
+            match = true;
+        }
         // поиск в номере телефона
-        if (c.phoneNumber.find(query) != std::string::npos) match = true;
+        if (c.phoneNumber.find(query) != std::string::npos) {
+            match = true;
+        }
         // поиск в ФИО
-        if (c.fullName.find(query) != std::string::npos) match = true;
+        if (c.fullName.find(query) != std::string::npos) {
+            match = true;
+        }
 
-        if (match) results.push_back(c);  // добавление совпадения в результат
+        if (match) {
+            results.push_back(c);  // добавление совпадения в результат
+        }
     }
 
     return results;
 }
 
 std::vector<Client> ClientManager::findClientsByFields(
-    const std::string &idQuery, const std::string &nameQuery,
-    const std::string &phoneQuery, const std::string &tariffQuery) {
+    const std::string &idQuery, const std::string &nameQuery, const std::string &phoneQuery, const std::string &tariffQuery) {
     std::vector<Client> all = Database::loadClients();
 
     bool allEmpty = idQuery.empty() && nameQuery.empty() && phoneQuery.empty() && tariffQuery.empty();
-    if (allEmpty) return all;
+    if (allEmpty) {
+        return all;
+    }
 
     std::vector<Client> results;
     for (const auto &c : all) {
-        if (!idQuery.empty() && std::to_string(c.id).find(idQuery) == std::string::npos) continue;
-        if (!nameQuery.empty() && c.fullName.find(nameQuery) == std::string::npos) continue;
-        if (!phoneQuery.empty() && c.phoneNumber.find(phoneQuery) == std::string::npos) continue;
-        if (!tariffQuery.empty() && c.tariffName.find(tariffQuery) == std::string::npos) continue;
+        if (!idQuery.empty() && std::to_string(c.id).find(idQuery) == std::string::npos) {
+            continue;
+        }
+        if (!nameQuery.empty() && c.fullName.find(nameQuery) == std::string::npos) {
+            continue;
+        }
+        if (!phoneQuery.empty() && c.phoneNumber.find(phoneQuery) == std::string::npos) {
+            continue;
+        }
+        if (!tariffQuery.empty() && c.tariffName.find(tariffQuery) == std::string::npos) {
+            continue;
+        }
         results.push_back(c);
     }
     return results;
@@ -94,21 +113,28 @@ bool ClientManager::updateClient(int id, const Client &updatedData) {
             Client before = c;
             c = updatedData;
             c.id = id;  // На всякий случай сохраняем ID
-            if (!Database::saveClients(clients)) return false;
+            if (!Database::saveClients(clients)) {
+                return false;
+            }
 
             std::ostringstream det;
             det << "id=" << id;
-            if (before.fullName != c.fullName)
+            if (before.fullName != c.fullName) {
                 det << "; ФИО: '" << before.fullName << "' -> '" << c.fullName << "'";
-            if (before.phoneNumber != c.phoneNumber)
+            }
+            if (before.phoneNumber != c.phoneNumber) {
                 det << "; тел: '" << before.phoneNumber << "' -> '" << c.phoneNumber << "'";
-            if (before.tariffName != c.tariffName)
+            }
+            if (before.tariffName != c.tariffName) {
                 det << "; тариф: '" << before.tariffName << "' -> '" << c.tariffName << "'";
-            if (before.balance != c.balance)
+            }
+            if (before.balance != c.balance) {
                 det << "; баланс: " << before.balance << " -> " << c.balance;
-            if (before.isActive != c.isActive)
+            }
+            if (before.isActive != c.isActive) {
                 det << "; статус: " << (before.isActive ? "Активен" : "Заблок.")
                     << " -> " << (c.isActive ? "Активен" : "Заблок.");
+            }
             Logger::log(LogCategory::CLIENT, "Изменён клиент", det.str());
             return true;
         }
@@ -124,7 +150,9 @@ bool ClientManager::deleteClient(int id) {
                                    ", ФИО=" + it->fullName +
                                    ", тел=" + it->phoneNumber;
             clients.erase(it);
-            if (!Database::saveClients(clients)) return false;
+            if (!Database::saveClients(clients)) {
+                return false;
+            }
             Logger::log(LogCategory::CLIENT, "Удалён клиент", snapshot);
             return true;
         }
@@ -138,10 +166,10 @@ bool ClientManager::toggleClientStatus(int id) {
     for (auto &c : clients) {
         if (c.id == id) {
             c.isActive = !c.isActive;  // инвертирование статуса
-            if (!Database::saveClients(clients)) return false;
-            Logger::log(LogCategory::CLIENT, "Изменён статус клиента",
-                        "id=" + std::to_string(id) + ", новый статус=" +
-                            (c.isActive ? "Активен" : "Заблокирован"));
+            if (!Database::saveClients(clients)) {
+                return false;
+            }
+            Logger::log(LogCategory::CLIENT, "Изменён статус клиента", "id=" + std::to_string(id) + ", новый статус=" + (c.isActive ? "Активен" : "Заблокирован"));
             return true;
         }
     }

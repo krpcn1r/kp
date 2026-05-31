@@ -21,12 +21,7 @@ static string balanceToStr(double balance) {
 }
 
 // отрисовка таблицы с поддержкой выделения и inline-редактирования
-static void drawClientsTable(const string& title, const vector<Client>& clients,
-                             int startIdx, int selectedIdx,
-                             int editingIdx, int activeField,
-                             const Client& draft, const string& draftBalance,
-                             const string& message, int messageColor,
-                             bool fullRedraw, const string& statusText) {
+static void drawClientsTable(const string& title, const vector<Client>& clients, int startIdx, int selectedIdx, int editingIdx, int activeField, const Client& draft, const string& draftBalance, const string& message, int messageColor, bool fullRedraw, const string& statusText) {
     vector<TableColumn> cols = {
         {3, 4, "ID"},
         {10, 24, "ФИО"},
@@ -66,43 +61,46 @@ static void drawClientsTable(const string& title, const vector<Client>& clients,
             drawTableCell(8, y, 1, "|", rowColor);
 
             // ФИО
-            if (isEditing && activeField == 0)
+            if (isEditing && activeField == 0) {
                 drawInputContent(10, y, 24, draft.fullName, false, true);
-            else
+            } else {
                 drawTableCell(10, y, 24, c.fullName, rowColor);
+            }
 
             drawTableCell(35, y, 1, "|", rowColor);
 
             // Телефон
-            if (isEditing && activeField == 1)
+            if (isEditing && activeField == 1) {
                 drawInputContent(37, y, 14, draft.phoneNumber, false, true);
-            else
+            } else {
                 drawTableCell(37, y, 14, c.phoneNumber, rowColor);
+            }
 
             drawTableCell(52, y, 1, "|", rowColor);
 
             // Тариф
             string tariffStr = c.tariffName.empty() ? "Базовый" : c.tariffName;
-            if (isEditing && activeField == 2)
+            if (isEditing && activeField == 2) {
                 drawInputContent(54, y, 12, draft.tariffName, false, true);
-            else
+            } else {
                 drawTableCell(54, y, 12, tariffStr, rowColor);
+            }
 
             drawTableCell(67, y, 1, "|", rowColor);
 
             // Баланс
-            if (isEditing && activeField == 3)
+            if (isEditing && activeField == 3) {
                 drawInputContent(69, y, 8, draftBalance, false, true);
-            else
+            } else {
                 drawTableCell(69, y, 8, balanceToStr(c.balance), rowColor);
+            }
 
             drawTableCell(78, y, 1, "|", rowColor);
 
             // Статус
             if (isEditing) {
                 string draftStat = draft.isActive ? "Активен" : "Заблок.";
-                drawTableCell(80, y, 9, draftStat,
-                              activeField == 4 ? 31 : rowColor);
+                drawTableCell(80, y, 9, draftStat, activeField == 4 ? 31 : rowColor);
             } else {
                 string statStr = c.isActive ? "Активен" : "Заблок.";
                 int statColor = isSelected ? 240 : (c.isActive ? 10 : 4);
@@ -116,10 +114,11 @@ static void drawClientsTable(const string& title, const vector<Client>& clients,
     clearLine(3, 24, 84);
     setCursor(3, 24);
     setColor(messageColor);
-    if (!message.empty())
+    if (!message.empty()) {
         cout << message;
-    else if (clients.empty())
+    } else if (clients.empty()) {
         cout << "Абоненты не найдены.";
+    }
 
     clearLine(3, 27, 84);
     setCursor(3, 27);
@@ -131,9 +130,7 @@ static void drawClientsTable(const string& title, const vector<Client>& clients,
 }
 
 // проверка данных черновика перед сохранением
-static bool validateClientEdit(const vector<Client>& clients, int editIdx,
-                               const Client& draft, const string& draftBalance,
-                               string& message, int& activeField) {
+static bool validateClientEdit(const vector<Client>& clients, int editIdx, const Client& draft, const string& draftBalance, string& message, int& activeField) {
     if (draft.fullName.empty()) {
         message = "Ошибка: ФИО не может быть пустым.";
         activeField = 0;
@@ -179,32 +176,45 @@ void ClientMenu::showList() {
             selectedIdx = -1;
             startIdx = 0;
         } else {
-            if (selectedIdx < 0) selectedIdx = 0;
-            if (selectedIdx >= (int)clients.size()) selectedIdx = (int)clients.size() - 1;
-            if (selectedIdx < startIdx) startIdx = selectedIdx;
-            if (selectedIdx >= startIdx + 8)
+            if (selectedIdx < 0) {
+                selectedIdx = 0;
+            }
+            if (selectedIdx >= (int)clients.size()) {
+                selectedIdx = (int)clients.size() - 1;
+            }
+            if (selectedIdx < startIdx) {
+                startIdx = selectedIdx;
+            }
+            if (selectedIdx >= startIdx + 8) {
                 startIdx = selectedIdx - 8 + 1;
+            }
         }
 
         string statusText = editingIdx >= 0
                                 ? "Редактирование #" + to_string(editingIdx + 1) + "  |  Tab - поле  Enter - сохранить  Esc - отменить"
                                 : "Всего абонентов: " + to_string(clients.size()) + "  |  Enter - изменить  Del - удалить  Esc - назад";
 
-        drawClientsTable("БАЗА АБОНЕНТОВ", clients, startIdx, selectedIdx,
-                         editingIdx, activeField, draftClient, draftBalance,
-                         message, messageColor, needFullRedraw, statusText);
+        drawClientsTable("БАЗА АБОНЕНТОВ", clients, startIdx, selectedIdx, editingIdx, activeField, draftClient, draftBalance, message, messageColor, needFullRedraw, statusText);
         needFullRedraw = false;
 
         if (editingIdx == -1) {
             // режим навигации
             int key = InputHandler::getExtKey();
-            if (key == Key::ESC) return;
-            if (clients.empty()) continue;
+            if (key == Key::ESC) {
+                return;
+            }
+            if (clients.empty()) {
+                continue;
+            }
 
             if (key == Key::DOWN || key == Key::TAB) {
-                if (selectedIdx < (int)clients.size() - 1) selectedIdx++;
+                if (selectedIdx < (int)clients.size() - 1) {
+                    selectedIdx++;
+                }
             } else if (key == Key::UP) {
-                if (selectedIdx > 0) selectedIdx--;
+                if (selectedIdx > 0) {
+                    selectedIdx--;
+                }
             } else if (key == Key::ENTER) {
                 editingIdx = selectedIdx;
                 draftClient = clients[editingIdx];
@@ -227,8 +237,9 @@ void ClientMenu::showList() {
                     continue;
                 }
                 clients = ClientManager::getAllClients();
-                if (selectedIdx >= (int)clients.size())
+                if (selectedIdx >= (int)clients.size()) {
                     selectedIdx = (int)clients.size() - 1;
+                }
                 needFullRedraw = true;
                 message = "Абонент " + name + " удален.";
                 messageColor = 10;
@@ -238,25 +249,26 @@ void ClientMenu::showList() {
             int rowY = 7 + (editingIdx - startIdx) * 2;
             int exitKey = 0;
 
-            if (activeField == 0)
+            if (activeField == 0) {
                 draftClient.fullName = processInput(10, rowY, 24, draftClient.fullName, false, exitKey, 0);
-            else if (activeField == 1)
+            } else if (activeField == 1) {
                 draftClient.phoneNumber = processInput(37, rowY, 14, draftClient.phoneNumber, false, exitKey, 0);
-            else if (activeField == 2)
+            } else if (activeField == 2) {
                 draftClient.tariffName = processInput(54, rowY, 12, draftClient.tariffName, false, exitKey, 0);
-            else
+            } else {
                 draftBalance = processInput(69, rowY, 8, draftBalance, false, exitKey, 0);
+            }
 
             message = "";
             messageColor = 8;
 
-            if (exitKey == Key::TAB || exitKey == Key::DOWN)
+            if (exitKey == Key::TAB || exitKey == Key::DOWN) {
                 activeField = (activeField + 1) % 5;
-            else if (exitKey == Key::UP)
+            } else if (exitKey == Key::UP) {
                 activeField = (activeField - 1 + 5) % 5;
-            else if (exitKey == Key::ENTER)
+            } else if (exitKey == Key::ENTER) {
                 activeField++;
-            else if (exitKey == Key::ESC) {
+            } else if (exitKey == Key::ESC) {
                 editingIdx = -1;
                 activeField = 0;
                 message = "Редактирование отменено.";
@@ -268,13 +280,13 @@ void ClientMenu::showList() {
             message = "";
             messageColor = 8;
 
-            if (key == Key::TAB || key == Key::DOWN)
+            if (key == Key::TAB || key == Key::DOWN) {
                 activeField = (activeField + 1) % 5;
-            else if (key == Key::UP)
+            } else if (key == Key::UP) {
                 activeField = (activeField - 1 + 5) % 5;
-            else if (key == Key::LEFT || key == Key::RIGHT || key == ' ')
+            } else if (key == Key::LEFT || key == Key::RIGHT || key == ' ') {
                 draftClient.isActive = !draftClient.isActive;
-            else if (key == Key::ENTER) {
+            } else if (key == Key::ENTER) {
                 string validMsg;
                 int invalidField = activeField;
                 if (!validateClientEdit(clients, editingIdx, draftClient, draftBalance, validMsg, invalidField)) {
@@ -319,7 +331,9 @@ void ClientMenu::showSearch() {
             setColor(8);
             setCursor(2, y);
             cout << "+";
-            for (int i = 0; i < 74; i++) cout << "-";
+            for (int i = 0; i < 74; i++) {
+                cout << "-";
+            }
             cout << "+";
         };
 
@@ -430,7 +444,9 @@ void ClientMenu::showSearch() {
                 setColor(15);
                 setCursor(8, y);
                 cout << "+";
-                for (int i = 0; i < 62; i++) cout << "-";
+                for (int i = 0; i < 62; i++) {
+                    cout << "-";
+                }
                 cout << "+";
             };
 
@@ -471,24 +487,30 @@ void ClientMenu::showSearch() {
             field(12, "Телефон:", c.phoneNumber, 7);
             field(14, "Тариф:", c.tariffName.empty() ? "-" : c.tariffName, 14);
             field(16, "Баланс:", balSS.str(), 10);
-            field(18, "Статус:", c.isActive ? "Активен" : "Заблокирован",
-                  c.isActive ? 10 : 12);
+            field(18, "Статус:", c.isActive ? "Активен" : "Заблокирован", c.isActive ? 10 : 12);
 
             drawHLine(20);
 
             setCursor(10, 21);
             setColor(8);
-            if (total > 1)
+            if (total > 1) {
                 cout << "[Up] Пред.  [Down] След.  |  [Esc] Назад";
-            else
+            } else {
                 cout << "[Esc] Назад";
+            }
 
             drawFooter(27, true);
 
             int key = InputHandler::getExtKey();
-            if (key == Key::ESC) break;
-            if (key == Key::DOWN && idx < total - 1) idx++;
-            if (key == Key::UP && idx > 0) idx--;
+            if (key == Key::ESC) {
+                break;
+            }
+            if (key == Key::DOWN && idx < total - 1) {
+                idx++;
+            }
+            if (key == Key::UP && idx > 0) {
+                idx--;
+            }
         }
     }
 }
@@ -509,7 +531,9 @@ void ClientMenu::showAddClient() {
             setColor(8);
             setCursor(2, y);
             cout << "+";
-            for (int i = 0; i < 74; i++) cout << "-";
+            for (int i = 0; i < 74; i++) {
+                cout << "-";
+            }
             cout << "+";
         };
 
@@ -593,45 +617,49 @@ void ClientMenu::showAddClient() {
         if (activeField == 0) {
             int exitKey = 0;
             fullName = processInput(25, 5, 36, fullName, false, exitKey, 24);
-            if (exitKey == Key::TAB || exitKey == Key::DOWN || exitKey == Key::ENTER)
+            if (exitKey == Key::TAB || exitKey == Key::DOWN || exitKey == Key::ENTER) {
                 activeField = 1;
-            else if (exitKey == Key::UP)
+            } else if (exitKey == Key::UP) {
                 activeField = 3;
-            else if (exitKey == Key::ESC)
+            } else if (exitKey == Key::ESC) {
                 return;
+            }
 
         } else if (activeField == 1) {
             int exitKey = 0;
             phone = processInput(25, 9, 36, phone, false, exitKey, 24);
-            if (exitKey == Key::TAB || exitKey == Key::DOWN || exitKey == Key::ENTER)
+            if (exitKey == Key::TAB || exitKey == Key::DOWN || exitKey == Key::ENTER) {
                 activeField = 2;
-            else if (exitKey == Key::UP)
+            } else if (exitKey == Key::UP) {
                 activeField = 0;
-            else if (exitKey == Key::ESC)
+            } else if (exitKey == Key::ESC) {
                 return;
+            }
 
         } else if (activeField == 2) {
             int key = InputHandler::getExtKey();
-            if (key == Key::UP && !tariffs.empty())
+            if (key == Key::UP && !tariffs.empty()) {
                 tariffIdx = (tariffIdx - 1 + (int)tariffs.size()) % (int)tariffs.size();
-            else if (key == Key::DOWN && !tariffs.empty())
+            } else if (key == Key::DOWN && !tariffs.empty()) {
                 tariffIdx = (tariffIdx + 1) % (int)tariffs.size();
-            else if (key == Key::TAB || key == Key::ENTER)
+            } else if (key == Key::TAB || key == Key::ENTER) {
                 activeField = 3;
-            else if (key == Key::ESC)
+            } else if (key == Key::ESC) {
                 return;
+            }
 
         } else {  // activeField == 3
             int exitKey = 0;
             balance = processInput(25, 17, 36, balance, false, exitKey, 24);
-            if (exitKey == Key::TAB || exitKey == Key::DOWN)
+            if (exitKey == Key::TAB || exitKey == Key::DOWN) {
                 activeField = 0;
-            else if (exitKey == Key::UP)
+            } else if (exitKey == Key::UP) {
                 activeField = 2;
-            else if (exitKey == Key::ENTER)
+            } else if (exitKey == Key::ENTER) {
                 break;
-            else if (exitKey == Key::ESC)
+            } else if (exitKey == Key::ESC) {
                 return;
+            }
         }
     }
 

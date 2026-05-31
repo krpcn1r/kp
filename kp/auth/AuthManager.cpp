@@ -11,30 +11,41 @@ bool AuthManager::isLoggedIn = false;
 User AuthManager::currentUser = {};
 
 bool AuthManager::isAsciiOnly(const string& str) {
-    for (unsigned char c : str)
-        if (c > 127) return false;
+    for (unsigned char c : str) {
+        if (c > 127) {
+            return false;
+        }
+    }
     return true;
 }
 
 bool AuthManager::isStrongPassword(const string& password) {
-    if (password.length() < 8) return false;
+    if (password.length() < 8) {
+        return false;
+    }
     bool hasDigit = false, hasSpecial = false;
     for (char c : password) {
-        if (isdigit((unsigned char)c)) hasDigit = true;
-        if (ispunct((unsigned char)c)) hasSpecial = true;
+        if (isdigit((unsigned char)c)) {
+            hasDigit = true;
+        }
+        if (ispunct((unsigned char)c)) {
+            hasSpecial = true;
+        }
     }
     return hasDigit && hasSpecial;
 }
 
 // регистрация нового пользователя
-int AuthManager::registerUser(const string& login, const string& password,
-                              Role role) {
-    if (login.empty() || password.empty())
+int AuthManager::registerUser(const string& login, const string& password, Role role) {
+    if (login.empty() || password.empty()) {
         return 1;
-    if (!isAsciiOnly(login) || !isAsciiOnly(password))
+    }
+    if (!isAsciiOnly(login) || !isAsciiOnly(password)) {
         return 5;
-    if (!isStrongPassword(password))
+    }
+    if (!isStrongPassword(password)) {
         return 2;
+    }
 
     string lowerLogin = login;
     for (char& c : lowerLogin) {
@@ -69,10 +80,10 @@ int AuthManager::registerUser(const string& login, const string& password,
     }
 
     users.push_back(newUser);  // добавление в общий список
-    if (!Database::saveUsers(users)) return 4;
-    Logger::logAs("system", LogCategory::AUTH, "Регистрация нового пользователя",
-                  "login=" + login +
-                      ", role=" + (newUser.role == Role::ADMIN ? "ADMIN" : "OPERATOR"));
+    if (!Database::saveUsers(users)) {
+        return 4;
+    }
+    Logger::logAs("system", LogCategory::AUTH, "Регистрация нового пользователя", "login=" + login + ", role=" + (newUser.role == Role::ADMIN ? "ADMIN" : "OPERATOR"));
     return 0;
 }
 
@@ -85,14 +96,12 @@ bool AuthManager::loginUser(const string& login, const string& password) {
         if (u.login == login && u.password == password) {
             currentUser = u;    // сохранение данных того кто зашел
             isLoggedIn = true;  // установка флага входа
-            Logger::log(LogCategory::AUTH, "Успешный вход в систему",
-                        "role=" + string(u.role == Role::ADMIN ? "ADMIN" : "OPERATOR"));
+            Logger::log(LogCategory::AUTH, "Успешный вход в систему", "role=" + string(u.role == Role::ADMIN ? "ADMIN" : "OPERATOR"));
             return true;
         }
     }
 
-    Logger::logAs(login.empty() ? "(пусто)" : login, LogCategory::AUTH,
-                  "Неудачная попытка входа", "неверный логин или пароль");
+    Logger::logAs(login.empty() ? "(пусто)" : login, LogCategory::AUTH, "Неудачная попытка входа", "неверный логин или пароль");
     return false;  // не нашли такого юзера
 }
 
@@ -106,14 +115,18 @@ void AuthManager::logout() {
 
 // смена пароля для главного меню
 int AuthManager::changePassword(std::string& currentPassword, const std::string& newPassword) {
-    if (newPassword.empty() || currentPassword.empty())
+    if (newPassword.empty() || currentPassword.empty()) {
         return 3;
-    if (!isAsciiOnly(currentPassword) || !isAsciiOnly(newPassword))
+    }
+    if (!isAsciiOnly(currentPassword) || !isAsciiOnly(newPassword)) {
         return 6;
-    if (newPassword.length() < 8)
+    }
+    if (newPassword.length() < 8) {
         return 4;
-    if (!isStrongPassword(newPassword))
+    }
+    if (!isStrongPassword(newPassword)) {
         return 5;
+    }
 
     vector<User> users = Database::loadUsers();
     User currentUser = getCurrentUser();
@@ -130,14 +143,17 @@ int AuthManager::changePassword(std::string& currentPassword, const std::string&
 
     if (found) {
         Database::saveUsers(users);
-        Logger::log(LogCategory::AUTH, "Смена пароля",
-                    "login=" + currentUser.login);
+        Logger::log(LogCategory::AUTH, "Смена пароля", "login=" + currentUser.login);
         return 0;
     }
 
     return 1;
 }
 
-bool AuthManager::isUserLoggedIn() { return isLoggedIn; }
+bool AuthManager::isUserLoggedIn() {
+    return isLoggedIn;
+}
 
-User AuthManager::getCurrentUser() { return currentUser; }
+User AuthManager::getCurrentUser() {
+    return currentUser;
+}

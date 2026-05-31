@@ -34,7 +34,9 @@ HomeResult HomeMenu::show() {
                 setColor(15);
                 setCursor(2, y);
                 cout << "+";
-                for (int i = 0; i < 74; i++) cout << "-";
+                for (int i = 0; i < 74; i++) {
+                    cout << "-";
+                }
                 cout << "+";
             };
 
@@ -84,49 +86,56 @@ HomeResult HomeMenu::show() {
         // Рендерим опции
         // список всех доступных кнопок в главном меню
         string options[numOptions] = {
-            "1. Просмотр базы клиентов ", "2. Поиск по базе          ",
-            "3. Просмотр текущих тарифов", "4. Оформление нового клиента",
-            "5. Редактирование записей  ", "6. Сменить пароль          ",
-            "7. Выход в меню авторизации", "8. Закрыть программу       "};
+            "1. Просмотр базы клиентов ", "2. Поиск по базе          ", "3. Просмотр текущих тарифов", "4. Оформление нового клиента", "5. Редактирование записей  ", "6. Сменить пароль          ", "7. Выход в меню авторизации", "8. Закрыть программу       "};
         if (roleStr == "Администратор") {
             options[5] = "6. Админ-панель";
         }
         // выводим пункты меню и красиво их красим
         for (int i = 0; i < numOptions; i++) {
             int yPos = 17 + i;
-            if (i >= 3)
+            if (i >= 3) {
                 yPos += 1;  // делаем отступ после 3-й кнопки
-            if (i >= 5)
+            }
+            if (i >= 5) {
                 yPos += 1;  // делаем отступ после 5-й кнопки
+            }
 
             // рисуем линии между группами кнопок: + ---- +
             auto drawMenuHLine = [](int y) {
                 setCursor(2, y);
                 setColor(15);
                 cout << "+";
-                for (int j = 0; j < 74; j++) cout << "-";
+                for (int j = 0; j < 74; j++) {
+                    cout << "-";
+                }
                 cout << "+";
             };
-            if (i == 3) drawMenuHLine(17 + 3);
-            if (i == 5) drawMenuHLine(17 + 5 + 1);
+            if (i == 3) {
+                drawMenuHLine(17 + 3);
+            }
+            if (i == 5) {
+                drawMenuHLine(17 + 5 + 1);
+            }
             setCursor(6, yPos);
             if (i == selectedOption) {
                 // подсвечиваем ту кнопку на которой стоит курсор
-                if (i == 7)
+                if (i == 7) {
                     setColor(12);  // красная если это выход
-                else if (i == 5 && roleStr == "Администратор")
+                } else if (i == 5 && roleStr == "Администратор") {
                     setColor(14);  // желтая для админ-панели
-                else
+                } else {
                     setColor(10);  // зеленая для работы
+                }
                 cout << "> " << options[i] << "         ";
             } else {
                 // серые если не выбраны
-                if (i == 7)
+                if (i == 7) {
                     setColor(4);
-                else if (i == 5 && roleStr == "Администратор")
+                } else if (i == 5 && roleStr == "Администратор") {
                     setColor(6);  // тёмно-желтая для админ-панели
-                else
+                } else {
                     setColor(8);
+                }
                 cout << "  " << options[i] << "         ";
             }
         }
@@ -145,25 +154,25 @@ HomeResult HomeMenu::show() {
             }
 
             // тут логика что делать для каждой кнопки
-            if (selectedOption == 0)
+            if (selectedOption == 0) {
                 ClientMenu::showList();  // заходим в список
-            else if (selectedOption == 1)
+            } else if (selectedOption == 1) {
                 ClientMenu::showSearch();  // идем искать
-            else if (selectedOption == 2)
+            } else if (selectedOption == 2) {
                 showTariffs();  // просмотр тарифов
-            else if (selectedOption == 3)
+            } else if (selectedOption == 3) {
                 ClientMenu::showAddClient();  // создаем нового чела
-            else if (selectedOption == 4)
+            } else if (selectedOption == 4) {
                 ClientMenu::showList();
-            else if (selectedOption == 5 && roleStr == "Оператор") {
+            } else if (selectedOption == 5 && roleStr == "Оператор") {
                 showChangePassword();
             } else if (selectedOption == 5 && roleStr == "Администратор") {
                 AdminPanel::showAdminPanel();
-            } else if (selectedOption == 6)
+            } else if (selectedOption == 6) {
                 return HomeResult::LOGOUT;  // разлогиниться
-            else if (selectedOption == 7)
+            } else if (selectedOption == 7) {
                 return HomeResult::EXIT_APP;  // закрыть всё
-            else {
+            } else {
                 showPlaceholder(options[selectedOption]);  // если раздел еще не готов
             }
 
@@ -201,10 +210,18 @@ void HomeMenu::showTariffs() {
 
     while (true) {
         if (!tariffs.empty()) {
-            if (selectedIdx < 0) selectedIdx = 0;
-            if (selectedIdx >= (int)tariffs.size()) selectedIdx = (int)tariffs.size() - 1;
-            if (selectedIdx < startIdx) startIdx = selectedIdx;
-            if (selectedIdx >= startIdx + 10) startIdx = selectedIdx - 10 + 1;
+            if (selectedIdx < 0) {
+                selectedIdx = 0;
+            }
+            if (selectedIdx >= (int)tariffs.size()) {
+                selectedIdx = (int)tariffs.size() - 1;
+            }
+            if (selectedIdx < startIdx) {
+                startIdx = selectedIdx;
+            }
+            if (selectedIdx >= startIdx + 10) {
+                startIdx = selectedIdx - 10 + 1;
+            }
         }
 
         if (needFullRedraw) {
@@ -218,7 +235,9 @@ void HomeMenu::showTariffs() {
             setColor(15);
             setCursor(1, 5);
             cout << "+";
-            for (int i = 0; i < 88; i++) cout << "-";
+            for (int i = 0; i < 88; i++) {
+                cout << "-";
+            }
             cout << "+";
 
             drawTableHeader(7, cols, seps, 15);
@@ -263,7 +282,9 @@ void HomeMenu::showTariffs() {
         setColor(15);
         setCursor(1, 16);
         cout << "+";
-        for (int i = 0; i < 88; i++) cout << "-";
+        for (int i = 0; i < 88; i++) {
+            cout << "-";
+        }
         cout << "+";
         setCursor(3, 17);
         setColor(8);
@@ -272,11 +293,17 @@ void HomeMenu::showTariffs() {
         drawFooter(29, true);
 
         int key = InputHandler::getExtKey();
-        if (key == Key::ESC) return;
+        if (key == Key::ESC) {
+            return;
+        }
         if (key == Key::DOWN || key == Key::TAB) {
-            if (selectedIdx < (int)tariffs.size() - 1) selectedIdx++;
+            if (selectedIdx < (int)tariffs.size() - 1) {
+                selectedIdx++;
+            }
         } else if (key == Key::UP) {
-            if (selectedIdx > 0) selectedIdx--;
+            if (selectedIdx > 0) {
+                selectedIdx--;
+            }
         }
     }
 }
@@ -299,8 +326,9 @@ void HomeMenu::showChangePassword() {
     setColor(8);
     setCursor(4, 6);
     cout << "+";
-    for (int i = 0; i < 43; i++)
+    for (int i = 0; i < 43; i++) {
         cout << "-";
+    }
     cout << "+";
 
     // вывод условий безопасности пароля
@@ -317,8 +345,9 @@ void HomeMenu::showChangePassword() {
 
     setCursor(4, 11);
     cout << "+";
-    for (int i = 0; i < 43; i++)
+    for (int i = 0; i < 43; i++) {
         cout << "-";
+    }
     cout << "+";
 
     drawInputContent(24, 12, 20, oldPassword, false, false);
@@ -328,18 +357,20 @@ void HomeMenu::showChangePassword() {
     while (true) {
         // подсветка поля логин если фокус на нем
         setCursor(6, 12);
-        if (activeField == 0)
+        if (activeField == 0) {
             setColor(10);
-        else
+        } else {
             setColor(7);
+        }
         cout << (activeField == 0 ? "> Старый пароль:" : "  Старый пароль:");
 
         // тоже самое для пароля
         setCursor(6, 14);
-        if (activeField == 1)
+        if (activeField == 1) {
             setColor(10);
-        else
+        } else {
             setColor(7);
+        }
         cout << (activeField == 1 ? "> Новый пароль:" : "  Новый пароль:");
 
         // отрисовка кнопок в нижней части
@@ -357,10 +388,11 @@ void HomeMenu::showChangePassword() {
         if (exitKey == Key::TAB || exitKey == Key::UP || exitKey == Key::DOWN) {
             activeField = (activeField == 0) ? 1 : 0;
         } else if (exitKey == Key::ENTER) {
-            if (activeField == 0)
+            if (activeField == 0) {
                 activeField = 1;  // переход к полю пароля
-            else
+            } else {
                 break;  // попытка создания юзера
+            }
         } else if (exitKey == Key::ESC) {
             return;  // выход без регистрации
         }
@@ -375,20 +407,21 @@ void HomeMenu::showChangePassword() {
     } else {
         // вывод ошибки красным цветом
         setColor(12);
-        if (result == 1)
+        if (result == 1) {
             cout << "Ошибка: неверные данные                                   ";
-        else if (result == 2)
+        } else if (result == 2) {
             cout << "Ошибка: старый пароль не совпадает                        ";
-        else if (result == 3)
+        } else if (result == 3) {
             cout << "Ошибка: одно из полей пустое                              ";
-        else if (result == 4)
+        } else if (result == 4) {
             cout << "Ошибка: длина пароля меньше 8 символов                    ";
-        else if (result == 5)
+        } else if (result == 5) {
             cout << "Ошибка: в пароле отсутствуют специальные символы или цифры";
-        else if (result == 6)
+        } else if (result == 6) {
             cout << "Ошибка: только английские буквы                           ";
-        else
+        } else {
             cout << "Ошибка записи в базу данных                               ";
+        }
     }
 
     setCursor(8, 18);

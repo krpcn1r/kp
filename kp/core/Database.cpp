@@ -16,8 +16,9 @@ const string Database::TARIFFS_FILE = "data/tariffs.json";
 bool Database::saveUsers(const vector<User> &users) {
     json j = users;             // перевод вектора в формат джейсон
     ofstream file(USERS_FILE);  // открытие файла для записи
-    if (!file.is_open())        // выход с ошибкой если файл не открылся
+    if (!file.is_open()) {      // выход с ошибкой если файл не открылся
         return false;
+    }
 
     file << j.dump(4);  // запись данных с отступами 4 пробела
     file.close();
@@ -28,8 +29,9 @@ bool Database::saveUsers(const vector<User> &users) {
 vector<User> Database::loadUsers() {
     vector<User> users;
     ifstream file(USERS_FILE);  // открытие файла на чтение
-    if (!file.is_open())        // возврат пустого списка если файла нет
+    if (!file.is_open()) {      // возврат пустого списка если файла нет
         return users;
+    }
 
     try {
         json j;
@@ -46,8 +48,9 @@ vector<User> Database::loadUsers() {
 bool Database::saveClients(const vector<Client> &clients) {
     json j = clients;
     ofstream file(CLIENTS_FILE);  // открытие файла клиентов
-    if (!file.is_open())
+    if (!file.is_open()) {
         return false;
+    }
 
     file << j.dump(4);  // запись данных
     file.close();
@@ -58,8 +61,9 @@ bool Database::saveClients(const vector<Client> &clients) {
 vector<Client> Database::loadClients() {
     vector<Client> clients;
     ifstream file(CLIENTS_FILE);  // чтение файла базы
-    if (!file.is_open())
+    if (!file.is_open()) {
         return clients;
+    }
 
     try {
         json j;
@@ -76,8 +80,9 @@ vector<Client> Database::loadClients() {
 vector<Tariff> Database::loadTariffs() {
     vector<Tariff> tariffs;
     ifstream file(TARIFFS_FILE);
-    if (!file.is_open())
+    if (!file.is_open()) {
         return tariffs;
+    }
 
     try {
         json j;

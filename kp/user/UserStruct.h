@@ -6,8 +6,7 @@
 enum class Role { ADMIN,
                   OPERATOR };
 
-NLOHMANN_JSON_SERIALIZE_ENUM(Role, {{Role::ADMIN, "ADMIN"},
-                                    {Role::OPERATOR, "OPERATOR"}})
+NLOHMANN_JSON_SERIALIZE_ENUM(Role, {{Role::ADMIN, "ADMIN"}, {Role::OPERATOR, "OPERATOR"}})
 
 struct User {
     std::string login;

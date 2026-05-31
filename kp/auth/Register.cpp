@@ -27,8 +27,9 @@ void showRegisterScreen() {
     setColor(8);
     setCursor(4, 6);
     cout << "+";
-    for (int i = 0; i < 40; i++)
+    for (int i = 0; i < 40; i++) {
         cout << "-";
+    }
     cout << "+";
 
     // вывод условий безопасности пароля
@@ -45,8 +46,9 @@ void showRegisterScreen() {
 
     setCursor(4, 11);
     cout << "+";
-    for (int i = 0; i < 40; i++)
+    for (int i = 0; i < 40; i++) {
         cout << "-";
+    }
     cout << "+";
 
     drawInputContent(18, 12, 20, login, false, false);
@@ -56,18 +58,20 @@ void showRegisterScreen() {
     while (true) {
         // подсветка поля логин если фокус на нем
         setCursor(6, 12);
-        if (activeField == 0)
+        if (activeField == 0) {
             setColor(10);
-        else
+        } else {
             setColor(7);
+        }
         cout << (activeField == 0 ? "> Логин:" : "  Логин:");
 
         // тоже самое для пароля
         setCursor(6, 14);
-        if (activeField == 1)
+        if (activeField == 1) {
             setColor(10);
-        else
+        } else {
             setColor(7);
+        }
         cout << (activeField == 1 ? "> Пароль:" : "  Пароль:");
 
         // отрисовка кнопок в нижней части
@@ -85,10 +89,11 @@ void showRegisterScreen() {
         if (exitKey == Key::TAB || exitKey == Key::UP || exitKey == Key::DOWN) {
             activeField = (activeField == 0) ? 1 : 0;
         } else if (exitKey == Key::ENTER) {
-            if (activeField == 0)
+            if (activeField == 0) {
                 activeField = 1;  // переход к полю пароля
-            else
+            } else {
                 break;  // попытка создания юзера
+            }
         } else if (exitKey == Key::ESC) {
             return;  // выход без регистрации
         }
@@ -103,16 +108,17 @@ void showRegisterScreen() {
     } else {
         // проверка кода ошибки при неудаче
         setColor(12);
-        if (result == 1)
+        if (result == 1) {
             cout << "Ошибка: поля не заполнены     ";
-        else if (result == 2)
+        } else if (result == 2) {
             cout << "Ошибка: слабый пароль         ";
-        else if (result == 3)
+        } else if (result == 3) {
             cout << "Ошибка: логин уже занят       ";
-        else if (result == 5)
+        } else if (result == 5) {
             cout << "Ошибка: только английский     ";
-        else
+        } else {
             cout << "Ошибка записи в базу данных   ";
+        }
     }
 
     setCursor(8, 18);
