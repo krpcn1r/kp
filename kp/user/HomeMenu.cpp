@@ -172,13 +172,6 @@ HomeResult HomeMenu::show() {
   }
 }
 
-// колонки таблицы тарифов
-static const int TCOL_ID_X = 3, TCOL_ID_W    = 4;
-static const int TCOL_NAME_X = 10, TCOL_NAME_W  = 16;
-static const int TCOL_PRICE_X = 29, TCOL_PRICE_W = 12;
-static const int TCOL_SPEED_X = 44, TCOL_SPEED_W = 12;
-static const int TCOL_DESC_X = 59, TCOL_DESC_W  = 28;
-
 static string priceToStr(double price) {
     ostringstream oss;
     oss << fixed << setprecision(2) << price;
@@ -189,15 +182,14 @@ void HomeMenu::showTariffs() {
     vector<Tariff> tariffs = Database::loadTariffs();
     int selectedIdx = tariffs.empty() ? -1 : 0;
     int startIdx = 0;
-    const int PAGE_SIZE = 10;
     bool needFullRedraw = true;
 
     vector<TableColumn> cols = {
-        {TCOL_ID_X, TCOL_ID_W, "ID"},
-        {TCOL_NAME_X, TCOL_NAME_W, "Название"},
-        {TCOL_PRICE_X, TCOL_PRICE_W, "Цена/мес"},
-        {TCOL_SPEED_X, TCOL_SPEED_W, "Скорость"},
-        {TCOL_DESC_X, TCOL_DESC_W, "Описание"},
+        {3, 4, "ID"},
+        {10, 16, "Название"},
+        {29, 12, "Цена/мес"},
+        {44, 12, "Скорость"},
+        {59, 28, "Описание"},
     };
     vector<int> seps = {8, 27, 42, 57};
 
@@ -206,7 +198,7 @@ void HomeMenu::showTariffs() {
             if (selectedIdx < 0) selectedIdx = 0;
             if (selectedIdx >= (int)tariffs.size()) selectedIdx = (int)tariffs.size() - 1;
             if (selectedIdx < startIdx) startIdx = selectedIdx;
-            if (selectedIdx >= startIdx + PAGE_SIZE) startIdx = selectedIdx - PAGE_SIZE + 1;
+            if (selectedIdx >= startIdx + 10) startIdx = selectedIdx - 10 + 1;
         }
 
         if (needFullRedraw) {
@@ -229,7 +221,7 @@ void HomeMenu::showTariffs() {
             needFullRedraw = false;
         }
 
-        for (int i = 0; i < PAGE_SIZE; i++) {
+        for (int i = 0; i < 10; i++) {
             int idx = startIdx + i;
             int y = 6 + i;
             bool hasRow = idx < (int)tariffs.size();
@@ -241,23 +233,23 @@ void HomeMenu::showTariffs() {
             if (hasRow) {
                 const Tariff& t = tariffs[idx];
 
-                drawTableCell(TCOL_ID_X, y, TCOL_ID_W, to_string(t.id), rowColor);
+                drawTableCell(3, y, 4, to_string(t.id), rowColor);
                 drawTableCell(8, y, 1, "|", rowColor);
-                drawTableCell(TCOL_NAME_X, y, TCOL_NAME_W, t.name, rowColor);
+                drawTableCell(10, y, 16, t.name, rowColor);
                 drawTableCell(27, y, 1, "|", rowColor);
 
                 // цена — желтая если не выделено
                 int priceColor = isSelected ? 240 : 14;
-                drawTableCell(TCOL_PRICE_X, y, TCOL_PRICE_W, priceToStr(t.pricePerMonth), priceColor);
+                drawTableCell(29, y, 12, priceToStr(t.pricePerMonth), priceColor);
                 drawTableCell(42, y, 1, "|", rowColor);
 
                 // скорость — голубая если не выделено
                 int speedColor = isSelected ? 240 : 11;
                 string speedStr = to_string(t.speedMbps) + " Мбит/с";
-                drawTableCell(TCOL_SPEED_X, y, TCOL_SPEED_W, speedStr, speedColor);
+                drawTableCell(44, y, 12, speedStr, speedColor);
                 drawTableCell(57, y, 1, "|", rowColor);
 
-                drawTableCell(TCOL_DESC_X, y, TCOL_DESC_W, t.description, rowColor);
+                drawTableCell(59, y, 28, t.description, rowColor);
             }
         }
 

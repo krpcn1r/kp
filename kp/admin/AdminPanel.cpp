@@ -16,23 +16,6 @@
 
 using namespace std;
 
-static const int USER_TABLE_PAGE_SIZE = 8;
-static const int USER_ROW_START_Y = 7;
-static const int USER_ROW_STEP = 2;
-static const int USER_ROW_CLEAR_WIDTH = 70;
-static const int USER_NUMBER_X = 3;
-static const int USER_NUMBER_WIDTH = 4;
-static const int USER_LOGIN_X = 10;
-static const int USER_PASSWORD_X = 34;
-static const int USER_ROLE_X = 58;
-static const int USER_LOGIN_WIDTH = 20;
-static const int USER_PASSWORD_WIDTH = 20;
-static const int USER_ROLE_WIDTH = 14;
-static const int USER_LOGIN_SEPARATOR_X = 8;
-static const int USER_PASSWORD_SEPARATOR_X = 32;
-static const int USER_ROLE_SEPARATOR_X = 56;
-static const int BACKUP_PAGE_SIZE = 8;
-
 static string toLowerAscii(string value) {
 	for (char& c : value) {
 		c = static_cast<char>(tolower(static_cast<unsigned char>(c)));
@@ -49,11 +32,11 @@ static void toggleUserRole(User& user) {
 }
 
 static string maskedPassword(const string& password) {
-	return string(std::min<size_t>(password.length(), USER_PASSWORD_WIDTH - 2), '*');
+	return string(std::min<size_t>(password.length(), 20 - 2), '*');
 }
 
 static int visibleUserRowY(int index, int startIdx) {
-	return USER_ROW_START_Y + (index - startIdx) * USER_ROW_STEP;
+	return 7 + (index - startIdx) * 2;
 }
 
 static bool hasAnotherAdmin(const vector<User>& users, int ignoredIdx) {
@@ -72,15 +55,15 @@ static void drawUsersTable(const string& title, const vector<User>& users,
 						const string& defaultHint, const string& editHint,
 						const string& statusText) {
 	vector<TableColumn> columns = {
-		{USER_NUMBER_X, USER_NUMBER_WIDTH, "N"},
-		{USER_LOGIN_X, USER_LOGIN_WIDTH, "Логин"},
-		{USER_PASSWORD_X, USER_PASSWORD_WIDTH, "Пароль"},
-		{USER_ROLE_X, USER_ROLE_WIDTH, "Роль"}
+		{3, 4, "N"},
+		{10, 20, "Логин"},
+		{34, 20, "Пароль"},
+		{58, 14, "Роль"}
 	};
 	vector<int> separators = {
-		USER_LOGIN_SEPARATOR_X,
-		USER_PASSWORD_SEPARATOR_X,
-		USER_ROLE_SEPARATOR_X
+		8,
+		32,
+		56
 	};
 
 	if (fullRedraw) {
@@ -92,48 +75,48 @@ static void drawUsersTable(const string& title, const vector<User>& users,
 		cout << title;
 
 		drawTableHeader(4, columns, separators, 15);
-		drawTableSeparator(2, 5, USER_ROW_CLEAR_WIDTH, separators, 15);
+		drawTableSeparator(2, 5, 70, separators, 15);
 	}
 
-	for (int i = 0; i < USER_TABLE_PAGE_SIZE; ++i) {
+	for (int i = 0; i < 8; ++i) {
 		int curIdx = startIdx + i;
-		int y = USER_ROW_START_Y + i * USER_ROW_STEP;
+		int y = 7 + i * 2;
 		bool hasUser = curIdx < (int)users.size();
 		bool isSelected = hasUser && curIdx == selectedIdx;
 		bool isEditing = hasUser && curIdx == editingIdx;
 		int rowColor = isSelected ? 240 : 7;
 
-		clearLine(2, y, USER_ROW_CLEAR_WIDTH, rowColor);
+		clearLine(2, y, 70, rowColor);
 
 		if (hasUser) {
 			const User& rowUser = isEditing ? draftUser : users[curIdx];
 
-			drawTableCell(USER_NUMBER_X, y, USER_NUMBER_WIDTH, to_string(curIdx + 1), rowColor);
-			drawTableCell(USER_LOGIN_SEPARATOR_X, y, 1, "|", rowColor);
+			drawTableCell(3, y, 4, to_string(curIdx + 1), rowColor);
+			drawTableCell(8, y, 1, "|", rowColor);
 
 			if (isEditing && activeField == 0) {
-				drawInputContent(USER_LOGIN_X, y, USER_LOGIN_WIDTH, draftUser.login, false, true);
+				drawInputContent(10, y, 20, draftUser.login, false, true);
 			} else {
-				drawTableCell(USER_LOGIN_X, y, USER_LOGIN_WIDTH, rowUser.login, rowColor);
+				drawTableCell(10, y, 20, rowUser.login, rowColor);
 			}
 
-			drawTableCell(USER_PASSWORD_SEPARATOR_X, y, 1, "|", rowColor);
+			drawTableCell(32, y, 1, "|", rowColor);
 			if (isEditing && activeField == 1) {
-				drawInputContent(USER_PASSWORD_X, y, USER_PASSWORD_WIDTH, draftUser.password, true, true);
+				drawInputContent(34, y, 20, draftUser.password, true, true);
 			} else {
-				drawTableCell(USER_PASSWORD_X, y, USER_PASSWORD_WIDTH, maskedPassword(rowUser.password), rowColor);
+				drawTableCell(34, y, 20, maskedPassword(rowUser.password), rowColor);
 			}
 
-			drawTableCell(USER_ROLE_SEPARATOR_X, y, 1, "|", rowColor);
+			drawTableCell(56, y, 1, "|", rowColor);
 			if (isEditing) {
-				drawTableCell(USER_ROLE_X, y, USER_ROLE_WIDTH, roleToText(draftUser.role),
+				drawTableCell(58, y, 14, roleToText(draftUser.role),
 							  activeField == 2 ? 31 : rowColor);
 			} else {
-				drawTableCell(USER_ROLE_X, y, USER_ROLE_WIDTH, roleToText(rowUser.role), rowColor);
+				drawTableCell(58, y, 14, roleToText(rowUser.role), rowColor);
 			}
 		}
 
-		drawTableSeparator(2, y + 1, USER_ROW_CLEAR_WIDTH, separators, 8);
+		drawTableSeparator(2, y + 1, 70, separators, 8);
 	}
 
 	clearLine(3, 24, 84);
@@ -239,7 +222,7 @@ static void drawBackupsList(const string& title, const vector<string>& backups,
 		drawTableSeparator(2, 5, 70, seps, 15);
 	}
 
-	for (int i = 0; i < BACKUP_PAGE_SIZE; i++) {
+	for (int i = 0; i < 8; i++) {
 		int idx = startIdx + i;
 		int y = 7 + i * 2;
 		bool exists = idx < (int)backups.size();
@@ -387,7 +370,7 @@ void AdminPanel::showUsersList() {
 		if (key == Key::DOWN || key == Key::TAB) {
 			if (selectedIdx < (int)users.size() - 1) {
 				selectedIdx++;
-				if (selectedIdx >= startIdx + USER_TABLE_PAGE_SIZE) startIdx++;
+				if (selectedIdx >= startIdx + 8) startIdx++;
 			}
 		} else if (key == Key::UP) {
 			if (selectedIdx > 0) {
@@ -418,8 +401,8 @@ void AdminPanel::editUser() {
 			if (selectedIdx < 0) selectedIdx = 0;
 			if (selectedIdx >= (int)users.size()) selectedIdx = (int)users.size() - 1;
 			if (selectedIdx < startIdx) startIdx = selectedIdx;
-			if (selectedIdx >= startIdx + USER_TABLE_PAGE_SIZE)
-				startIdx = selectedIdx - USER_TABLE_PAGE_SIZE + 1;
+			if (selectedIdx >= startIdx + 8)
+				startIdx = selectedIdx - 8 + 1;
 		}
 
 		string statusText;
@@ -465,10 +448,10 @@ void AdminPanel::editUser() {
 			int exitKey = 0;
 
 			if (activeField == 0) {
-				draftUser.login = processInput(USER_LOGIN_X, rowY, USER_LOGIN_WIDTH,
+				draftUser.login = processInput(10, rowY, 20,
 											   draftUser.login, false, exitKey, 0);
 			} else {
-				draftUser.password = processInput(USER_PASSWORD_X, rowY, USER_PASSWORD_WIDTH,
+				draftUser.password = processInput(34, rowY, 20,
 												  draftUser.password, true, exitKey, 0);
 			}
 
@@ -562,8 +545,8 @@ void AdminPanel::deleteUser() {
 			if (selectedIdx < 0) selectedIdx = 0;
 			if (selectedIdx >= (int)users.size()) selectedIdx = (int)users.size() - 1;
 			if (selectedIdx < startIdx) startIdx = selectedIdx;
-			if (selectedIdx >= startIdx + USER_TABLE_PAGE_SIZE) {
-				startIdx = selectedIdx - USER_TABLE_PAGE_SIZE + 1;
+			if (selectedIdx >= startIdx + 8) {
+				startIdx = selectedIdx - 8 + 1;
 			}
 		}
 
@@ -585,7 +568,7 @@ void AdminPanel::deleteUser() {
 		if (key == Key::DOWN || key == Key::TAB) {
 			if (selectedIdx < (int)users.size() - 1) {
 				selectedIdx++;
-				if (selectedIdx >= startIdx + USER_TABLE_PAGE_SIZE) startIdx++;
+				if (selectedIdx >= startIdx + 8) startIdx++;
 			}
 		} else if (key == Key::UP) {
 			if (selectedIdx > 0) {
@@ -731,7 +714,7 @@ void AdminPanel::showBackups() {
 		if (backups.empty()) continue;
 
 		if (key == Key::DOWN || key == Key::TAB) {
-			if (startIdx + BACKUP_PAGE_SIZE < (int)backups.size()) startIdx++;
+			if (startIdx + 8 < (int)backups.size()) startIdx++;
 		} else if (key == Key::UP) {
 			if (startIdx > 0) startIdx--;
 		}
@@ -761,7 +744,7 @@ void AdminPanel::restoreBackup() {
 		if (key == Key::DOWN || key == Key::TAB) {
 			if (selectedIdx < (int)backups.size() - 1) {
 				selectedIdx++;
-				if (selectedIdx >= startIdx + BACKUP_PAGE_SIZE) startIdx++;
+				if (selectedIdx >= startIdx + 8) startIdx++;
 			}
 		} else if (key == Key::UP) {
 			if (selectedIdx > 0) {
