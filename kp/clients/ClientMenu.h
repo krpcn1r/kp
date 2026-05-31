@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+
 #include "ClientStruct.h"
 
 // класс для отрисовки меню при работе с абонентами

@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+
 #include "ClientStruct.h"
 
 // класс для управления списком абонентов
@@ -19,7 +20,7 @@ public:
                                                    const std::string &phone,
                                                    const std::string &tariff);
     // обновление данных при смене тарифа или имени
-    static bool updateClient(int id, const Client& updatedData);
+    static bool updateClient(int id, const Client &updatedData);
     // переключение статуса активности абонента (блокировка)
     static bool toggleClientStatus(int id);
     // удаление абонента по ID

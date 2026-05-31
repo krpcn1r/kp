@@ -1,32 +1,33 @@
 #pragma once
-#include "../user/UserStruct.h"
 #include <string>
+
+#include "../user/UserStruct.h"
 
 // класс для управления входом и регистрацией юзеров
 class AuthManager {
 public:
-  // функция для регистрации нового пользователя
-  // возврат 0 если всё ок или другой код ошибки
-  static int registerUser(const std::string &login, const std::string &password,
-                          Role role = Role::OPERATOR);
-  
-  // проверка логина и пароля для входа в прогу
-  static bool loginUser(const std::string &login, const std::string &password);
-  
-  // сброс данных текущего юзера
-  static void logout();
+    // функция для регистрации нового пользователя
+    // возврат 0 если всё ок или другой код ошибки
+    static int registerUser(const std::string& login, const std::string& password,
+                            Role role = Role::OPERATOR);
 
-  // проверка статуса входа
-  static bool isUserLoggedIn();
-  // получение данных того кто сейчас в системе
-  static User getCurrentUser();
+    // проверка логина и пароля для входа в прогу
+    static bool loginUser(const std::string& login, const std::string& password);
 
-  static int changePassword(std::string& currentPassword, const std::string& newPassword);
+    // сброс данных текущего юзера
+    static void logout();
 
-  static bool isAsciiOnly(const std::string& str);
-  static bool isStrongPassword(const std::string& password);
+    // проверка статуса входа
+    static bool isUserLoggedIn();
+    // получение данных того кто сейчас в системе
+    static User getCurrentUser();
+
+    static int changePassword(std::string& currentPassword, const std::string& newPassword);
+
+    static bool isAsciiOnly(const std::string& str);
+    static bool isStrongPassword(const std::string& password);
 
 private:
-  static bool isLoggedIn; // статус входа
-  static User currentUser; // данные текущего юзера
+    static bool isLoggedIn;   // статус входа
+    static User currentUser;  // данные текущего юзера
 };
