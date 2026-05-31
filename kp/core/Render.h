@@ -11,8 +11,6 @@ struct TableColumn {
 
 // отрисовка простой ASCII-рамки из + - |
 void drawBox(int x, int y, int w, int h, int color = 7);
-// алиас на drawBox: оставлен ради совместимости со старыми вызовами
-void drawDoubleBox(int x, int y, int w, int h, int color = 7);
 // очистка экрана консоли
 void clearScreen();
 // установка курсора в нужные координаты x y
@@ -21,9 +19,7 @@ void setCursor(int x, int y);
 void setColor(int color);
 // текст внутри рамки
 void drawTextBox(int x, int y, int w, int h, std::string text, int textColor, int boxColor, int padding);
-// старая функция ввода текста
-std::string inputField(int x, int y, int width, bool isPassword = false, int warningY = 0);
-// новая функция для ввода текста с проверками
+// функция для ввода текста с проверками
 std::string processInput(int x, int y, int width, std::string currentInput, bool isPassword, int& exitKey, int warningY = 0);
 
 // доп функции для менюшек

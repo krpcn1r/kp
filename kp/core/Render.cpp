@@ -8,7 +8,7 @@ using namespace std;
 // показ экрана типа раздел еще не сделан
 void showPlaceholder(const string& title) {
   clearScreen();
-  drawDoubleBox(10, 8, 60, 10, 14); // Желтая рамка
+  drawBox(10, 8, 60, 10, 14);
   
   setCursor(26, 10);
   setColor(14);
@@ -211,11 +211,6 @@ void drawBox(int x, int y, int w, int h, int color) {
     setColor(7);
 }
 
-// раньше рисовала двойную рамку, теперь просто алиас на простую ASCII-рамку
-void drawDoubleBox(int x, int y, int w, int h, int color) {
-    drawBox(x, y, w, h, color);
-}
-
 // отрисовка рамки с текстом по центру
 void drawTextBox(int x, int y, int w, int h, string text, int textColor, int boxColor, int padding) {
     drawBox(x, y, w, h, boxColor);
@@ -237,58 +232,7 @@ void drawTextBox(int x, int y, int w, int h, string text, int textColor, int box
     setColor(7);
 }
 
-// функция для ввода текста юзером (старая версия)
-string inputField(int x, int y, int width, bool isPassword, int warningY) {
-    string input = "";
-    int choose;
-
-    while (true) {
-        setCursor(x + input.length(), y);
-        choose = InputHandler::getExtKey();
-
-        if (choose == Key::ENTER) break;
-
-        if (choose > 127) {
-            if (warningY > 0) {
-                setCursor(x - 12, warningY);
-                setColor(12);
-                cout << " Ошибка: Переключитесь на английский! ";
-                setColor(7);
-            }
-            continue;
-        }
-
-        if (choose == Key::BACKSPACE) {
-            if (input.length() > 0) {
-                input.pop_back();
-                setCursor(x, y);
-                for(int i=0; i< width; i++) cout << " ";
-                setCursor(x, y);
-                if (isPassword) {
-                    for(size_t i=0; i<input.length(); i++) cout << "*";
-                } else {
-                    cout << input;
-                }
-            }
-        }
-        else if (input.length() < width - 2 && isprint(static_cast<unsigned char>(choose))) {
-            if (warningY > 0) {
-                setCursor(x - 12, warningY);
-                cout << "                                       ";
-            }
-            input += choose;
-            setCursor(x, y);
-            if (isPassword) {
-                for(size_t i=0; i<input.length(); i++) cout << "*";
-            } else {
-                cout << input;
-            }
-        }
-    }
-    return input;
-}
-
-// основная функция для ввода текста с проверкой раскладки
+// функция для ввода текста с проверкой раскладки
 string processInput(int x, int y, int width, string currentInput, bool isPassword, int& exitKey, int warningY) {
     string input = currentInput;
     int choose;

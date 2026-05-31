@@ -8,37 +8,30 @@ using namespace std;
 bool AuthManager::isLoggedIn = false;
 User AuthManager::currentUser = {};
 
+bool AuthManager::isAsciiOnly(const string& str) {
+  for (unsigned char c : str)
+    if (c > 127) return false;
+  return true;
+}
+
+bool AuthManager::isStrongPassword(const string& password) {
+  if (password.length() < 8) return false;
+  bool hasDigit = false, hasSpecial = false;
+  for (char c : password) {
+    if (isdigit((unsigned char)c))  hasDigit = true;
+    if (ispunct((unsigned char)c))  hasSpecial = true;
+  }
+  return hasDigit && hasSpecial;
+}
+
 // регистрация нового пользователя
 int AuthManager::registerUser(const string &login, const string &password,
                               Role role) {
-  if (login.empty() || password.empty()) {
-    return 1; // пустой текст
-  }
-
-  // проверка на английские буквы
-  for (unsigned char c : login)
-    if (c > 127)
-      return 5; // если ввели русскую букву
-  for (unsigned char c : password)
-    if (c > 127)
-      return 5;
-
-
-  if (password.length() < 8)
-    return 2; 
-
-  // проверка чтобы в пароле были цифры и знаки
-  bool hasDigit = false;
-  bool hasSpecial = false;
-  for (char c : password) {
-    if (isdigit((unsigned char)c))
-      hasDigit = true;
-    if (ispunct((unsigned char)c))
-      hasSpecial = true;
-  }
-
-  // если нет цифр или знаков пароль не подходит
-  if (!hasDigit || !hasSpecial)
+  if (login.empty() || password.empty())
+    return 1;
+  if (!isAsciiOnly(login) || !isAsciiOnly(password))
+    return 5;
+  if (!isStrongPassword(password))
     return 2;
 
   string lowerLogin = login;
@@ -113,26 +106,12 @@ void AuthManager::logout() {
 int AuthManager::changePassword(std::string& currentPassword, const std::string& newPassword) {
     if (newPassword.empty() || currentPassword.empty())
         return 3;
+    if (!isAsciiOnly(currentPassword) || !isAsciiOnly(newPassword))
+        return 6;
     if (newPassword.length() < 8)
         return 4;
-
-    bool hasDigit = false;
-    bool hasSpecial = false;
-    for (char c : newPassword) {
-        if (isdigit((unsigned char)c))
-            hasDigit = true;
-        if (ispunct((unsigned char)c))
-            hasSpecial = true;
-    }
-    if (!hasDigit || !hasSpecial)
+    if (!isStrongPassword(newPassword))
         return 5;
-
-    for (unsigned char c : currentPassword)
-        if (c > 127)
-            return 6; // если ввели русскую букву
-    for (unsigned char c : newPassword)
-        if (c > 127)
-            return 6;
 
     vector<User> users = Database::loadUsers();
     User currentUser = getCurrentUser();

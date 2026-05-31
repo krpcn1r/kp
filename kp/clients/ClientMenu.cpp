@@ -11,31 +11,6 @@
 
 using namespace std;
 
-// обрезает длинные имена чтобы они не вылазили за края таблицы
-string safeTruncate(string str, size_t maxLen) {
-  if (str.length() <= maxLen)
-    return str;
-
-  size_t bytes = 0;
-  size_t chars = 0;
-  // идем по байтам чтобы не сломать русские буквы
-  while (bytes < str.length() && chars < maxLen - 3) {
-    unsigned char c = (unsigned char)str[bytes];
-    if (c >= 0 && c <= 127)
-      bytes += 1;
-    else if ((c & 0xE0) == 0xC0)
-      bytes += 2;
-    else if ((c & 0xF0) == 0xE0)
-      bytes += 3;
-    else if ((c & 0xF8) == 0xF0)
-      bytes += 4;
-    else
-      bytes += 1; // Ошибка кодировки, но идем дальше
-    chars++;
-  }
-  return str.substr(0, bytes) + "...";
-}
-
 // сколько строк влезает на страницу
 static const int CLIENT_PAGE_SIZE = 8;
 
@@ -52,144 +27,6 @@ static string balanceToStr(double balance) {
     ostringstream oss;
     oss << fixed << setprecision(2) << balance;
     return oss.str();
-}
-
-// рисует саму таблицу с абонентами на экране
-void ClientMenu::drawClientTable(const vector<Client> &clients, int startIdx,
-                                 int selectedIdx) {
-  clearScreen();
-  drawBox(1, 1, 90, 26, 15); // простая ASCII-рамка на весь экран
-
-  setCursor(38, 2);
-  setColor(11);
-  cout << "БАЗА АБОНЕНТОВ";
-
-  // пишем названия колонок
-  setColor(15);
-  setCursor(2, 4);
-  cout << "ID";
-  setCursor(7, 4);
-  cout << "|";
-  setCursor(9, 4);
-  cout << "ФИО";
-  setCursor(48, 4);
-  cout << "|";
-  setCursor(50, 4);
-  cout << "Телефон";
-  setCursor(64, 4);
-  cout << "|";
-  setCursor(66, 4);
-  cout << "Тариф";
-  setCursor(78, 4);
-  cout << "|";
-  setCursor(80, 4);
-  cout << "Статус";
-
-  // рисуем линию разделитель: + ----+----+----+----+----+
-  setCursor(1, 5);
-  setColor(15);
-  cout << "+-----+---------------------------------------+---------------+-----"
-          "--------+----------+";
-
-  int firstRow = 6; // первая строка данных
-  int pageSize = 18; // сколько человек влезет на экран
-
-  // выводим список абонентов построчно
-  for (int i = 0; i < pageSize; i++) {
-    int curIdx = startIdx + i;
-    int y = firstRow + i;
-    bool isSelected = (curIdx == selectedIdx && curIdx < (int)clients.size());
-
-    setCursor(2, y);
-    if (isSelected) {
-      setColor(240); // белый фон для выбранного
-      cout << "                                                                "
-              "                        ";
-    } else {
-      setColor(7);
-      cout << "     |                                       |               |  "
-              "           |          ";
-    }
-
-    if (curIdx < (int)clients.size()) {
-      const auto &c = clients[curIdx];
-
-      int focusColor = isSelected ? 240 : (c.isActive ? 7 : 8);
-
-      // пишем ID
-      setCursor(2, y);
-      if (isSelected)
-        setColor(240);
-      else
-        setColor(15);
-      cout << left << setw(5) << c.id;
-
-      // пишем ФИО и обрезаем если длинное
-      setCursor(7, y);
-      if (isSelected)
-        setColor(240);
-      else
-        setColor(15);
-      cout << "|";
-      setCursor(9, y);
-      setColor(focusColor);
-      string name = safeTruncate(c.fullName, 37);
-      cout << left << setw(38) << name;
-
-      // пишем номер телефона
-      setCursor(48, y);
-      if (isSelected)
-        setColor(240);
-      else
-        setColor(15);
-      cout << "|";
-      setCursor(50, y);
-      setColor(focusColor);
-      cout << left << setw(13) << c.phoneNumber;
-
-      // пишем какой тариф у чела
-      setCursor(64, y);
-      if (isSelected)
-        setColor(240);
-      else
-        setColor(15);
-      cout << "|";
-      setCursor(66, y);
-      setColor(focusColor);
-      string trfStr = c.tariffName.empty() ? "Базовый" : c.tariffName;
-      string trf = safeTruncate(trfStr, 11);
-      cout << left << setw(11) << trf;
-
-      // пишем активен он или заблочен
-      setCursor(78, y);
-      if (isSelected)
-        setColor(240);
-      else
-        setColor(15);
-      cout << "|";
-      setCursor(80, y);
-      if (isSelected) {
-        setColor(240);
-      } else {
-        c.isActive ? setColor(10) : setColor(4);
-      }
-      cout << (c.isActive ? "Активен" : "Заблокир.");
-    }
-  }
-
-  // рисуем низ таблицы: + ---- +
-  setColor(15);
-  setCursor(1, 24);
-  cout << "+";
-  for (int i = 0; i < 88; i++) cout << "-";
-  cout << "+";
-  setCursor(3, 25);
-  setColor(8);
-  int total = (int)clients.size();
-  cout << "Абонент: " << (total > 0 ? selectedIdx + 1 : 0) << " / " << total
-       << "  |  [Up][Down] Навигация  |  [Enter] Редактировать  |  [Esc] Назад";
-
-  drawFooter(29, true); // рисуем подсказки в подвале
 }
 
 // отрисовка таблицы с поддержкой выделения и inline-редактирования
@@ -334,7 +171,7 @@ static bool validateClientEdit(const vector<Client>& clients, int editIdx,
     return true;
 }
 
-// открывает список всех абонентов с возможностью inline-редактирования
+// открывает список всех абонентов с возможностью inline-редактирования и удаления
 void ClientMenu::showList() {
     vector<Client> clients = ClientManager::getAllClients();
     int selectedIdx = clients.empty() ? -1 : 0;
@@ -348,10 +185,8 @@ void ClientMenu::showList() {
     bool needFullRedraw = true;
 
     while (true) {
-        // корректируем выделение и прокрутку
         if (clients.empty()) {
-            selectedIdx = -1;
-            startIdx = 0;
+            selectedIdx = -1; startIdx = 0;
         } else {
             if (selectedIdx < 0) selectedIdx = 0;
             if (selectedIdx >= (int)clients.size()) selectedIdx = (int)clients.size() - 1;
@@ -360,22 +195,17 @@ void ClientMenu::showList() {
                 startIdx = selectedIdx - CLIENT_PAGE_SIZE + 1;
         }
 
-        string statusText;
-        if (editingIdx >= 0) {
-            statusText = "Всего абонентов: " + to_string(clients.size()) +
-                         "  |  Редактирование строки " + to_string(editingIdx + 1);
-        } else {
-            statusText = "Всего абонентов: " + to_string(clients.size()) +
-                         "  |  Выбран: " + to_string(clients.empty() ? 0 : selectedIdx + 1);
-        }
+        string statusText = editingIdx >= 0
+            ? "Редактирование #" + to_string(editingIdx + 1) + "  |  Tab - поле  Enter - сохранить  Esc - отменить"
+            : "Всего абонентов: " + to_string(clients.size()) + "  |  Enter - изменить  Del - удалить  Esc - назад";
 
         drawClientsTable("БАЗА АБОНЕНТОВ", clients, startIdx, selectedIdx,
                          editingIdx, activeField, draftClient, draftBalance,
                          message, messageColor, needFullRedraw, statusText);
         needFullRedraw = false;
 
-        // режим выбора строки
         if (editingIdx == -1) {
+            // режим навигации
             int key = InputHandler::getExtKey();
             if (key == Key::ESC) return;
             if (clients.empty()) continue;
@@ -389,87 +219,81 @@ void ClientMenu::showList() {
                 draftClient = clients[editingIdx];
                 draftBalance = balanceToStr(draftClient.balance);
                 activeField = 0;
-                message = "";
-                messageColor = 8;
+                message = ""; messageColor = 8;
+            } else if (key == Key::DEL) {
+                string name = clients[selectedIdx].fullName;
+                if (!showConfirmation("Удалить абонента " + name + "?")) {
+                    needFullRedraw = true;
+                    message = "Удаление отменено."; messageColor = 8;
+                    continue;
+                }
+                if (!ClientManager::deleteClient(clients[selectedIdx].id)) {
+                    needFullRedraw = true;
+                    message = "Ошибка: не удалось удалить абонента."; messageColor = 12;
+                    continue;
+                }
+                clients = ClientManager::getAllClients();
+                if (selectedIdx >= (int)clients.size())
+                    selectedIdx = (int)clients.size() - 1;
+                needFullRedraw = true;
+                message = "Абонент " + name + " удален."; messageColor = 10;
             }
-            continue;
-        }
-
-        // редактирование — текстовые поля (ФИО, Телефон, Тариф, Баланс)
-        if (activeField >= 0 && activeField <= 3) {
+        } else if (activeField <= 3) {
+            // текстовые поля (ФИО, Телефон, Тариф, Баланс)
             int rowY = 7 + (editingIdx - startIdx) * 2;
             int exitKey = 0;
 
-            if (activeField == 0) {
-                draftClient.fullName = processInput(COL_NAME_X, rowY, COL_NAME_W,
-                                                    draftClient.fullName, false, exitKey, 0);
-            } else if (activeField == 1) {
-                draftClient.phoneNumber = processInput(COL_PHONE_X, rowY, COL_PHONE_W,
-                                                       draftClient.phoneNumber, false, exitKey, 0);
-            } else if (activeField == 2) {
-                draftClient.tariffName = processInput(COL_TARIFF_X, rowY, COL_TARIFF_W,
-                                                      draftClient.tariffName, false, exitKey, 0);
-            } else {
-                draftBalance = processInput(COL_BAL_X, rowY, COL_BAL_W,
-                                            draftBalance, false, exitKey, 0);
-            }
+            if (activeField == 0)
+                draftClient.fullName = processInput(COL_NAME_X, rowY, COL_NAME_W, draftClient.fullName, false, exitKey, 0);
+            else if (activeField == 1)
+                draftClient.phoneNumber = processInput(COL_PHONE_X, rowY, COL_PHONE_W, draftClient.phoneNumber, false, exitKey, 0);
+            else if (activeField == 2)
+                draftClient.tariffName = processInput(COL_TARIFF_X, rowY, COL_TARIFF_W, draftClient.tariffName, false, exitKey, 0);
+            else
+                draftBalance = processInput(COL_BAL_X, rowY, COL_BAL_W, draftBalance, false, exitKey, 0);
 
-            message = "";
-            messageColor = 8;
+            message = ""; messageColor = 8;
 
-            if (exitKey == Key::TAB || exitKey == Key::DOWN) {
+            if (exitKey == Key::TAB || exitKey == Key::DOWN)
                 activeField = (activeField + 1) % 5;
-            } else if (exitKey == Key::UP) {
+            else if (exitKey == Key::UP)
                 activeField = (activeField - 1 + 5) % 5;
-            } else if (exitKey == Key::ENTER) {
+            else if (exitKey == Key::ENTER)
                 activeField++;
-            } else if (exitKey == Key::ESC) {
-                editingIdx = -1;
-                activeField = 0;
-                message = "Редактирование отменено.";
-                messageColor = 8;
+            else if (exitKey == Key::ESC) {
+                editingIdx = -1; activeField = 0;
+                message = "Редактирование отменено."; messageColor = 8;
             }
-            continue;
-        }
+        } else {
+            // поле статуса (Space/стрелки — переключить, Enter — сохранить)
+            int key = InputHandler::getExtKey();
+            message = ""; messageColor = 8;
 
-        // редактирование — поле статуса (Space/стрелки — переключить, Enter — сохранить)
-        int key = InputHandler::getExtKey();
-        message = "";
-        messageColor = 8;
-
-        if (key == Key::TAB || key == Key::DOWN) {
-            activeField = (activeField + 1) % 5;
-        } else if (key == Key::UP) {
-            activeField = (activeField - 1 + 5) % 5;
-        } else if (key == Key::LEFT || key == Key::RIGHT || key == ' ') {
-            draftClient.isActive = !draftClient.isActive;
-        } else if (key == Key::ENTER) {
-            string validMsg;
-            int invalidField = activeField;
-            if (!validateClientEdit(clients, editingIdx, draftClient, draftBalance,
-                                    validMsg, invalidField)) {
-                message = validMsg;
-                messageColor = 12;
-                activeField = invalidField;
-            } else {
-                draftClient.balance = stod(draftBalance);
-                if (!ClientManager::updateClient(draftClient.id, draftClient)) {
-                    message = "Ошибка: не удалось сохранить изменения.";
-                    messageColor = 12;
+            if (key == Key::TAB || key == Key::DOWN)
+                activeField = (activeField + 1) % 5;
+            else if (key == Key::UP)
+                activeField = (activeField - 1 + 5) % 5;
+            else if (key == Key::LEFT || key == Key::RIGHT || key == ' ')
+                draftClient.isActive = !draftClient.isActive;
+            else if (key == Key::ENTER) {
+                string validMsg; int invalidField = activeField;
+                if (!validateClientEdit(clients, editingIdx, draftClient, draftBalance, validMsg, invalidField)) {
+                    message = validMsg; messageColor = 12; activeField = invalidField;
                 } else {
-                    clients = ClientManager::getAllClients();
-                    selectedIdx = editingIdx;
-                    editingIdx = -1;
-                    activeField = 0;
-                    message = "Абонент успешно изменен.";
-                    messageColor = 10;
+                    draftClient.balance = stod(draftBalance);
+                    if (!ClientManager::updateClient(draftClient.id, draftClient)) {
+                        message = "Ошибка: не удалось сохранить изменения."; messageColor = 12;
+                    } else {
+                        clients = ClientManager::getAllClients();
+                        selectedIdx = editingIdx;
+                        editingIdx = -1; activeField = 0;
+                        message = "Абонент успешно изменен."; messageColor = 10;
+                    }
                 }
+            } else if (key == Key::ESC) {
+                editingIdx = -1; activeField = 0;
+                message = "Редактирование отменено."; messageColor = 8;
             }
-        } else if (key == Key::ESC) {
-            editingIdx = -1;
-            activeField = 0;
-            message = "Редактирование отменено.";
-            messageColor = 8;
         }
     }
 }
@@ -846,6 +670,3 @@ void ClientMenu::showAddClient() {
   InputHandler::waitAnyKey();
 }
 
-void ClientMenu::showEditClient(int clientId) {
-  showPlaceholder("Редактирование клиента ID: " + to_string(clientId));
-}

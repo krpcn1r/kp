@@ -12,10 +12,4 @@ public:
     static void showSearch();
     // показ формы добавления нового клиента
     static void showAddClient();
-    // меню для правки данных абонента
-    static void showEditClient(int clientId);
-    
-private:
-    // отрисовка таблицы с данными абонентов
-    static void drawClientTable(const std::vector<Client>& clients, int startIdx = 0, int selectedIdx = -1);
 };

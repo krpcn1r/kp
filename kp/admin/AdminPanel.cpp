@@ -40,25 +40,6 @@ static string toLowerAscii(string value) {
 	return value;
 }
 
-static bool isAsciiText(const string& value) {
-	for (unsigned char c : value) {
-		if (c > 127) return false;
-	}
-	return true;
-}
-
-static bool isStrongPassword(const string& password) {
-	if (password.length() < 8) return false;
-
-	bool hasDigit = false;
-	bool hasSpecial = false;
-	for (char c : password) {
-		if (isdigit(static_cast<unsigned char>(c))) hasDigit = true;
-		if (ispunct(static_cast<unsigned char>(c))) hasSpecial = true;
-	}
-	return hasDigit && hasSpecial;
-}
-
 static string roleToText(Role role) {
 	return role == Role::ADMIN ? "ADMIN" : "OPERATOR";
 }
@@ -185,13 +166,13 @@ static bool validateUserEdit(const vector<User>& users, int editIdx, const User&
 		return false;
 	}
 
-	if (!isAsciiText(draft.login) || !isAsciiText(draft.password)) {
+	if (!AuthManager::isAsciiOnly(draft.login) || !AuthManager::isAsciiOnly(draft.password)) {
 		message = "Ошибка: используйте только английские символы.";
-		activeField = !isAsciiText(draft.login) ? 0 : 1;
+		activeField = !AuthManager::isAsciiOnly(draft.login) ? 0 : 1;
 		return false;
 	}
 
-	if (!isStrongPassword(draft.password)) {
+	if (!AuthManager::isStrongPassword(draft.password)) {
 		message = "Ошибка: пароль минимум 8 символов, 1 цифра и 1 спецсимвол.";
 		activeField = 1;
 		return false;
