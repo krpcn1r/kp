@@ -587,12 +587,14 @@ void ClientMenu::showAddClient() {
 
         } else if (activeField == 2) {
             int key = InputHandler::getExtKey();
-            if (key == Key::UP && !tariffs.empty()) {
+            if (key == Key::LEFT && !tariffs.empty()) {
                 tariffIdx = (tariffIdx - 1 + (int)tariffs.size()) % (int)tariffs.size();
-            } else if (key == Key::DOWN && !tariffs.empty()) {
+            } else if (key == Key::RIGHT && !tariffs.empty()) {
                 tariffIdx = (tariffIdx + 1) % (int)tariffs.size();
-            } else if (key == Key::TAB || key == Key::ENTER) {
+            } else if (key == Key::DOWN || key == Key::TAB || key == Key::ENTER) {
                 activeField = 3;
+            } else if (key == Key::UP) {
+                activeField = 1;
             } else if (key == Key::ESC) {
                 return;
             }
