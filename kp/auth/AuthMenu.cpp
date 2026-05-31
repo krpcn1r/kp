@@ -38,7 +38,9 @@ bool AuthMenu::show() {
                 setColor(15);
                 setCursor(2, y);
                 std::cout << "+";
-                for (int i = 0; i < 74; i++) std::cout << "-";
+                for (int i = 0; i < 74; i++) {
+                    std::cout << "-";
+                }
                 std::cout << "+";
             };
             drawHLine(14);
@@ -98,17 +100,19 @@ bool AuthMenu::show() {
             setCursor(6, yPos);
             if (i == selectedOption) {
                 // если пункт выбран красим его в зеленый или красный
-                if (i == 2)
+                if (i == 2) {
                     setColor(12);
-                else
+                } else {
                     setColor(10);
+                }
                 cout << "> " << options[i];  // отрисовка стрелочки у выбора
             } else {
                 // не активные пункты серые
-                if (i == 2)
+                if (i == 2) {
                     setColor(4);
-                else
+                } else {
                     setColor(8);
+                }
                 cout << "  " << options[i];
             }
         }
@@ -119,24 +123,30 @@ bool AuthMenu::show() {
         // навигация по менюшкам
         if (key == Key::TAB) {
             selectedOption++;
-            if (selectedOption >= numOptions)
+            if (selectedOption >= numOptions) {
                 selectedOption = 0;
+            }
         } else if (key == Key::UP) {
             selectedOption--;
-            if (selectedOption < 0)
+            if (selectedOption < 0) {
                 selectedOption = numOptions - 1;
+            }
         } else if (key == Key::DOWN) {
             selectedOption++;
-            if (selectedOption >= numOptions)
+            if (selectedOption >= numOptions) {
                 selectedOption = 0;
+            }
         } else if (key == Key::ENTER || key == '1' || key == '2' || key == '0') {
             // выбор раздела при нажатии цифр или энтера
-            if (key == '1')
+            if (key == '1') {
                 selectedOption = 0;
-            if (key == '2')
+            }
+            if (key == '2') {
                 selectedOption = 1;
-            if (key == '0')
+            }
+            if (key == '0') {
                 selectedOption = 2;
+            }
 
             if (selectedOption == 0) {
                 showLoginScreen();  // запуск входа

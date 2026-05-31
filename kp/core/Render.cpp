@@ -45,7 +45,9 @@ bool showConfirmation(const string& message) {
     setColor(0);
     for (int i = 1; i < h - 1; i++) {
         setCursor(x + 1, y + i);
-        for (int j = 0; j < w - 2; j++) cout << " ";
+        for (int j = 0; j < w - 2; j++) {
+            cout << " ";
+        }
     }
 
     setCursor(x + (w - message.length()) / 2, y + 2);
@@ -62,8 +64,12 @@ bool showConfirmation(const string& message) {
 
     while (true) {
         int key = InputHandler::getExtKey();
-        if (key == Key::ENTER || key == 'y' || key == 'Y') return true;
-        if (key == Key::ESC || key == 'n' || key == 'N') return false;
+        if (key == Key::ENTER || key == 'y' || key == 'Y') {
+            return true;
+        }
+        if (key == Key::ESC || key == 'n' || key == 'N') {
+            return false;
+        }
     }
 }
 
@@ -72,10 +78,11 @@ void drawFooter(int y, bool hasBack) {
     setColor(8);
     setCursor(2, y);
     std::cout << "[Tab] Навигация  | [Enter] Выбрать";
-    if (hasBack)
+    if (hasBack) {
         std::cout << "   |  [Esc] Назад";
-    else
+    } else {
         std::cout << "   |  [Esc] Выход";
+    }
 }
 
 // отрисовка текста внутри поля ввода при печати
@@ -121,22 +128,28 @@ string truncateText(string value, size_t maxLen) {
     while (bytePos < value.length() && charCount < maxLen) {
         unsigned char c = static_cast<unsigned char>(value[bytePos]);
         int step = 1;
-        if ((c & 0xE0) == 0xC0)
+        if ((c & 0xE0) == 0xC0) {
             step = 2;
-        else if ((c & 0xF0) == 0xE0)
+        } else if ((c & 0xF0) == 0xE0) {
             step = 3;
-        else if ((c & 0xF8) == 0xF0)
+        } else if ((c & 0xF8) == 0xF0) {
             step = 4;
+        }
 
-        if (maxLen > 3 && charCount == maxLen - 3)
+        if (maxLen > 3 && charCount == maxLen - 3) {
             ellipsisBytePos = bytePos;
+        }
 
         bytePos += step;
         charCount++;
     }
 
-    if (bytePos >= value.length()) return value;
-    if (maxLen <= 3) return value.substr(0, bytePos);
+    if (bytePos >= value.length()) {
+        return value;
+    }
+    if (maxLen <= 3) {
+        return value.substr(0, bytePos);
+    }
     return value.substr(0, ellipsisBytePos) + "...";
 }
 
@@ -147,8 +160,7 @@ void drawTableCell(int x, int y, int width, string value, int color) {
     setColor(7);
 }
 
-void drawTableHeader(int y, const vector<TableColumn>& columns,
-                     const vector<int>& separatorXs, int textColor) {
+void drawTableHeader(int y, const vector<TableColumn>& columns, const vector<int>& separatorXs, int textColor) {
     for (int separatorX : separatorXs) {
         drawTableCell(separatorX, y, 1, "|", textColor);
     }

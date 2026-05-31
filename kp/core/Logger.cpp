@@ -30,10 +30,18 @@ string Logger::categoryToString(LogCategory cat) {
 }
 
 LogCategory Logger::categoryFromString(const string& s) {
-    if (s == "AUTH") return LogCategory::AUTH;
-    if (s == "USER") return LogCategory::USER;
-    if (s == "CLIENT") return LogCategory::CLIENT;
-    if (s == "BILLING") return LogCategory::BILLING;
+    if (s == "AUTH") {
+        return LogCategory::AUTH;
+    }
+    if (s == "USER") {
+        return LogCategory::USER;
+    }
+    if (s == "CLIENT") {
+        return LogCategory::CLIENT;
+    }
+    if (s == "BILLING") {
+        return LogCategory::BILLING;
+    }
     return LogCategory::SYSTEM;
 }
 
@@ -62,7 +70,9 @@ void Logger::appendLine(const string& line) {
     } catch (...) {
     }
     ofstream file(LOG_FILE, ios::app);
-    if (!file.is_open()) return;
+    if (!file.is_open()) {
+        return;
+    }
     file << line << '\n';
 }
 
@@ -70,8 +80,7 @@ void Logger::log(LogCategory cat, const string& action, const string& details) {
     logAs(currentActor(), cat, action, details);
 }
 
-void Logger::logAs(const string& actor, LogCategory cat, const string& action,
-                   const string& details) {
+void Logger::logAs(const string& actor, LogCategory cat, const string& action, const string& details) {
     ostringstream oss;
     oss << "[" << nowTimestamp() << "] "
         << "[" << actor << "] "
@@ -86,22 +95,32 @@ void Logger::logAs(const string& actor, LogCategory cat, const string& action,
 vector<LogEntry> Logger::loadEntries() {
     vector<LogEntry> entries;
     ifstream file(LOG_FILE);
-    if (!file.is_open()) return entries;
+    if (!file.is_open()) {
+        return entries;
+    }
 
     string line;
     while (getline(file, line)) {
-        if (line.empty()) continue;
+        if (line.empty()) {
+            continue;
+        }
 
         LogEntry e;
         size_t p = 0;
 
         auto readBracket = [&](string& out) -> bool {
-            if (p >= line.size() || line[p] != '[') return false;
+            if (p >= line.size() || line[p] != '[') {
+                return false;
+            }
             size_t end = line.find(']', p);
-            if (end == string::npos) return false;
+            if (end == string::npos) {
+                return false;
+            }
             out = line.substr(p + 1, end - p - 1);
             p = end + 1;
-            while (p < line.size() && line[p] == ' ') p++;
+            while (p < line.size() && line[p] == ' ') {
+                p++;
+            }
             return true;
         };
 

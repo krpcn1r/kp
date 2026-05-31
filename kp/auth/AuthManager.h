@@ -8,8 +8,7 @@ class AuthManager {
 public:
     // функция для регистрации нового пользователя
     // возврат 0 если всё ок или другой код ошибки
-    static int registerUser(const std::string& login, const std::string& password,
-                            Role role = Role::OPERATOR);
+    static int registerUser(const std::string& login, const std::string& password, Role role = Role::OPERATOR);
 
     // проверка логина и пароля для входа в прогу
     static bool loginUser(const std::string& login, const std::string& password);

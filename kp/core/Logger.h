@@ -25,13 +25,10 @@ class Logger {
 public:
     // запись с автоопределением актора (берётся текущий залогиненный юзер,
     // если никого нет — "system")
-    static void log(LogCategory cat, const std::string& action,
-                    const std::string& details = "");
+    static void log(LogCategory cat, const std::string& action, const std::string& details = "");
     // запись с явным указанием актора (нужно, например, для логина — там ещё
     // нет залогиненного юзера на момент попытки входа)
-    static void logAs(const std::string& actor, LogCategory cat,
-                      const std::string& action,
-                      const std::string& details = "");
+    static void logAs(const std::string& actor, LogCategory cat, const std::string& action, const std::string& details = "");
 
     // чтение всех записей из файла (для просмотрщика)
     static std::vector<LogEntry> loadEntries();

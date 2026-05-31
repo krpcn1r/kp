@@ -30,8 +30,7 @@ void drawInputContent(int x, int y, int width, std::string input, bool isPasswor
 void clearLine(int x, int y, int width, int color = 7);
 std::string truncateText(std::string value, size_t maxLen);
 void drawTableCell(int x, int y, int width, std::string value, int color = 7);
-void drawTableHeader(int y, const std::vector<TableColumn>& columns,
-                     const std::vector<int>& separatorXs, int textColor = 15);
+void drawTableHeader(int y, const std::vector<TableColumn>& columns, const std::vector<int>& separatorXs, int textColor = 15);
 void drawTableSeparator(int x, int y, int width, const std::vector<int>& separatorXs, int color = 7);
 // показ заглушки если раздел не готов
 void showPlaceholder(const std::string& title);

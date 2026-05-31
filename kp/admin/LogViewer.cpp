@@ -42,7 +42,9 @@ void LogViewer::show() {
     auto applyFilter = [&]() {
         vector<LogEntry> out;
         for (const auto& e : all) {
-            if (filter == -1 || (int)e.category == filter) out.push_back(e);
+            if (filter == -1 || (int)e.category == filter) {
+                out.push_back(e);
+            }
         }
         return out;
     };
@@ -54,11 +56,18 @@ void LogViewer::show() {
 
     while (true) {
         if (!view.empty()) {
-            if (selectedIdx < 0) selectedIdx = 0;
-            if (selectedIdx >= (int)view.size()) selectedIdx = (int)view.size() - 1;
-            if (selectedIdx < startIdx) startIdx = selectedIdx;
-            if (selectedIdx >= startIdx + LOG_PAGE_SIZE)
+            if (selectedIdx < 0) {
+                selectedIdx = 0;
+            }
+            if (selectedIdx >= (int)view.size()) {
+                selectedIdx = (int)view.size() - 1;
+            }
+            if (selectedIdx < startIdx) {
+                startIdx = selectedIdx;
+            }
+            if (selectedIdx >= startIdx + LOG_PAGE_SIZE) {
                 startIdx = selectedIdx - LOG_PAGE_SIZE + 1;
+            }
         } else {
             startIdx = 0;
             selectedIdx = -1;
@@ -75,7 +84,9 @@ void LogViewer::show() {
             setColor(14);
             setCursor(1, 3);
             cout << "+";
-            for (int i = 0; i < 108; i++) cout << "-";
+            for (int i = 0; i < 108; i++) {
+                cout << "-";
+            }
             cout << "+";
 
             // шапка
@@ -98,7 +109,9 @@ void LogViewer::show() {
             setColor(14);
             setCursor(1, 5);
             cout << "+";
-            for (int i = 0; i < 108; i++) cout << "-";
+            for (int i = 0; i < 108; i++) {
+                cout << "-";
+            }
             cout << "+";
 
             needFullRedraw = false;
@@ -113,7 +126,9 @@ void LogViewer::show() {
             int rowColor = sel ? 240 : 7;
 
             clearLine(2, y, 107, rowColor);
-            if (!has) continue;
+            if (!has) {
+                continue;
+            }
 
             const LogEntry& e = view[idx];
             drawTableCell(3, y, 20, e.timestamp, rowColor);
@@ -124,7 +139,9 @@ void LogViewer::show() {
             drawTableCell(58, y, 1, "|", 7);
 
             string text = e.action;
-            if (!e.details.empty()) text += " :: " + e.details;
+            if (!e.details.empty()) {
+                text += " :: " + e.details;
+            }
             drawTableCell(60, y, 47, text, rowColor);
         }
 
@@ -132,7 +149,9 @@ void LogViewer::show() {
         setColor(14);
         setCursor(1, 23);
         cout << "+";
-        for (int i = 0; i < 108; i++) cout << "-";
+        for (int i = 0; i < 108; i++) {
+            cout << "-";
+        }
         cout << "+";
 
         clearLine(3, 24, 105);
@@ -177,26 +196,33 @@ void LogViewer::show() {
         drawFooter(29, true);
 
         int key = InputHandler::getExtKey();
-        if (key == Key::ESC) return;
+        if (key == Key::ESC) {
+            return;
+        }
 
         if (key == Key::DOWN || key == Key::TAB) {
-            if (selectedIdx < (int)view.size() - 1) selectedIdx++;
+            if (selectedIdx < (int)view.size() - 1) {
+                selectedIdx++;
+            }
         } else if (key == Key::UP) {
-            if (selectedIdx > 0) selectedIdx--;
+            if (selectedIdx > 0) {
+                selectedIdx--;
+            }
         } else {
             int newFilter = filter;
-            if (key == 'A' || key == 'a')
+            if (key == 'A' || key == 'a') {
                 newFilter = (int)LogCategory::AUTH;
-            else if (key == 'U' || key == 'u')
+            } else if (key == 'U' || key == 'u') {
                 newFilter = (int)LogCategory::USER;
-            else if (key == 'C' || key == 'c')
+            } else if (key == 'C' || key == 'c') {
                 newFilter = (int)LogCategory::CLIENT;
-            else if (key == 'B' || key == 'b')
+            } else if (key == 'B' || key == 'b') {
                 newFilter = (int)LogCategory::BILLING;
-            else if (key == 'S' || key == 's')
+            } else if (key == 'S' || key == 's') {
                 newFilter = (int)LogCategory::SYSTEM;
-            else if (key == 'R' || key == 'r')
+            } else if (key == 'R' || key == 'r') {
                 newFilter = -1;
+            }
 
             if (newFilter != filter) {
                 filter = newFilter;

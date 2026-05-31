@@ -28,8 +28,9 @@ void showLoginScreen() {
     setColor(8);
     setCursor(4, 7);
     cout << "+";
-    for (int i = 0; i < 40; i++)
+    for (int i = 0; i < 40; i++) {
         cout << "-";
+    }
     cout << "+";
 
     // отрисовка пустых полей для ввода
@@ -40,26 +41,29 @@ void showLoginScreen() {
     while (true) {
         // вывод слова логин с покраской если оно выбрано
         setCursor(6, 9);
-        if (activeField == 0)
+        if (activeField == 0) {
             setColor(10);
-        else
+        } else {
             setColor(7);
+        }
         cout << (activeField == 0 ? "> Логин:" : "  Логин:");
 
         // тоже самое для пароля
         setCursor(6, 12);
-        if (activeField == 1)
+        if (activeField == 1) {
             setColor(10);
-        else
+        } else {
             setColor(7);
+        }
         cout << (activeField == 1 ? "> Пароль:" : "  Пароль:");
 
         // отрисовка разделителя между строками ввода
         setCursor(4, 11);
         setColor(8);
         cout << "+";
-        for (int i = 0; i < 40; i++)
+        for (int i = 0; i < 40; i++) {
             cout << "-";
+        }
         cout << "+";
 
         // отрисовка подсказок по кнопкам в самом низу
@@ -77,10 +81,11 @@ void showLoginScreen() {
         if (exitKey == Key::TAB || exitKey == Key::UP || exitKey == Key::DOWN) {
             activeField = (activeField == 0) ? 1 : 0;  // переключение между полями
         } else if (exitKey == Key::ENTER) {
-            if (activeField == 0)
+            if (activeField == 0) {
                 activeField = 1;  // переход на пароль после ввода логина
-            else
+            } else {
                 break;  // попытка входа после ввода пароля
+            }
         } else if (exitKey == Key::ESC) {
             return;  // выход без авторизации
         }
