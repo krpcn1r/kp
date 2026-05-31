@@ -23,6 +23,9 @@ public:
 
   static int changePassword(std::string& currentPassword, const std::string& newPassword);
 
+  static bool isAsciiOnly(const std::string& str);
+  static bool isStrongPassword(const std::string& password);
+
 private:
   static bool isLoggedIn; // статус входа
   static User currentUser; // данные текущего юзера
