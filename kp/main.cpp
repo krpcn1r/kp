@@ -1,5 +1,4 @@
 #include "admin/AdminPanel.h"
-#include "admin/ConfigWizard.h"
 #include "core/InputHandler.h"
 #include <iostream>
 #include <string>
@@ -17,7 +16,6 @@
 #include "core/InputHandler.h"
 #include "core/Logger.h"
 #include "core/Render.h"
-#include "core/Utils.h"
 
 using namespace std;
 

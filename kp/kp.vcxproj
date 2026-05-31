@@ -134,7 +134,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="admin\AdminPanel.cpp" />
-    <ClCompile Include="admin\ConfigWizard.cpp" />
     <ClCompile Include="admin\LogViewer.cpp" />
     <ClCompile Include="auth\AuthManager.cpp" />
     <ClCompile Include="auth\AuthMenu.cpp" />
@@ -147,13 +146,11 @@
     <ClCompile Include="core\InputHandler.cpp" />
     <ClCompile Include="core\Logger.cpp" />
     <ClCompile Include="core\Render.cpp" />
-    <ClCompile Include="core\Utils.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="user\HomeMenu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="admin\AdminPanel.h" />
-    <ClInclude Include="admin\ConfigWizard.h" />
     <ClInclude Include="admin\LogViewer.h" />
     <ClInclude Include="auth\AuthManager.h" />
     <ClInclude Include="auth\AuthMenu.h" />
@@ -170,7 +167,6 @@
     <ClInclude Include="core\json.hpp" />
     <ClInclude Include="core\Logger.h" />
     <ClInclude Include="core\Render.h" />
-    <ClInclude Include="core\Utils.h" />
     <ClInclude Include="user\HomeMenu.h" />
   </ItemGroup>
   <ItemGroup>
