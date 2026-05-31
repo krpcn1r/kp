@@ -2,12 +2,14 @@
 
 #include <iomanip>
 #include <iostream>
+#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
 
 #include "../admin/AdminPanel.h"
 #include "../auth/AuthManager.h"
+#include "../clients/ClientManager.h"
 #include "../clients/ClientMenu.h"
 #include "../clients/TariffStruct.h"
 #include "../core/Database.h"
@@ -17,8 +19,8 @@ using namespace std;
 
 // рисует главное меню после того как юзер зашел в систему
 HomeResult HomeMenu::show() {
-    int selectedOption = 0;      // какая кнопка сейчас выбрана
-    const int numOptions = 8;    // всего 8 пунктов меню
+    int selectedOption = 0;
+    const int numOptions = 9;
     bool needFullRedraw = true;  // флаг полной перерисовки окна
 
     User u = AuthManager::getCurrentUser();
@@ -84,55 +86,45 @@ HomeResult HomeMenu::show() {
         drawFooter(29, false);
 
         // Рендерим опции
-        // список всех доступных кнопок в главном меню
         string options[numOptions] = {
-            "1. Просмотр базы клиентов ", "2. Поиск по базе          ", "3. Просмотр текущих тарифов", "4. Оформление нового клиента", "5. Редактирование записей  ", "6. Сменить пароль          ", "7. Выход в меню авторизации", "8. Закрыть программу       "};
+            "1. Просмотр базы клиентов  ", "2. Поиск по базе           ", "3. Просмотр текущих тарифов", "4. Оформление нового клиента", "5. Редактирование записей  ", "6. Статистика              ", "7. Сменить пароль          ", "8. Выход в меню авторизации", "9. Закрыть программу       "};
         if (roleStr == "Администратор") {
-            options[5] = "6. Админ-панель";
+            options[6] = "7. Админ-панель            ";
         }
-        // выводим пункты меню и красиво их красим
+
+        auto drawMenuHLine = [](int y) {
+            setCursor(2, y);
+            setColor(15);
+            cout << "+";
+            for (int j = 0; j < 74; j++) {
+                cout << "-";
+            }
+            cout << "+";
+        };
+
         for (int i = 0; i < numOptions; i++) {
             int yPos = 17 + i;
-            if (i >= 3) {
-                yPos += 1;  // делаем отступ после 3-й кнопки
-            }
-            if (i >= 5) {
-                yPos += 1;  // делаем отступ после 5-й кнопки
-            }
+            if (i >= 3) yPos += 1;
+            if (i >= 6) yPos += 1;
 
-            // рисуем линии между группами кнопок: + ---- +
-            auto drawMenuHLine = [](int y) {
-                setCursor(2, y);
-                setColor(15);
-                cout << "+";
-                for (int j = 0; j < 74; j++) {
-                    cout << "-";
-                }
-                cout << "+";
-            };
-            if (i == 3) {
-                drawMenuHLine(17 + 3);
-            }
-            if (i == 5) {
-                drawMenuHLine(17 + 5 + 1);
-            }
+            if (i == 3) drawMenuHLine(20);
+            if (i == 6) drawMenuHLine(24);
+
             setCursor(6, yPos);
             if (i == selectedOption) {
-                // подсвечиваем ту кнопку на которой стоит курсор
-                if (i == 7) {
-                    setColor(12);  // красная если это выход
-                } else if (i == 5 && roleStr == "Администратор") {
-                    setColor(14);  // желтая для админ-панели
+                if (i == 8) {
+                    setColor(12);
+                } else if (i == 6 && roleStr == "Администратор") {
+                    setColor(14);
                 } else {
-                    setColor(10);  // зеленая для работы
+                    setColor(10);
                 }
                 cout << "> " << options[i] << "         ";
             } else {
-                // серые если не выбраны
-                if (i == 7) {
+                if (i == 8) {
                     setColor(4);
-                } else if (i == 5 && roleStr == "Администратор") {
-                    setColor(6);  // тёмно-желтая для админ-панели
+                } else if (i == 6 && roleStr == "Администратор") {
+                    setColor(6);
                 } else {
                     setColor(8);
                 }
@@ -147,33 +139,31 @@ HomeResult HomeMenu::show() {
             selectedOption = (selectedOption + 1) % numOptions;
         } else if (key == Key::UP) {
             selectedOption = (selectedOption - 1 + numOptions) % numOptions;
-        } else if ((key >= '1' && key <= '8') || key == Key::ENTER) {
-            // если нажали цифру то сразу выбираем нужный пункт
-            if (key >= '1' && key <= '8') {
+        } else if ((key >= '1' && key <= '9') || key == Key::ENTER) {
+            if (key >= '1' && key <= '9') {
                 selectedOption = key - '1';
             }
 
-            // тут логика что делать для каждой кнопки
             if (selectedOption == 0) {
-                ClientMenu::showList();  // заходим в список
+                ClientMenu::showList();
             } else if (selectedOption == 1) {
-                ClientMenu::showSearch();  // идем искать
+                ClientMenu::showSearch();
             } else if (selectedOption == 2) {
-                showTariffs();  // просмотр тарифов
+                showTariffs();
             } else if (selectedOption == 3) {
-                ClientMenu::showAddClient();  // создаем нового чела
+                ClientMenu::showAddClient();
             } else if (selectedOption == 4) {
                 ClientMenu::showList();
-            } else if (selectedOption == 5 && roleStr == "Оператор") {
+            } else if (selectedOption == 5) {
+                showStats();
+            } else if (selectedOption == 6 && roleStr == "Оператор") {
                 showChangePassword();
-            } else if (selectedOption == 5 && roleStr == "Администратор") {
+            } else if (selectedOption == 6 && roleStr == "Администратор") {
                 AdminPanel::showAdminPanel();
-            } else if (selectedOption == 6) {
-                return HomeResult::LOGOUT;  // разлогиниться
             } else if (selectedOption == 7) {
-                return HomeResult::EXIT_APP;  // закрыть всё
-            } else {
-                showPlaceholder(options[selectedOption]);  // если раздел еще не готов
+                return HomeResult::LOGOUT;
+            } else if (selectedOption == 8) {
+                return HomeResult::EXIT_APP;
             }
 
             needFullRedraw = true;  // перерисовываем всё после возврата из меню
@@ -427,5 +417,76 @@ void HomeMenu::showChangePassword() {
     setCursor(8, 18);
     setColor(8);
     cout << "Нажмите любую кнопку...";
+    InputHandler::waitAnyKey();
+}
+
+void HomeMenu::showStats() {
+    vector<Client> clients = ClientManager::getAllClients();
+
+    int total = (int)clients.size();
+    int active = 0;
+    double totalBalance = 0.0;
+    map<string, int> tariffCount;
+
+    for (const Client& c : clients) {
+        if (c.isActive) {
+            active++;
+        }
+        totalBalance += c.balance;
+        string t = c.tariffName.empty() ? "Базовый" : c.tariffName;
+        tariffCount[t]++;
+    }
+
+    string topTariff = "-";
+    int topCount = 0;
+    for (const auto& p : tariffCount) {
+        if (p.second > topCount) {
+            topCount = p.second;
+            topTariff = p.first;
+        }
+    }
+
+    auto hline = [](int y) {
+        setColor(15);
+        setCursor(14, y);
+        cout << "+";
+        for (int i = 0; i < 50; i++) {
+            cout << "-";
+        }
+        cout << "+";
+    };
+
+    auto row = [](int y, const string& label, const string& val, int valColor) {
+        setCursor(17, y);
+        setColor(8);
+        cout << left << setw(26) << label;
+        setColor(valColor);
+        cout << val;
+    };
+
+    ostringstream balSS;
+    balSS << fixed << setprecision(2) << totalBalance << " руб.";
+
+    clearScreen();
+    drawBox(14, 3, 52, 22, 15);
+
+    setCursor(34, 4);
+    setColor(11);
+    cout << "СТАТИСТИКА";
+
+    hline(5);
+    row(7, "Всего абонентов:", to_string(total), 15);
+    row(8, "Активных:", to_string(active), 10);
+    row(9, "Заблокированных:", to_string(total - active), total - active > 0 ? 12 : 8);
+    hline(11);
+    row(13, "Общий баланс:", balSS.str(), 14);
+    hline(15);
+    row(17, "Популярный тариф:", topTariff, 11);
+    row(18, "Абонентов на нём:", topCount > 0 ? to_string(topCount) : "-", 15);
+    hline(20);
+
+    setCursor(17, 22);
+    setColor(8);
+    cout << "Нажмите любую клавишу...";
     InputHandler::waitAnyKey();
 }
