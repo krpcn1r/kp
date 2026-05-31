@@ -7,7 +7,6 @@ public:
     static void showAdminPanel();
 
 private:
-    static void showUsersList();
     static void editUser();
     static void deleteUser();
     static void createBackup();
