@@ -11,17 +11,6 @@
 
 using namespace std;
 
-// сколько строк влезает на страницу
-static const int CLIENT_PAGE_SIZE = 8;
-
-// x-позиции колонок и их ширины (box 90x28, внутренняя область x=2..89)
-static const int COL_ID_X = 3,      COL_ID_W = 4;
-static const int COL_NAME_X = 10,   COL_NAME_W = 24;
-static const int COL_PHONE_X = 37,  COL_PHONE_W = 14;
-static const int COL_TARIFF_X = 54, COL_TARIFF_W = 12;
-static const int COL_BAL_X = 69,    COL_BAL_W = 8;
-static const int COL_STAT_X = 80,   COL_STAT_W = 9;
-
 // форматирует баланс в строку с двумя знаками после запятой
 static string balanceToStr(double balance) {
     ostringstream oss;
@@ -37,12 +26,12 @@ static void drawClientsTable(const string& title, const vector<Client>& clients,
                               const string& message, int messageColor,
                               bool fullRedraw, const string& statusText) {
     vector<TableColumn> cols = {
-        {COL_ID_X,     COL_ID_W,     "ID"},
-        {COL_NAME_X,   COL_NAME_W,   "ФИО"},
-        {COL_PHONE_X,  COL_PHONE_W,  "Телефон"},
-        {COL_TARIFF_X, COL_TARIFF_W, "Тариф"},
-        {COL_BAL_X,    COL_BAL_W,    "Баланс"},
-        {COL_STAT_X,   COL_STAT_W,   "Статус"}
+        {3,     4,     "ID"},
+        {10,   24,   "ФИО"},
+        {37,  14,  "Телефон"},
+        {54, 12, "Тариф"},
+        {69,    8,    "Баланс"},
+        {80,   9,   "Статус"}
     };
     vector<int> seps = {8, 35, 52, 67, 78};
 
@@ -58,7 +47,7 @@ static void drawClientsTable(const string& title, const vector<Client>& clients,
         drawTableSeparator(2, 5, 87, seps, 15);
     }
 
-    for (int i = 0; i < CLIENT_PAGE_SIZE; i++) {
+    for (int i = 0; i < 8; i++) {
         int idx = startIdx + i;
         int y = 7 + i * 2;
         bool hasClient = idx < (int)clients.size();
@@ -72,51 +61,51 @@ static void drawClientsTable(const string& title, const vector<Client>& clients,
             const Client& c = isEditing ? draft : clients[idx];
 
             // ID (только читаемый)
-            drawTableCell(COL_ID_X, y, COL_ID_W, to_string(clients[idx].id), rowColor);
+            drawTableCell(3, y, 4, to_string(clients[idx].id), rowColor);
             drawTableCell(8, y, 1, "|", rowColor);
 
             // ФИО
             if (isEditing && activeField == 0)
-                drawInputContent(COL_NAME_X, y, COL_NAME_W, draft.fullName, false, true);
+                drawInputContent(10, y, 24, draft.fullName, false, true);
             else
-                drawTableCell(COL_NAME_X, y, COL_NAME_W, c.fullName, rowColor);
+                drawTableCell(10, y, 24, c.fullName, rowColor);
 
             drawTableCell(35, y, 1, "|", rowColor);
 
             // Телефон
             if (isEditing && activeField == 1)
-                drawInputContent(COL_PHONE_X, y, COL_PHONE_W, draft.phoneNumber, false, true);
+                drawInputContent(37, y, 14, draft.phoneNumber, false, true);
             else
-                drawTableCell(COL_PHONE_X, y, COL_PHONE_W, c.phoneNumber, rowColor);
+                drawTableCell(37, y, 14, c.phoneNumber, rowColor);
 
             drawTableCell(52, y, 1, "|", rowColor);
 
             // Тариф
             string tariffStr = c.tariffName.empty() ? "Базовый" : c.tariffName;
             if (isEditing && activeField == 2)
-                drawInputContent(COL_TARIFF_X, y, COL_TARIFF_W, draft.tariffName, false, true);
+                drawInputContent(54, y, 12, draft.tariffName, false, true);
             else
-                drawTableCell(COL_TARIFF_X, y, COL_TARIFF_W, tariffStr, rowColor);
+                drawTableCell(54, y, 12, tariffStr, rowColor);
 
             drawTableCell(67, y, 1, "|", rowColor);
 
             // Баланс
             if (isEditing && activeField == 3)
-                drawInputContent(COL_BAL_X, y, COL_BAL_W, draftBalance, false, true);
+                drawInputContent(69, y, 8, draftBalance, false, true);
             else
-                drawTableCell(COL_BAL_X, y, COL_BAL_W, balanceToStr(c.balance), rowColor);
+                drawTableCell(69, y, 8, balanceToStr(c.balance), rowColor);
 
             drawTableCell(78, y, 1, "|", rowColor);
 
             // Статус
             if (isEditing) {
                 string draftStat = draft.isActive ? "Активен" : "Заблок.";
-                drawTableCell(COL_STAT_X, y, COL_STAT_W, draftStat,
+                drawTableCell(80, y, 9, draftStat,
                               activeField == 4 ? 31 : rowColor);
             } else {
                 string statStr = c.isActive ? "Активен" : "Заблок.";
                 int statColor = isSelected ? 240 : (c.isActive ? 10 : 4);
-                drawTableCell(COL_STAT_X, y, COL_STAT_W, statStr, statColor);
+                drawTableCell(80, y, 9, statStr, statColor);
             }
         }
 
@@ -191,8 +180,8 @@ void ClientMenu::showList() {
             if (selectedIdx < 0) selectedIdx = 0;
             if (selectedIdx >= (int)clients.size()) selectedIdx = (int)clients.size() - 1;
             if (selectedIdx < startIdx) startIdx = selectedIdx;
-            if (selectedIdx >= startIdx + CLIENT_PAGE_SIZE)
-                startIdx = selectedIdx - CLIENT_PAGE_SIZE + 1;
+            if (selectedIdx >= startIdx + 8)
+                startIdx = selectedIdx - 8 + 1;
         }
 
         string statusText = editingIdx >= 0
@@ -244,13 +233,13 @@ void ClientMenu::showList() {
             int exitKey = 0;
 
             if (activeField == 0)
-                draftClient.fullName = processInput(COL_NAME_X, rowY, COL_NAME_W, draftClient.fullName, false, exitKey, 0);
+                draftClient.fullName = processInput(10, rowY, 24, draftClient.fullName, false, exitKey, 0);
             else if (activeField == 1)
-                draftClient.phoneNumber = processInput(COL_PHONE_X, rowY, COL_PHONE_W, draftClient.phoneNumber, false, exitKey, 0);
+                draftClient.phoneNumber = processInput(37, rowY, 14, draftClient.phoneNumber, false, exitKey, 0);
             else if (activeField == 2)
-                draftClient.tariffName = processInput(COL_TARIFF_X, rowY, COL_TARIFF_W, draftClient.tariffName, false, exitKey, 0);
+                draftClient.tariffName = processInput(54, rowY, 12, draftClient.tariffName, false, exitKey, 0);
             else
-                draftBalance = processInput(COL_BAL_X, rowY, COL_BAL_W, draftBalance, false, exitKey, 0);
+                draftBalance = processInput(69, rowY, 8, draftBalance, false, exitKey, 0);
 
             message = ""; messageColor = 8;
 
