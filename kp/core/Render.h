@@ -4,9 +4,9 @@
 #include <vector>
 
 struct TableColumn {
-  int x;
-  int width;
-  std::string title;
+    int x;
+    int width;
+    std::string title;
 };
 
 // отрисовка простой ASCII-рамки из + - |

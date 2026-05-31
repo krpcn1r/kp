@@ -11,14 +11,14 @@ const int TAB = 9;
 const int ESC = 27;
 const int BACKSPACE = 8;
 const int DEL = 260;
-} // namespace Key
+}  // namespace Key
 
 // класс для захвата нажатий клавиш
 class InputHandler {
 public:
-  // захват нажатой кнопки с пониманием стрелочек
-  static int getExtKey();
+    // захват нажатой кнопки с пониманием стрелочек
+    static int getExtKey();
 
-  // ожидание нажатия любой клавиши
-  static void waitAnyKey();
+    // ожидание нажатия любой клавиши
+    static void waitAnyKey();
 };

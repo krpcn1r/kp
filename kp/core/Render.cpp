@@ -1,65 +1,70 @@
 #include "Render.h"
-#include "InputHandler.h"
+
+#include <windows.h>
+
 #include <iomanip>
 #include <iostream>
-#include <windows.h>
+
+#include "InputHandler.h"
 using namespace std;
 
 // показ экрана типа раздел еще не сделан
 void showPlaceholder(const string& title) {
-  clearScreen();
-  drawBox(10, 8, 60, 10, 14);
-  
-  setCursor(26, 10);
-  setColor(14);
-  cout << "РАЗДЕЛ В РАЗРАБОТКЕ";
-  
-  setCursor(15, 12);
-  setColor(15);
-  cout << "Раздел: " << title;
-  
-  setCursor(15, 14);
-  setColor(8);
-  cout << "Данный функционал будет доступен в будущих версиях.";
-  
-  setCursor(15, 16);
-  cout << "Нажмите любую клавишу для возврата...";
-  
-  InputHandler::waitAnyKey();
+    clearScreen();
+    drawBox(10, 8, 60, 10, 14);
+
+    setCursor(26, 10);
+    setColor(14);
+    cout << "РАЗДЕЛ В РАЗРАБОТКЕ";
+
+    setCursor(15, 12);
+    setColor(15);
+    cout << "Раздел: " << title;
+
+    setCursor(15, 14);
+    setColor(8);
+    cout << "Данный функционал будет доступен в будущих версиях.";
+
+    setCursor(15, 16);
+    cout << "Нажмите любую клавишу для возврата...";
+
+    InputHandler::waitAnyKey();
 }
 
 // маленькое окошко для подтверждения действия да или нет
 bool showConfirmation(const string& message) {
-  // отрисовка небольшого окна в центре
-  int w = 46;
-  int h = 7;
-  int x = (80 - w) / 2;
-  int y = 10;
+    // отрисовка небольшого окна в центре
+    int w = 46;
+    int h = 7;
+    int x = (80 - w) / 2;
+    int y = 10;
 
-  drawBox(x, y, w, h, 14); // простая рамка
+    drawBox(x, y, w, h, 14);  // простая рамка
 
-  // закрашивание внутренней части черным чтобы окно не просвечивало
-  setColor(0);
-  for (int i = 1; i < h - 1; i++) {
-    setCursor(x + 1, y + i);
-    for (int j = 0; j < w - 2; j++) cout << " ";
-  }
+    // закрашивание внутренней части черным чтобы окно не просвечивало
+    setColor(0);
+    for (int i = 1; i < h - 1; i++) {
+        setCursor(x + 1, y + i);
+        for (int j = 0; j < w - 2; j++) cout << " ";
+    }
 
-  setCursor(x + (w - message.length())/2, y + 2);
-  setColor(15);
-  cout << message;
+    setCursor(x + (w - message.length()) / 2, y + 2);
+    setColor(15);
+    cout << message;
 
-  setCursor(x + 10, y + 4);
-  setColor(10); cout << "[Enter] Да";
+    setCursor(x + 10, y + 4);
+    setColor(10);
+    cout << "[Enter] Да";
 
-  setCursor(x + w - 18, y + 4);
-  setColor(12); cout << "[Esc] Нет";
-  
-  while (true) {
-    int key = InputHandler::getExtKey();
-    if (key == Key::ENTER || key == 'y' || key == 'Y') return true;
-    if (key == Key::ESC || key == 'n' || key == 'N') return false;
-  }
+    setCursor(x + w - 18, y + 4);
+    setColor(12);
+    cout << "[Esc] Нет";
+
+    while (true) {
+        int key = InputHandler::getExtKey();
+        if (key == Key::ENTER || key == 'y' || key == 'Y') return true;
+        if (key == Key::ESC || key == 'n' || key == 'N') return false;
+    }
 }
 
 // отрисовка подсказок по кнопкам в нижней части экрана
@@ -67,18 +72,20 @@ void drawFooter(int y, bool hasBack) {
     setColor(8);
     setCursor(2, y);
     std::cout << "[Tab] Навигация  | [Enter] Выбрать";
-    if (hasBack) std::cout << "   |  [Esc] Назад";
-    else std::cout << "   |  [Esc] Выход";
+    if (hasBack)
+        std::cout << "   |  [Esc] Назад";
+    else
+        std::cout << "   |  [Esc] Выход";
 }
 
 // отрисовка текста внутри поля ввода при печати
 void drawInputContent(int x, int y, int width, string input, bool isPassword, bool isActive) {
-    int bgColor = isActive ? (1 * 16) : 0; 
-    int fgColor = isActive ? 15 : 7;       
+    int bgColor = isActive ? (1 * 16) : 0;
+    int fgColor = isActive ? 15 : 7;
     setColor(bgColor + fgColor);
 
     setCursor(x, y);
-    
+
     string displayString = "";
     if (isPassword) {
         displayString = string(input.length(), '*');
@@ -114,9 +121,12 @@ string truncateText(string value, size_t maxLen) {
     while (bytePos < value.length() && charCount < maxLen) {
         unsigned char c = static_cast<unsigned char>(value[bytePos]);
         int step = 1;
-        if      ((c & 0xE0) == 0xC0) step = 2;
-        else if ((c & 0xF0) == 0xE0) step = 3;
-        else if ((c & 0xF8) == 0xF0) step = 4;
+        if ((c & 0xE0) == 0xC0)
+            step = 2;
+        else if ((c & 0xF0) == 0xE0)
+            step = 3;
+        else if ((c & 0xF8) == 0xF0)
+            step = 4;
 
         if (maxLen > 3 && charCount == maxLen - 3)
             ellipsisBytePos = bytePos;
@@ -262,8 +272,7 @@ string processInput(int x, int y, int width, string currentInput, bool isPasswor
                 input.pop_back();
                 drawInputContent(x, y, width, input, isPassword, true);
             }
-        }
-        else if (input.length() < width - 1 && isprint(static_cast<unsigned char>(choose))) {
+        } else if (input.length() < width - 1 && isprint(static_cast<unsigned char>(choose))) {
             if (warningY > 0) {
                 setCursor(x - 12, warningY);
                 cout << "                                       ";
@@ -272,8 +281,8 @@ string processInput(int x, int y, int width, string currentInput, bool isPasswor
             drawInputContent(x, y, width, input, isPassword, true);
         }
     }
-    
+
     drawInputContent(x, y, width, input, isPassword, false);
-    
+
     return input;
 }

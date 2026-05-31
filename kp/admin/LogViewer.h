@@ -5,5 +5,5 @@
 // S=SYSTEM, R=сброс фильтра)
 class LogViewer {
 public:
-  static void show();
+    static void show();
 };

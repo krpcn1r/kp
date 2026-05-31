@@ -1,175 +1,181 @@
 #include "HomeMenu.h"
-#include "../auth/AuthManager.h"
-#include "../core/Database.h"
-#include "../core/InputHandler.h"
-#include "../core/Render.h"
-#include "../admin/AdminPanel.h"
+
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
 
+#include "../admin/AdminPanel.h"
+#include "../auth/AuthManager.h"
 #include "../clients/ClientMenu.h"
 #include "../clients/TariffStruct.h"
+#include "../core/Database.h"
+#include "../core/InputHandler.h"
+#include "../core/Render.h"
 using namespace std;
 
 // рисует главное меню после того как юзер зашел в систему
 HomeResult HomeMenu::show() {
-  int selectedOption = 0; // какая кнопка сейчас выбрана
-  const int numOptions = 8; // всего 8 пунктов меню
-  bool needFullRedraw = true; // флаг полной перерисовки окна
-  
-  User u = AuthManager::getCurrentUser();
-  string roleStr = (u.role == Role::ADMIN) ? "Администратор" : "Оператор";
+    int selectedOption = 0;      // какая кнопка сейчас выбрана
+    const int numOptions = 8;    // всего 8 пунктов меню
+    bool needFullRedraw = true;  // флаг полной перерисовки окна
 
-  while (true) {
-    if (needFullRedraw) {
-      clearScreen(); // чистим всё перед рисованием
+    User u = AuthManager::getCurrentUser();
+    string roleStr = (u.role == Role::ADMIN) ? "Администратор" : "Оператор";
 
-      drawBox(2, 1, 76, 28, 15); // простая ASCII-рамка
+    while (true) {
+        if (needFullRedraw) {
+            clearScreen();  // чистим всё перед рисованием
 
-      auto drawHLine = [](int y) {
-        setColor(15);
-        setCursor(2, y);
-        cout << "+";
-        for (int i = 0; i < 74; i++) cout << "-";
-        cout << "+";
-      };
+            drawBox(2, 1, 76, 28, 15);  // простая ASCII-рамка
 
-      // ASCII-арт логотип
-      setColor(9);
-      setCursor(16, 2);
-      cout << "███╗   ███╗ ██████╗ ██████╗ ██╗██╗     ███████╗";
-      setCursor(16, 3);
-      cout << "████╗ ████║██╔═══██╗██╔══██╗██║██║     ██╔════╝";
-      setCursor(16, 4);
-      cout << "██╔████╔██║██║   ██║██████╔╝██║██║     █████╗  ";
-      setCursor(16, 5);
-      cout << "██║╚██╔╝██║██║   ██║██╔══██╗██║██║     ██╔══╝  ";
-      setCursor(16, 6);
-      cout << "██║ ╚═╝ ██║╚██████╔╝██████╔╝██║███████╗███████╗";
-      setCursor(16, 7);
-      cout << "╚═╝     ╚═╝ ╚═════╝ ╚═════╝ ╚═╝╚══════╝╚══════╝";
+            auto drawHLine = [](int y) {
+                setColor(15);
+                setCursor(2, y);
+                cout << "+";
+                for (int i = 0; i < 74; i++) cout << "-";
+                cout << "+";
+            };
 
-      setCursor(16, 8);
-      cout << "██╗  ██╗███████╗██╗     ██████╗ ███████╗██████╗ ";
-      setCursor(16, 9);
-      cout << "██║  ██║██╔════╝██║     ██╔══██╗██╔════╝██╔══██╗";
-      setCursor(16, 10);
-      cout << "███████║█████╗  ██║     ██████╔╝█████╗  ██████╔╝";
-      setCursor(16, 11);
-      cout << "██╔══██║██╔══╝  ██║     ██╔═══╝ ██╔══╝  ██╔══██╗";
-      setCursor(16, 12);
-      cout << "██║  ██║███████╗███████╗██║     ███████╗██║  ██║";
-      setCursor(16, 13);
-      cout << "╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝";
+            // ASCII-арт логотип
+            setColor(9);
+            setCursor(16, 2);
+            cout << "███╗   ███╗ ██████╗ ██████╗ ██╗██╗     ███████╗";
+            setCursor(16, 3);
+            cout << "████╗ ████║██╔═══██╗██╔══██╗██║██║     ██╔════╝";
+            setCursor(16, 4);
+            cout << "██╔████╔██║██║   ██║██████╔╝██║██║     █████╗  ";
+            setCursor(16, 5);
+            cout << "██║╚██╔╝██║██║   ██║██╔══██╗██║██║     ██╔══╝  ";
+            setCursor(16, 6);
+            cout << "██║ ╚═╝ ██║╚██████╔╝██████╔╝██║███████╗███████╗";
+            setCursor(16, 7);
+            cout << "╚═╝     ╚═╝ ╚═════╝ ╚═════╝ ╚═╝╚══════╝╚══════╝";
 
-      drawHLine(14);
+            setCursor(16, 8);
+            cout << "██╗  ██╗███████╗██╗     ██████╗ ███████╗██████╗ ";
+            setCursor(16, 9);
+            cout << "██║  ██║██╔════╝██║     ██╔══██╗██╔════╝██╔══██╗";
+            setCursor(16, 10);
+            cout << "███████║█████╗  ██║     ██████╔╝█████╗  ██████╔╝";
+            setCursor(16, 11);
+            cout << "██╔══██║██╔══╝  ██║     ██╔═══╝ ██╔══╝  ██╔══██╗";
+            setCursor(16, 12);
+            cout << "██║  ██║███████╗███████╗██║     ███████╗██║  ██║";
+            setCursor(16, 13);
+            cout << "╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝";
 
-      // пишем кто сейчас зашел и какая у него роль
-      setColor(7);
-      setCursor(4, 15);
-      cout << "Пользователь: " << u.login << "   |   Статус: " << roleStr;
+            drawHLine(14);
 
-      // рисуем разделительную линию
-      drawHLine(16);
+            // пишем кто сейчас зашел и какая у него роль
+            setColor(7);
+            setCursor(4, 15);
+            cout << "Пользователь: " << u.login << "   |   Статус: " << roleStr;
 
-      needFullRedraw = false;
+            // рисуем разделительную линию
+            drawHLine(16);
+
+            needFullRedraw = false;
+        }
+
+        drawFooter(29, false);
+
+        // Рендерим опции
+        // список всех доступных кнопок в главном меню
+        string options[numOptions] = {
+            "1. Просмотр базы клиентов ", "2. Поиск по базе          ",
+            "3. Просмотр текущих тарифов", "4. Оформление нового клиента",
+            "5. Редактирование записей  ", "6. Сменить пароль          ",
+            "7. Выход в меню авторизации", "8. Закрыть программу       "};
+        if (roleStr == "Администратор") {
+            options[5] = "6. Админ-панель";
+        }
+        // выводим пункты меню и красиво их красим
+        for (int i = 0; i < numOptions; i++) {
+            int yPos = 17 + i;
+            if (i >= 3)
+                yPos += 1;  // делаем отступ после 3-й кнопки
+            if (i >= 5)
+                yPos += 1;  // делаем отступ после 5-й кнопки
+
+            // рисуем линии между группами кнопок: + ---- +
+            auto drawMenuHLine = [](int y) {
+                setCursor(2, y);
+                setColor(15);
+                cout << "+";
+                for (int j = 0; j < 74; j++) cout << "-";
+                cout << "+";
+            };
+            if (i == 3) drawMenuHLine(17 + 3);
+            if (i == 5) drawMenuHLine(17 + 5 + 1);
+            setCursor(6, yPos);
+            if (i == selectedOption) {
+                // подсвечиваем ту кнопку на которой стоит курсор
+                if (i == 7)
+                    setColor(12);  // красная если это выход
+                else if (i == 5 && roleStr == "Администратор")
+                    setColor(14);  // желтая для админ-панели
+                else
+                    setColor(10);  // зеленая для работы
+                cout << "> " << options[i] << "         ";
+            } else {
+                // серые если не выбраны
+                if (i == 7)
+                    setColor(4);
+                else if (i == 5 && roleStr == "Администратор")
+                    setColor(6);  // тёмно-желтая для админ-панели
+                else
+                    setColor(8);
+                cout << "  " << options[i] << "         ";
+            }
+        }
+
+        int key = InputHandler::getExtKey();  // слушаем что нажал юзер
+
+        // листаем меню вниз или по табу
+        if (key == Key::TAB || key == Key::DOWN) {
+            selectedOption = (selectedOption + 1) % numOptions;
+        } else if (key == Key::UP) {
+            selectedOption = (selectedOption - 1 + numOptions) % numOptions;
+        } else if ((key >= '1' && key <= '8') || key == Key::ENTER) {
+            // если нажали цифру то сразу выбираем нужный пункт
+            if (key >= '1' && key <= '8') {
+                selectedOption = key - '1';
+            }
+
+            // тут логика что делать для каждой кнопки
+            if (selectedOption == 0)
+                ClientMenu::showList();  // заходим в список
+            else if (selectedOption == 1)
+                ClientMenu::showSearch();  // идем искать
+            else if (selectedOption == 2)
+                showTariffs();  // просмотр тарифов
+            else if (selectedOption == 3)
+                ClientMenu::showAddClient();  // создаем нового чела
+            else if (selectedOption == 4)
+                ClientMenu::showList();
+            else if (selectedOption == 5 && roleStr == "Оператор") {
+                showChangePassword();
+            } else if (selectedOption == 5 && roleStr == "Администратор") {
+                AdminPanel::showAdminPanel();
+            } else if (selectedOption == 6)
+                return HomeResult::LOGOUT;  // разлогиниться
+            else if (selectedOption == 7)
+                return HomeResult::EXIT_APP;  // закрыть всё
+            else {
+                showPlaceholder(options[selectedOption]);  // если раздел еще не готов
+            }
+
+            needFullRedraw = true;  // перерисовываем всё после возврата из меню
+        } else if (key == Key::ESC) {
+            // если нажали эскейп спрашиваем реально ли выйти
+            if (showConfirmation("Выйти из учетной записи?")) {
+                return HomeResult::LOGOUT;
+            }
+            needFullRedraw = true;
+        }
     }
-
-    drawFooter(29, false);
-
-    // Рендерим опции
-    // список всех доступных кнопок в главном меню
-    string options[numOptions] = {
-        "1. Просмотр базы клиентов ", "2. Поиск по базе          ",
-        "3. Просмотр текущих тарифов", "4. Оформление нового клиента",
-        "5. Редактирование записей  ", "6. Сменить пароль          ",
-        "7. Выход в меню авторизации", "8. Закрыть программу       "};
-    if (roleStr == "Администратор") {
-        options[5] = "6. Админ-панель";
-    }
-    // выводим пункты меню и красиво их красим
-    for (int i = 0; i < numOptions; i++) {
-      int yPos = 17 + i;
-      if (i >= 3)
-        yPos += 1; // делаем отступ после 3-й кнопки
-      if (i >= 5)
-        yPos += 1; // делаем отступ после 5-й кнопки
-
-      // рисуем линии между группами кнопок: + ---- +
-      auto drawMenuHLine = [](int y) {
-        setCursor(2, y);
-        setColor(15);
-        cout << "+";
-        for (int j = 0; j < 74; j++) cout << "-";
-        cout << "+";
-      };
-      if (i == 3) drawMenuHLine(17 + 3);
-      if (i == 5) drawMenuHLine(17 + 5 + 1);
-      setCursor(6, yPos);
-      if (i == selectedOption) {
-        // подсвечиваем ту кнопку на которой стоит курсор
-        if (i == 7)
-          setColor(12); // красная если это выход
-        else if (i == 5 && roleStr == "Администратор")
-          setColor(14); // желтая для админ-панели
-        else
-          setColor(10); // зеленая для работы
-        cout << "> " << options[i] << "         ";
-      } else {
-        // серые если не выбраны
-        if (i == 7)
-          setColor(4);
-        else if (i == 5 && roleStr == "Администратор")
-          setColor(6); // тёмно-желтая для админ-панели
-        else
-          setColor(8);
-        cout << "  " << options[i] << "         ";
-      }
-    }
-
-    int key = InputHandler::getExtKey(); // слушаем что нажал юзер
-
-    // листаем меню вниз или по табу
-    if (key == Key::TAB || key == Key::DOWN) {
-      selectedOption = (selectedOption + 1) % numOptions;
-    } else if (key == Key::UP) {
-      selectedOption = (selectedOption - 1 + numOptions) % numOptions;
-    } else if ((key >= '1' && key <= '8') || key == Key::ENTER) {
-      // если нажали цифру то сразу выбираем нужный пункт
-      if (key >= '1' && key <= '8') {
-          selectedOption = key - '1';
-      }
-      
-      // тут логика что делать для каждой кнопки
-      if (selectedOption == 0) ClientMenu::showList(); // заходим в список
-      else if (selectedOption == 1) ClientMenu::showSearch(); // идем искать
-      else if (selectedOption == 2) showTariffs(); // просмотр тарифов
-      else if (selectedOption == 3) ClientMenu::showAddClient(); // создаем нового чела
-      else if (selectedOption == 4) ClientMenu::showList();
-      else if (selectedOption == 5 && roleStr == "Оператор") {
-          showChangePassword();
-      }
-      else if (selectedOption == 5 && roleStr == "Администратор") {
-          AdminPanel::showAdminPanel();
-      }
-      else if (selectedOption == 6) return HomeResult::LOGOUT; // разлогиниться
-      else if (selectedOption == 7) return HomeResult::EXIT_APP; // закрыть всё
-      else {
-        showPlaceholder(options[selectedOption]); // если раздел еще не готов
-      }
-      
-      needFullRedraw = true; // перерисовываем всё после возврата из меню
-    } else if (key == Key::ESC) {
-      // если нажали эскейп спрашиваем реально ли выйти
-      if (showConfirmation("Выйти из учетной записи?")) {
-          return HomeResult::LOGOUT;
-      }
-      needFullRedraw = true;
-    }
-  }
 }
 
 static string priceToStr(double price) {
@@ -278,9 +284,9 @@ void HomeMenu::showTariffs() {
 void HomeMenu::showChangePassword() {
     string oldPassword = "";
     string newPassword = "";
-    int activeField = 0; // 0 это ввод логина а 1 пароля
+    int activeField = 0;  // 0 это ввод логина а 1 пароля
 
-    clearScreen(); // очистка экрана перед отрисовкой нового окна
+    clearScreen();  // очистка экрана перед отрисовкой нового окна
 
     // отрисовка простой ASCII-рамки
     drawBox(4, 4, 45, 12, 8);
@@ -343,23 +349,20 @@ void HomeMenu::showChangePassword() {
         // вызов функции ввода текста
         if (activeField == 0) {
             oldPassword = processInput(24, 12, 20, oldPassword, false, exitKey, 16);
-        }
-        else {
+        } else {
             newPassword = processInput(24, 14, 20, newPassword, false, exitKey, 16);
         }
 
         // управление переключением полей или сохранение
         if (exitKey == Key::TAB || exitKey == Key::UP || exitKey == Key::DOWN) {
             activeField = (activeField == 0) ? 1 : 0;
-        }
-        else if (exitKey == Key::ENTER) {
+        } else if (exitKey == Key::ENTER) {
             if (activeField == 0)
-                activeField = 1; // переход к полю пароля
+                activeField = 1;  // переход к полю пароля
             else
-                break; // попытка создания юзера
-        }
-        else if (exitKey == Key::ESC) {
-            return; // выход без регистрации
+                break;  // попытка создания юзера
+        } else if (exitKey == Key::ESC) {
+            return;  // выход без регистрации
         }
     }
 
@@ -369,8 +372,7 @@ void HomeMenu::showChangePassword() {
     if (result == 0) {
         setColor(10);
         cout << "Пароль успешно сменился!    ";
-    }
-    else {
+    } else {
         // вывод ошибки красным цветом
         setColor(12);
         if (result == 1)
