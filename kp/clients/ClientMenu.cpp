@@ -150,7 +150,7 @@ static bool validateClientEdit(const vector<Client>& clients, int editIdx, const
         }
     }
     try {
-        stod(draftBalance);
+        (void)stod(draftBalance);
     } catch (...) {
         message = "Ошибка: введите корректный баланс (например 100.50).";
         activeField = 3;

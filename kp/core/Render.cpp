@@ -50,7 +50,7 @@ bool showConfirmation(const string& message) {
         }
     }
 
-    setCursor(x + (w - message.length()) / 2, y + 2);
+    setCursor(x + (w - (int)message.length()) / 2, y + 2);
     setColor(15);
     cout << message;
 
