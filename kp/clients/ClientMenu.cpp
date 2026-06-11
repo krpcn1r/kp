@@ -73,7 +73,9 @@ static void drawClientsTable(const string& title, const vector<Client>& clients,
 
             string tariffStr = c.tariffName.empty() ? "Базовый" : c.tariffName;
             if (isEditing && activeField == 2) {
-                drawInputContent(54, y, 12, draft.tariffName, false, true);
+                string tariffStrDisplay = draft.tariffName.empty() ? "Базовый" : draft.tariffName;
+                string tDisplay = "<" + tariffStrDisplay + ">";
+                drawTableCell(54, y, 12, tDisplay, 31);
             } else {
                 drawTableCell(54, y, 12, tariffStr, rowColor);
             }
@@ -149,6 +151,8 @@ static bool validateClientEdit(const vector<Client>& clients, int editIdx, const
 
 void ClientMenu::showList() {
     vector<Client> clients = ClientManager::getAllClients();
+    vector<Tariff> tariffs = Database::loadTariffs();
+    int tariffIdx = 0;
     int selectedIdx = clients.empty() ? -1 : 0;
     int startIdx = 0;
     int editingIdx = -1;
@@ -209,6 +213,13 @@ void ClientMenu::showList() {
                 activeField = 0;
                 message = "";
                 messageColor = 8;
+                tariffIdx = 0;
+                for (int i = 0; i < (int)tariffs.size(); i++) {
+                    if (tariffs[i].name == draftClient.tariffName) {
+                        tariffIdx = i;
+                        break;
+                    }
+                }
             } else if (key == Key::DEL) {
                 string name = clients[selectedIdx].fullName;
                 if (!showConfirmation("Удалить абонента " + name + "?")) {
@@ -231,7 +242,7 @@ void ClientMenu::showList() {
                 message = "Абонент " + name + " удален.";
                 messageColor = 10;
             }
-        } else if (activeField <= 3) {
+        } else if (activeField == 0 || activeField == 1 || activeField == 3) {
             int rowY = 7 + (editingIdx - startIdx) * 2;
             int exitKey = 0;
 
@@ -240,8 +251,6 @@ void ClientMenu::showList() {
             } else if (activeField == 1) {
                 // телефон — только цифры и знак плюс
                 draftClient.phoneNumber = processInput(37, rowY, 14, draftClient.phoneNumber, false, exitKey, 0, false, "0123456789+");
-            } else if (activeField == 2) {
-                draftClient.tariffName = processInput(54, rowY, 12, draftClient.tariffName, false, exitKey, 0, true);
             } else {
                 draftBalance = processInput(69, rowY, 8, draftBalance, false, exitKey, 0);
             }
@@ -254,8 +263,26 @@ void ClientMenu::showList() {
             } else if (exitKey == Key::UP) {
                 activeField = (activeField - 1 + 5) % 5;
             } else if (exitKey == Key::ENTER) {
-                activeField++;
+                activeField = (activeField + 1) % 5;
             } else if (exitKey == Key::ESC) {
+                editingIdx = -1;
+                activeField = 0;
+                message = "Редактирование отменено.";
+                messageColor = 8;
+            }
+        } else if (activeField == 2) {
+            int key = InputHandler::getExtKey();
+            if (key == Key::LEFT && !tariffs.empty()) {
+                tariffIdx = (tariffIdx - 1 + (int)tariffs.size()) % (int)tariffs.size();
+                draftClient.tariffName = tariffs[tariffIdx].name;
+            } else if (key == Key::RIGHT && !tariffs.empty()) {
+                tariffIdx = (tariffIdx + 1) % (int)tariffs.size();
+                draftClient.tariffName = tariffs[tariffIdx].name;
+            } else if (key == Key::DOWN || key == Key::TAB || key == Key::ENTER) {
+                activeField = 3;
+            } else if (key == Key::UP) {
+                activeField = 1;
+            } else if (key == Key::ESC) {
                 editingIdx = -1;
                 activeField = 0;
                 message = "Редактирование отменено.";
@@ -304,6 +331,8 @@ void ClientMenu::showList() {
 }
 
 void ClientMenu::showSearch() {
+    vector<Tariff> tariffs = Database::loadTariffs();
+    int tariffIdx = -1;
     string queryId = "";
     string queryName = "";
     string queryPhone = "";
@@ -346,7 +375,16 @@ void ClientMenu::showSearch() {
         setCursor(6, 17);
         setColor(activeField == 3 ? 10 : 7);
         cout << (activeField == 3 ? "> Тариф:          " : "  Тариф:          ");
-        drawInputContent(25, 17, 36, queryTariff, false, activeField == 3);
+        
+        string tariffDisplay;
+        if (queryTariff.empty()) {
+            tariffDisplay = activeField == 3 ? "[ (любой) ]" : "(любой)";
+        } else {
+            tariffDisplay = activeField == 3 ? "[ " + queryTariff + " ]" : queryTariff;
+        }
+        setColor(activeField == 3 ? 14 : 7);
+        setCursor(25, 17);
+        cout << left << setw(36) << tariffDisplay;
 
         drawHLine(19);
 
@@ -362,24 +400,44 @@ void ClientMenu::showSearch() {
     while (true) {
         drawSearchForm(false);
 
-        int exitKey = 0;
-        string* vals[] = {&queryId, &queryName, &queryPhone, &queryTariff};
-        int ys[] = {5, 9, 13, 17};
-        // ФИО и тариф разрешаем вводить кириллицей, ID/телефон — нет
-        bool allowUnicode = (activeField == 1 || activeField == 3);
-        *vals[activeField] = processInput(25, ys[activeField], 36, *vals[activeField], false, exitKey, 0, allowUnicode);
+        if (activeField <= 2) {
+            int exitKey = 0;
+            string* vals[] = {&queryId, &queryName, &queryPhone};
+            int ys[] = {5, 9, 13};
+            bool allowUnicode = (activeField == 1);
+            *vals[activeField] = processInput(25, ys[activeField], 36, *vals[activeField], false, exitKey, 0, allowUnicode);
 
-        if (exitKey == Key::ESC) {
-            return;
-        } else if (exitKey == Key::TAB || exitKey == Key::DOWN) {
-            activeField = (activeField + 1) % 4;
-        } else if (exitKey == Key::UP) {
-            activeField = (activeField - 1 + 4) % 4;
-        } else if (exitKey == Key::ENTER) {
-            if (activeField < 3) {
+            if (exitKey == Key::ESC) {
+                return;
+            } else if (exitKey == Key::TAB || exitKey == Key::DOWN) {
+                activeField = (activeField + 1) % 4;
+            } else if (exitKey == Key::UP) {
+                activeField = (activeField - 1 + 4) % 4;
+            } else if (exitKey == Key::ENTER) {
                 activeField++;
-            } else {
-                break;  // Enter на последнем поле — начинаем поиск
+            }
+        } else { // activeField == 3 (Tariff selection)
+            int key = InputHandler::getExtKey();
+            if (key == Key::LEFT && !tariffs.empty()) {
+                tariffIdx--;
+                if (tariffIdx < -1) {
+                    tariffIdx = (int)tariffs.size() - 1;
+                }
+                queryTariff = (tariffIdx == -1) ? "" : tariffs[tariffIdx].name;
+            } else if (key == Key::RIGHT && !tariffs.empty()) {
+                tariffIdx++;
+                if (tariffIdx >= (int)tariffs.size()) {
+                    tariffIdx = -1;
+                }
+                queryTariff = (tariffIdx == -1) ? "" : tariffs[tariffIdx].name;
+            } else if (key == Key::DOWN || key == Key::TAB) {
+                activeField = 0;
+            } else if (key == Key::UP) {
+                activeField = 2;
+            } else if (key == Key::ENTER) {
+                break; // Enter on the last field starts the search
+            } else if (key == Key::ESC) {
+                return;
             }
         }
     }
