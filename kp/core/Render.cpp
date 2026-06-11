@@ -61,24 +61,30 @@ void drawFooter(int y, bool hasBack) {
     }
 }
 
-// подсчёт количества символов (а не байт) в UTF-8 строке;
-// кириллица в консоли занимает 1 колонку при 2 байтах
-size_t utf8Length(const string& s) {
-    size_t count = 0;
-    for (size_t i = 0; i < s.length();) {
-        unsigned char c = static_cast<unsigned char>(s[i]);
-        int step = 1;
-        if ((c & 0xE0) == 0xC0) {
-            step = 2;
-        } else if ((c & 0xF0) == 0xE0) {
-            step = 3;
-        } else if ((c & 0xF8) == 0xF0) {
-            step = 4;
-        }
-        i += step;
-        count++;
+static wstring toWide(const string& s) {
+    if (s.empty()) {
+        return L"";
     }
-    return count;
+    int len = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), (int)s.size(), nullptr, 0);
+    wstring result(len, L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, s.c_str(), (int)s.size(), &result[0], len);
+    return result;
+}
+
+// широкая строка -> UTF-8
+static string toUtf8(const wstring& w) {
+    if (w.empty()) {
+        return "";
+    }
+    int len = WideCharToMultiByte(CP_UTF8, 0, w.c_str(), (int)w.size(), nullptr, 0, nullptr, nullptr);
+    string result(len, '\0');
+    WideCharToMultiByte(CP_UTF8, 0, w.c_str(), (int)w.size(), &result[0], len, nullptr, nullptr);
+    return result;
+}
+
+// число символов (а не байт) в UTF-8 строке
+size_t utf8Length(const string& s) {
+    return toWide(s).size();
 }
 
 // отрисовка текста внутри поля ввода при печати
@@ -116,37 +122,16 @@ void clearLine(int x, int y, int width, int color) {
     setColor(7);
 }
 
+// обрезка строки до maxLen символов; если не влезает — добавляется "..."
 string truncateText(string value, size_t maxLen) {
-    size_t bytePos = 0;
-    size_t ellipsisBytePos = 0;
-    size_t charCount = 0;
-
-    while (bytePos < value.length() && charCount < maxLen) {
-        unsigned char c = static_cast<unsigned char>(value[bytePos]);
-        int step = 1;
-        if ((c & 0xE0) == 0xC0) {
-            step = 2;
-        } else if ((c & 0xF0) == 0xE0) {
-            step = 3;
-        } else if ((c & 0xF8) == 0xF0) {
-            step = 4;
-        }
-
-        if (maxLen > 3 && charCount == maxLen - 3) {
-            ellipsisBytePos = bytePos;
-        }
-
-        bytePos += step;
-        charCount++;
-    }
-
-    if (bytePos >= value.length()) {
+    wstring w = toWide(value);
+    if (w.size() <= maxLen) {
         return value;
     }
     if (maxLen <= 3) {
-        return value.substr(0, bytePos);
+        return toUtf8(w.substr(0, maxLen));
     }
-    return value.substr(0, ellipsisBytePos) + "...";
+    return toUtf8(w.substr(0, maxLen - 3)) + "...";
 }
 
 void drawTableCell(int x, int y, int width, string value, int color) {
@@ -278,31 +263,18 @@ void drawLogo() {
     setColor(7);
 }
 
-// кодирование одного символа (код из _getwch) в UTF-8; кириллица занимает 2 байта
+// один символ (код из _getwch) -> UTF-8
 static string utf8Encode(unsigned int cp) {
-    string out;
-    if (cp < 0x80) {
-        out += static_cast<char>(cp);
-    } else if (cp < 0x800) {
-        out += static_cast<char>(0xC0 | (cp >> 6));
-        out += static_cast<char>(0x80 | (cp & 0x3F));
-    } else {
-        out += static_cast<char>(0xE0 | (cp >> 12));
-        out += static_cast<char>(0x80 | ((cp >> 6) & 0x3F));
-        out += static_cast<char>(0x80 | (cp & 0x3F));
-    }
-    return out;
+    return toUtf8(wstring(1, static_cast<wchar_t>(cp)));
 }
 
-// удаление одного целого UTF-8 символа с конца (а не одного байта),
-// иначе при стирании кириллицы оставался бы битый байт
+// удаление последнего символа из UTF-8 строки
 static void utf8PopBack(string& s) {
-    while (!s.empty() && (static_cast<unsigned char>(s.back()) & 0xC0) == 0x80) {
-        s.pop_back();  // снимаем продолжающие байты
+    wstring w = toWide(s);
+    if (!w.empty()) {
+        w.pop_back();
     }
-    if (!s.empty()) {
-        s.pop_back();  // снимаем ведущий байт
-    }
+    s = toUtf8(w);
 }
 
 // функция для ввода текста с проверкой раскладки
