@@ -60,6 +60,26 @@ void drawFooter(int y, bool hasBack) {
     }
 }
 
+// подсчёт количества символов (а не байт) в UTF-8 строке;
+// кириллица в консоли занимает 1 колонку при 2 байтах
+size_t utf8Length(const string& s) {
+    size_t count = 0;
+    for (size_t i = 0; i < s.length();) {
+        unsigned char c = static_cast<unsigned char>(s[i]);
+        int step = 1;
+        if ((c & 0xE0) == 0xC0) {
+            step = 2;
+        } else if ((c & 0xF0) == 0xE0) {
+            step = 3;
+        } else if ((c & 0xF8) == 0xF0) {
+            step = 4;
+        }
+        i += step;
+        count++;
+    }
+    return count;
+}
+
 // отрисовка текста внутри поля ввода при печати
 void drawInputContent(int x, int y, int width, string input, bool isPassword, bool isActive) {
     int bgColor = isActive ? (1 * 16) : 0;
@@ -68,19 +88,19 @@ void drawInputContent(int x, int y, int width, string input, bool isPassword, bo
 
     setCursor(x, y);
 
-    string displayString = "";
-    if (isPassword) {
-        displayString = string(input.length(), '*');
-    } else {
-        displayString = input;
-    }
+    // длина в символах (колонках), а не в байтах — иначе кириллица
+    // визуально занимала бы вдвое меньше места в поле
+    size_t visibleLen = utf8Length(input);
+    string displayString = isPassword ? string(visibleLen, '*') : input;
 
-    if (isActive && displayString.length() < (size_t)width) {
+    if (isActive && visibleLen < (size_t)width) {
         displayString += "|";
+        visibleLen++;
     }
 
-    while (displayString.length() < (size_t)width) {
+    while (visibleLen < (size_t)width) {
         displayString += "_";
+        visibleLen++;
     }
 
     cout << displayString;
@@ -229,12 +249,46 @@ void drawTextBox(int x, int y, int w, int h, string text, int textColor, int box
     setColor(7);
 }
 
+// кодирование одного символа (код из _getwch) в UTF-8; кириллица занимает 2 байта
+static string utf8Encode(unsigned int cp) {
+    string out;
+    if (cp < 0x80) {
+        out += static_cast<char>(cp);
+    } else if (cp < 0x800) {
+        out += static_cast<char>(0xC0 | (cp >> 6));
+        out += static_cast<char>(0x80 | (cp & 0x3F));
+    } else {
+        out += static_cast<char>(0xE0 | (cp >> 12));
+        out += static_cast<char>(0x80 | ((cp >> 6) & 0x3F));
+        out += static_cast<char>(0x80 | (cp & 0x3F));
+    }
+    return out;
+}
+
+// удаление одного целого UTF-8 символа с конца (а не одного байта),
+// иначе при стирании кириллицы оставался бы битый байт
+static void utf8PopBack(string& s) {
+    while (!s.empty() && (static_cast<unsigned char>(s.back()) & 0xC0) == 0x80) {
+        s.pop_back();  // снимаем продолжающие байты
+    }
+    if (!s.empty()) {
+        s.pop_back();  // снимаем ведущий байт
+    }
+}
+
 // функция для ввода текста с проверкой раскладки
-string processInput(int x, int y, int width, string currentInput, bool isPassword, int& exitKey, int warningY) {
+string processInput(int x, int y, int width, string currentInput, bool isPassword, int& exitKey, int warningY, bool allowUnicode) {
     string input = currentInput;
     int choose;
 
     drawInputContent(x, y, width, input, isPassword, true);
+
+    auto clearWarning = [&]() {
+        if (warningY > 0) {
+            setCursor(x - 12, warningY);
+            cout << "                                       ";
+        }
+    };
 
     while (true) {
         choose = InputHandler::getExtKey();
@@ -244,8 +298,24 @@ string processInput(int x, int y, int width, string currentInput, bool isPasswor
             break;
         }
 
+        if (choose == Key::BACKSPACE) {
+            if (!input.empty()) {
+                utf8PopBack(input);
+                drawInputContent(x, y, width, input, isPassword, true);
+            }
+            continue;
+        }
+
+        // символы вне ASCII (кириллица и т.п.)
         if (choose > 127) {
-            if (warningY > 0) {
+            if (allowUnicode) {
+                // лимит считаем в символах, а не в байтах
+                if (utf8Length(input) < static_cast<size_t>(width - 1)) {
+                    clearWarning();
+                    input += utf8Encode(static_cast<unsigned int>(choose));
+                    drawInputContent(x, y, width, input, isPassword, true);
+                }
+            } else if (warningY > 0) {
                 setCursor(x - 12, warningY);
                 setColor(12);
                 cout << " Ошибка: Переключитесь на английский! ";
@@ -254,17 +324,9 @@ string processInput(int x, int y, int width, string currentInput, bool isPasswor
             continue;
         }
 
-        if (choose == Key::BACKSPACE) {
-            if (input.length() > 0) {
-                input.pop_back();
-                drawInputContent(x, y, width, input, isPassword, true);
-            }
-        } else if (input.length() < width - 1 && isprint(static_cast<unsigned char>(choose))) {
-            if (warningY > 0) {
-                setCursor(x - 12, warningY);
-                cout << "                                       ";
-            }
-            input += choose;
+        if (utf8Length(input) < static_cast<size_t>(width - 1) && isprint(static_cast<unsigned char>(choose))) {
+            clearWarning();
+            input += static_cast<char>(choose);
             drawInputContent(x, y, width, input, isPassword, true);
         }
     }

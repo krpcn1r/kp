@@ -255,7 +255,7 @@ static void drawBackupsList(const string& title, const vector<string>& backups, 
 
 void AdminPanel::showAdminPanel() {
     int selectedOption = 0;
-    const int numOptions = 9;
+    const int numOptions = 8;
     bool needFullRedraw = true;
 
     while (true) {

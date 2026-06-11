@@ -340,8 +340,8 @@ void HomeMenu::showChangePassword() {
     }
     cout << "+";
 
-    drawInputContent(24, 12, 20, oldPassword, false, false);
-    drawInputContent(24, 14, 20, newPassword, false, false);
+    drawInputContent(24, 12, 20, oldPassword, true, false);
+    drawInputContent(24, 14, 20, newPassword, true, false);
 
     // запуск цикла для заполнения полей
     while (true) {
@@ -369,9 +369,9 @@ void HomeMenu::showChangePassword() {
         int exitKey = 0;
         // вызов функции ввода текста
         if (activeField == 0) {
-            oldPassword = processInput(24, 12, 20, oldPassword, false, exitKey, 16);
+            oldPassword = processInput(24, 12, 20, oldPassword, true, exitKey, 16);
         } else {
-            newPassword = processInput(24, 14, 20, newPassword, false, exitKey, 16);
+            newPassword = processInput(24, 14, 20, newPassword, true, exitKey, 16);
         }
 
         // управление переключением полей или сохранение

@@ -1,1 +1,10 @@
-[]
+[
+    {
+        "balance": 15.0,
+        "fullName": "Иванов Иван",
+        "id": 1,
+        "isActive": true,
+        "phoneNumber": "+3754980399221",
+        "tariffName": "Базовый"
+    }
+]

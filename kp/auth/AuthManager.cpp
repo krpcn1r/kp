@@ -133,7 +133,7 @@ int AuthManager::changePassword(std::string& currentPassword, const std::string&
     bool found = false;
     for (auto& u : users) {
         if (u.login == currentUser.login) {
-            if (currentPassword != currentUser.password) {
+            if (currentPassword != u.password) {
                 return 2;
             }
             u.password = newPassword;

@@ -248,11 +248,11 @@ void ClientMenu::showList() {
             int exitKey = 0;
 
             if (activeField == 0) {
-                draftClient.fullName = processInput(10, rowY, 24, draftClient.fullName, false, exitKey, 0);
+                draftClient.fullName = processInput(10, rowY, 24, draftClient.fullName, false, exitKey, 0, true);
             } else if (activeField == 1) {
                 draftClient.phoneNumber = processInput(37, rowY, 14, draftClient.phoneNumber, false, exitKey, 0);
             } else if (activeField == 2) {
-                draftClient.tariffName = processInput(54, rowY, 12, draftClient.tariffName, false, exitKey, 0);
+                draftClient.tariffName = processInput(54, rowY, 12, draftClient.tariffName, false, exitKey, 0, true);
             } else {
                 draftBalance = processInput(69, rowY, 8, draftBalance, false, exitKey, 0);
             }
@@ -376,7 +376,9 @@ void ClientMenu::showSearch() {
         int exitKey = 0;
         string* vals[] = {&queryId, &queryName, &queryPhone, &queryTariff};
         int ys[] = {5, 9, 13, 17};
-        *vals[activeField] = processInput(25, ys[activeField], 36, *vals[activeField], false, exitKey, 0);
+        // ФИО и тариф разрешаем вводить кириллицей, ID/телефон — нет
+        bool allowUnicode = (activeField == 1 || activeField == 3);
+        *vals[activeField] = processInput(25, ys[activeField], 36, *vals[activeField], false, exitKey, 0, allowUnicode);
 
         if (exitKey == Key::ESC) {
             return;
@@ -576,7 +578,8 @@ void ClientMenu::showAddClient() {
             string* val = activeField == 0 ? &fullName : &phone;
             int y = activeField == 0 ? 5 : 9;
             int exitKey = 0;
-            *val = processInput(25, y, 36, *val, false, exitKey, 24);
+            // ФИО разрешаем кириллицей, телефон — только цифры/латиница
+            *val = processInput(25, y, 36, *val, false, exitKey, 24, activeField == 0);
             if (exitKey == Key::TAB || exitKey == Key::DOWN || exitKey == Key::ENTER) {
                 activeField++;
             } else if (exitKey == Key::UP) {

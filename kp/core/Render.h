@@ -20,7 +20,9 @@ void setColor(int color);
 // текст внутри рамки
 void drawTextBox(int x, int y, int w, int h, std::string text, int textColor, int boxColor, int padding);
 // функция для ввода текста с проверками
-std::string processInput(int x, int y, int width, std::string currentInput, bool isPassword, int& exitKey, int warningY = 0);
+// allowUnicode=true разрешает кириллицу (для ФИО, тарифов и т.п.);
+// при false принимается только латиница (логины, пароли)
+std::string processInput(int x, int y, int width, std::string currentInput, bool isPassword, int& exitKey, int warningY = 0, bool allowUnicode = false);
 
 // доп функции для менюшек
 // отрисовка подсказок внизу экрана
