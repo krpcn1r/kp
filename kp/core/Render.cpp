@@ -82,7 +82,7 @@ static string toUtf8(const wstring& w) {
     return result;
 }
 
-// число символов (а не байт) в UTF-8 строке
+// число символов в UTF-8 строке
 size_t utf8Length(const string& s) {
     return toWide(s).size();
 }

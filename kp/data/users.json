@@ -1,26 +1,11 @@
 [
     {
-        "login": "user1",
+        "login": "admin",
         "password": "!!!qwe123",
         "role": "ADMIN"
     },
     {
-        "login": "User2",
-        "password": "!!!qwe123",
-        "role": "ADMIN"
-    },
-    {
-        "login": "User1",
-        "password": "!!!qwe123",
-        "role": "ADMIN"
-    },
-    {
-        "login": "User4",
-        "password": "!!!qwe123",
-        "role": "OPERATOR"
-    },
-    {
-        "login": "User9",
+        "login": "User",
         "password": "!!!qwe123",
         "role": "OPERATOR"
     }

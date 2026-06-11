@@ -1,18 +1,26 @@
 [
     {
         "balance": 15.0,
-        "fullName": "Иванов Иван",
+        "fullName": "Иванов Иван Иванович",
         "id": 1,
         "isActive": true,
-        "phoneNumber": "+3754980399221",
-        "tariffName": "Базовый"
+        "phoneNumber": "+375449846572",
+        "tariffName": "Стандарт"
     },
     {
-        "balance": 0.0,
-        "fullName": "adasdasd",
+        "balance": 100.0,
+        "fullName": "Петров Петр Петрович",
         "id": 2,
         "isActive": true,
-        "phoneNumber": "dsdf",
-        "tariffName": "Базовый"
+        "phoneNumber": "+375293480239",
+        "tariffName": "Премиум"
+    },
+    {
+        "balance": 5.0,
+        "fullName": "Васильев Василий Васильевич",
+        "id": 3,
+        "isActive": true,
+        "phoneNumber": "+375174392034",
+        "tariffName": "Лайт"
     }
 ]

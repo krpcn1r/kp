@@ -481,16 +481,16 @@ void ClientMenu::showAddClient() {
             clearScreen();
             drawBox(2, 1, 76, 24, 8);
 
-            setCursor(30, 2);
+            setCursor(28, 2);
             setColor(11);
-            cout << "НОВЫЙ КЛИЕНТ";
+            cout << "ОФОРМЛЕНИЕ НОВОГО КЛИЕНТА";
 
             drawHLine(3);
         }
 
         setCursor(6, 5);
         setColor(activeField == 0 ? 10 : 7);
-        cout << (activeField == 0 ? "> ФИО / Имя:      " : "  ФИО / Имя:      ");
+        cout << (activeField == 0 ? "> ФИО:      " : "  ФИО:      ");
         drawInputContent(25, 5, 36, fullName, false, activeField == 0);
 
         drawHLine(7);
