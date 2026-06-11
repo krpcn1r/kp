@@ -1,7 +1,7 @@
 [
     {
         "login": "admin",
-        "password": "!!!qwe123",
+        "password": "admin",
         "role": "ADMIN"
     },
     {
