@@ -32,45 +32,10 @@ HomeResult HomeMenu::show() {
 
             drawBox(2, 1, 76, 28, 15);  // простая ASCII-рамка
 
-            auto drawHLine = [](int y) {
-                setColor(15);
-                setCursor(2, y);
-                cout << "+";
-                for (int i = 0; i < 74; i++) {
-                    cout << "-";
-                }
-                cout << "+";
-            };
-
             // ASCII-арт логотип
-            setColor(9);
-            setCursor(16, 2);
-            cout << "███╗   ███╗ ██████╗ ██████╗ ██╗██╗     ███████╗";
-            setCursor(16, 3);
-            cout << "████╗ ████║██╔═══██╗██╔══██╗██║██║     ██╔════╝";
-            setCursor(16, 4);
-            cout << "██╔████╔██║██║   ██║██████╔╝██║██║     █████╗  ";
-            setCursor(16, 5);
-            cout << "██║╚██╔╝██║██║   ██║██╔══██╗██║██║     ██╔══╝  ";
-            setCursor(16, 6);
-            cout << "██║ ╚═╝ ██║╚██████╔╝██████╔╝██║███████╗███████╗";
-            setCursor(16, 7);
-            cout << "╚═╝     ╚═╝ ╚═════╝ ╚═════╝ ╚═╝╚══════╝╚══════╝";
+            drawLogo();
 
-            setCursor(16, 8);
-            cout << "██╗  ██╗███████╗██╗     ██████╗ ███████╗██████╗ ";
-            setCursor(16, 9);
-            cout << "██║  ██║██╔════╝██║     ██╔══██╗██╔════╝██╔══██╗";
-            setCursor(16, 10);
-            cout << "███████║█████╗  ██║     ██████╔╝█████╗  ██████╔╝";
-            setCursor(16, 11);
-            cout << "██╔══██║██╔══╝  ██║     ██╔═══╝ ██╔══╝  ██╔══██╗";
-            setCursor(16, 12);
-            cout << "██║  ██║███████╗███████╗██║     ███████╗██║  ██║";
-            setCursor(16, 13);
-            cout << "╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝";
-
-            drawHLine(14);
+            drawHLineAt(2, 14, 74, 15);
 
             // пишем кто сейчас зашел и какая у него роль
             setColor(7);
@@ -78,7 +43,7 @@ HomeResult HomeMenu::show() {
             cout << "Пользователь: " << u.login << "   |   Статус: " << roleStr;
 
             // рисуем разделительную линию
-            drawHLine(16);
+            drawHLineAt(2, 16, 74, 15);
 
             needFullRedraw = false;
         }
@@ -92,23 +57,13 @@ HomeResult HomeMenu::show() {
             options[6] = "7. Админ-панель            ";
         }
 
-        auto drawMenuHLine = [](int y) {
-            setCursor(2, y);
-            setColor(15);
-            cout << "+";
-            for (int j = 0; j < 74; j++) {
-                cout << "-";
-            }
-            cout << "+";
-        };
-
         for (int i = 0; i < numOptions; i++) {
             int yPos = 17 + i;
             if (i >= 3) yPos += 1;
             if (i >= 6) yPos += 1;
 
-            if (i == 3) drawMenuHLine(20);
-            if (i == 6) drawMenuHLine(24);
+            if (i == 3) drawHLineAt(2, 20, 74, 15);
+            if (i == 6) drawHLineAt(2, 24, 74, 15);
 
             setCursor(6, yPos);
             if (i == selectedOption) {
@@ -177,12 +132,6 @@ HomeResult HomeMenu::show() {
     }
 }
 
-static string priceToStr(double price) {
-    ostringstream oss;
-    oss << fixed << setprecision(2) << price;
-    return oss.str() + " руб.";
-}
-
 void HomeMenu::showTariffs() {
     vector<Tariff> tariffs = Database::loadTariffs();
     int selectedIdx = tariffs.empty() ? -1 : 0;
@@ -222,13 +171,7 @@ void HomeMenu::showTariffs() {
             setColor(11);
             cout << "ТАРИФНЫЕ ПЛАНЫ";
 
-            setColor(15);
-            setCursor(1, 5);
-            cout << "+";
-            for (int i = 0; i < 88; i++) {
-                cout << "-";
-            }
-            cout << "+";
+            drawHLineAt(1, 5, 88, 15);
 
             drawTableHeader(7, cols, seps, 15);
             drawTableSeparator(2, 8, 87, seps, 15);
@@ -255,7 +198,7 @@ void HomeMenu::showTariffs() {
 
                 // цена — желтая если не выделено
                 int priceColor = isSelected ? 240 : 14;
-                drawTableCell(29, y, 12, priceToStr(t.pricePerMonth), priceColor);
+                drawTableCell(29, y, 12, formatMoney(t.pricePerMonth) + " руб.", priceColor);
                 drawTableCell(42, y, 1, "|", rowColor);
 
                 // скорость — голубая если не выделено
@@ -269,13 +212,7 @@ void HomeMenu::showTariffs() {
         }
 
         // статус-строка
-        setColor(15);
-        setCursor(1, 16);
-        cout << "+";
-        for (int i = 0; i < 88; i++) {
-            cout << "-";
-        }
-        cout << "+";
+        drawHLineAt(1, 16, 88, 15);
         setCursor(3, 17);
         setColor(8);
         cout << "Всего тарифов: " << tariffs.size();
@@ -313,13 +250,7 @@ void HomeMenu::showChangePassword() {
     cout << "СМЕНА ПАРОЛЯ";
 
     // полоска под заголовком
-    setColor(8);
-    setCursor(4, 6);
-    cout << "+";
-    for (int i = 0; i < 43; i++) {
-        cout << "-";
-    }
-    cout << "+";
+    drawHLineAt(4, 6, 43, 8);
 
     // вывод условий безопасности пароля
     setCursor(6, 7);
@@ -333,12 +264,7 @@ void HomeMenu::showChangePassword() {
     setCursor(7, 10);
     cout << "- Только английские буквы";
 
-    setCursor(4, 11);
-    cout << "+";
-    for (int i = 0; i < 43; i++) {
-        cout << "-";
-    }
-    cout << "+";
+    drawHLineAt(4, 11, 43, 8);
 
     drawInputContent(24, 12, 20, oldPassword, true, false);
     drawInputContent(24, 14, 20, newPassword, true, false);
@@ -447,13 +373,7 @@ void HomeMenu::showStats() {
     }
 
     auto hline = [](int y) {
-        setColor(15);
-        setCursor(14, y);
-        cout << "+";
-        for (int i = 0; i < 50; i++) {
-            cout << "-";
-        }
-        cout << "+";
+        drawHLineAt(14, y, 50, 15);
     };
 
     auto row = [](int y, const string& label, const string& val, int valColor) {
@@ -463,9 +383,6 @@ void HomeMenu::showStats() {
         setColor(valColor);
         cout << val;
     };
-
-    ostringstream balSS;
-    balSS << fixed << setprecision(2) << totalBalance << " руб.";
 
     clearScreen();
     drawBox(14, 3, 52, 22, 15);
@@ -479,7 +396,7 @@ void HomeMenu::showStats() {
     row(8, "Активных:", to_string(active), 10);
     row(9, "Заблокированных:", to_string(total - active), total - active > 0 ? 12 : 8);
     hline(11);
-    row(13, "Общий баланс:", balSS.str(), 14);
+    row(13, "Общий баланс:", formatMoney(totalBalance) + " руб.", 14);
     hline(15);
     row(17, "Популярный тариф:", topTariff, 11);
     row(18, "Абонентов на нём:", topCount > 0 ? to_string(topCount) : "-", 15);

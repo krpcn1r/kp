@@ -19,9 +19,6 @@ public:
     // последнего запуска (если их 0 — ничего не делает)
     static BillingResult runDailyChargeIfDue();
 
-    // дата последнего списания в формате YYYY-MM-DD ("" если ни разу не было)
-    static std::string getLastChargeDate();
-
 private:
     static const std::string STATE_FILE;
     static std::string todayDate();

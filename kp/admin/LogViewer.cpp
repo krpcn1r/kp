@@ -81,13 +81,7 @@ void LogViewer::show() {
             setColor(11);
             cout << "ЖУРНАЛ СОБЫТИЙ";
 
-            setColor(14);
-            setCursor(1, 3);
-            cout << "+";
-            for (int i = 0; i < 108; i++) {
-                cout << "-";
-            }
-            cout << "+";
+            drawHLineAt(1, 3, 108, 14);
 
             // шапка
             setColor(15);
@@ -106,13 +100,7 @@ void LogViewer::show() {
             setCursor(60, 4);
             cout << "Событие";
 
-            setColor(14);
-            setCursor(1, 5);
-            cout << "+";
-            for (int i = 0; i < 108; i++) {
-                cout << "-";
-            }
-            cout << "+";
+            drawHLineAt(1, 5, 108, 14);
 
             needFullRedraw = false;
         }
@@ -146,13 +134,7 @@ void LogViewer::show() {
         }
 
         // нижняя полоса
-        setColor(14);
-        setCursor(1, 23);
-        cout << "+";
-        for (int i = 0; i < 108; i++) {
-            cout << "-";
-        }
-        cout << "+";
+        drawHLineAt(1, 23, 108, 14);
 
         clearLine(3, 24, 105);
         setCursor(3, 24);

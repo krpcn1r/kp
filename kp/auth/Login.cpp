@@ -22,14 +22,8 @@ void showLoginScreen() {
     setColor(11);
     cout << "АВТОРИЗАЦИЯ";
 
-    // отрисовка черты под заголовком: + ---- +
-    setColor(8);
-    setCursor(4, 7);
-    cout << "+";
-    for (int i = 0; i < 40; i++) {
-        cout << "-";
-    }
-    cout << "+";
+    // отрисовка черты под заголовком
+    drawHLineAt(4, 7, 40, 8);
 
     // отрисовка пустых полей для ввода
     drawInputContent(18, 9, 20, login, false, false);
@@ -56,13 +50,7 @@ void showLoginScreen() {
         cout << (activeField == 1 ? "> Пароль:" : "  Пароль:");
 
         // отрисовка разделителя между строками ввода
-        setCursor(4, 11);
-        setColor(8);
-        cout << "+";
-        for (int i = 0; i < 40; i++) {
-            cout << "-";
-        }
-        cout << "+";
+        drawHLineAt(4, 11, 40, 8);
 
         // отрисовка подсказок по кнопкам в самом низу
         drawFooter(18);

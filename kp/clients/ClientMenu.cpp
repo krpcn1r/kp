@@ -13,20 +13,8 @@
 
 using namespace std;
 
-static string balanceToStr(double balance) {
-    ostringstream oss;
-    oss << fixed << setprecision(2) << balance;
-    return oss.str();
-}
-
 static void drawHLine(int y) {
-    setColor(8);
-    setCursor(2, y);
-    cout << "+";
-    for (int i = 0; i < 74; i++) {
-        cout << "-";
-    }
-    cout << "+";
+    drawHLineAt(2, y, 74, 8);
 }
 
 static void drawClientsTable(const string& title, const vector<Client>& clients, int startIdx, int selectedIdx, int editingIdx, int activeField, const Client& draft, const string& draftBalance, const string& message, int messageColor, bool fullRedraw, const string& statusText) {
@@ -95,7 +83,7 @@ static void drawClientsTable(const string& title, const vector<Client>& clients,
             if (isEditing && activeField == 3) {
                 drawInputContent(69, y, 8, draftBalance, false, true);
             } else {
-                drawTableCell(69, y, 8, balanceToStr(c.balance), rowColor);
+                drawTableCell(69, y, 8, formatMoney(c.balance), rowColor);
             }
 
             drawTableCell(78, y, 1, "|", rowColor);
@@ -217,7 +205,7 @@ void ClientMenu::showList() {
             } else if (key == Key::ENTER) {
                 editingIdx = selectedIdx;
                 draftClient = clients[editingIdx];
-                draftBalance = balanceToStr(draftClient.balance);
+                draftBalance = formatMoney(draftClient.balance);
                 activeField = 0;
                 message = "";
                 messageColor = 8;
@@ -417,16 +405,6 @@ void ClientMenu::showSearch() {
         while (true) {
             const Client& c = results[idx];
 
-            auto drawHLine = [](int y) {
-                setColor(15);
-                setCursor(8, y);
-                cout << "+";
-                for (int i = 0; i < 62; i++) {
-                    cout << "-";
-                }
-                cout << "+";
-            };
-
             clearScreen();
             drawBox(8, 2, 64, 22, 15);
 
@@ -435,7 +413,7 @@ void ClientMenu::showSearch() {
             setColor(11);
             cout << "РЕЗУЛЬТАТЫ ПОИСКА";
 
-            drawHLine(4);
+            drawHLineAt(8, 4, 62, 15);
 
             // счётчик
             setCursor(10, 5);
@@ -443,7 +421,7 @@ void ClientMenu::showSearch() {
             cout << "Найдено: " << total
                  << "  |  Запись " << (idx + 1) << " из " << total;
 
-            drawHLine(6);
+            drawHLineAt(8, 6, 62, 15);
 
             // значения выровнены по x=26 (после самого длинного "Телефон:" + отступ)
             const int VAL_X = 26;
@@ -456,17 +434,14 @@ void ClientMenu::showSearch() {
                 cout << value;
             };
 
-            ostringstream balSS;
-            balSS << fixed << setprecision(2) << c.balance << " руб.";
-
             field(8, "ID:", to_string(c.id), 15);
             field(10, "ФИО:", c.fullName, 7);
             field(12, "Телефон:", c.phoneNumber, 7);
             field(14, "Тариф:", c.tariffName.empty() ? "-" : c.tariffName, 14);
-            field(16, "Баланс:", balSS.str(), 10);
+            field(16, "Баланс:", formatMoney(c.balance) + " руб.", 10);
             field(18, "Статус:", c.isActive ? "Активен" : "Заблокирован", c.isActive ? 10 : 12);
 
-            drawHLine(20);
+            drawHLineAt(8, 20, 62, 15);
 
             setCursor(10, 21);
             setColor(8);

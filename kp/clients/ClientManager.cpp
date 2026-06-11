@@ -50,34 +50,6 @@ std::vector<Client> ClientManager::getAllClients() {
     return Database::loadClients();
 }
 
-// поиск абонентов по тексту или номеру id
-std::vector<Client> ClientManager::findClients(const std::string &query) {
-    std::vector<Client> all = Database::loadClients();  // получение всех
-    std::vector<Client> results;                        // те кто подошел
-
-    for (const auto &c : all) {
-        bool match = false;
-        // поиск по id если введено число
-        if (std::to_string(c.id) == query) {
-            match = true;
-        }
-        // поиск в номере телефона
-        if (c.phoneNumber.find(query) != std::string::npos) {
-            match = true;
-        }
-        // поиск в ФИО
-        if (c.fullName.find(query) != std::string::npos) {
-            match = true;
-        }
-
-        if (match) {
-            results.push_back(c);  // добавление совпадения в результат
-        }
-    }
-
-    return results;
-}
-
 std::vector<Client> ClientManager::findClientsByFields(
     const std::string &idQuery, const std::string &nameQuery, const std::string &phoneQuery, const std::string &tariffQuery) {
     std::vector<Client> all = Database::loadClients();
@@ -154,22 +126,6 @@ bool ClientManager::deleteClient(int id) {
                 return false;
             }
             Logger::log(LogCategory::CLIENT, "Удалён клиент", snapshot);
-            return true;
-        }
-    }
-    return false;
-}
-
-// смена статуса активности абонента
-bool ClientManager::toggleClientStatus(int id) {
-    std::vector<Client> clients = Database::loadClients();
-    for (auto &c : clients) {
-        if (c.id == id) {
-            c.isActive = !c.isActive;  // инвертирование статуса
-            if (!Database::saveClients(clients)) {
-                return false;
-            }
-            Logger::log(LogCategory::CLIENT, "Изменён статус клиента", "id=" + std::to_string(id) + ", новый статус=" + (c.isActive ? "Активен" : "Заблокирован"));
             return true;
         }
     }

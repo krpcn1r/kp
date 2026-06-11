@@ -92,10 +92,6 @@ bool Billing::saveState(const string& lastChargeDate) {
     return true;
 }
 
-string Billing::getLastChargeDate() {
-    return loadLastDate();
-}
-
 BillingResult Billing::chargeForDays(int days, const string& newLastDate) {
     BillingResult res;
     if (days <= 0) {

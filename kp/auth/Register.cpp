@@ -22,13 +22,7 @@ void showRegisterScreen() {
     cout << "РЕГИСТРАЦИЯ";
 
     // полоска под заголовком
-    setColor(8);
-    setCursor(4, 6);
-    cout << "+";
-    for (int i = 0; i < 40; i++) {
-        cout << "-";
-    }
-    cout << "+";
+    drawHLineAt(4, 6, 40, 8);
 
     // вывод условий безопасности пароля
     setCursor(6, 7);
@@ -42,12 +36,7 @@ void showRegisterScreen() {
     setCursor(7, 10);
     cout << "- Только английские буквы";
 
-    setCursor(4, 11);
-    cout << "+";
-    for (int i = 0; i < 40; i++) {
-        cout << "-";
-    }
-    cout << "+";
+    drawHLineAt(4, 11, 40, 8);
 
     drawInputContent(18, 12, 20, login, false, false);
     drawInputContent(18, 14, 20, password, true, false);

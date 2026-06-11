@@ -267,13 +267,7 @@ void AdminPanel::showAdminPanel() {
             setColor(14);
             cout << "ПАНЕЛЬ АДМИНИСТРАТОРА";
 
-            setColor(11);
-            setCursor(2, 5);
-            cout << "+";
-            for (int i = 0; i < 74; i++) {
-                cout << "-";
-            }
-            cout << "+";
+            drawHLineAt(2, 5, 74, 11);
 
             needFullRedraw = false;
         }
@@ -291,13 +285,7 @@ void AdminPanel::showAdminPanel() {
             "8. Выход                            "};
 
         // вариант 4: разделители рисуем до цикла, не внутри него
-        setColor(11);
-        setCursor(2, 10);
-        cout << "+";
-        for (int i = 0; i < 74; i++) {
-            cout << "-";
-        }
-        cout << "+";
+        drawHLineAt(2, 10, 74, 11);
 
         // вариант 5: цвет и префикс вычисляем один раз, выводим одним блоком
         for (int i = 0; i < numOptions; i++) {
