@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 #include "InputHandler.h"
 
 using namespace std;
@@ -228,24 +229,52 @@ void drawBox(int x, int y, int w, int h, int color) {
     setColor(7);
 }
 
-// отрисовка рамки с текстом по центру
-void drawTextBox(int x, int y, int w, int h, string text, int textColor, int boxColor, int padding) {
-    drawBox(x, y, w, h, boxColor);
-
-    int textY = y + (h / 2);
-    int textX = x + padding;
-
-    int maxWidth = w - padding - 1;
-
-    string textToPrint = text;
-    if (textToPrint.length() > maxWidth) {
-        textToPrint = textToPrint.substr(0, maxWidth - 3) + "...";
+// горизонтальная линия вида +-----+ : x,y — левый угол, innerWidth — число дефисов
+void drawHLineAt(int x, int y, int innerWidth, int color) {
+    setColor(color);
+    setCursor(x, y);
+    cout << "+";
+    for (int i = 0; i < innerWidth; i++) {
+        cout << "-";
     }
+    cout << "+";
+    setColor(7);
+}
 
-    setColor(textColor);
-    setCursor(textX, textY);
-    cout << textToPrint;
+// форматирование суммы с двумя знаками после запятой ("123.45")
+string formatMoney(double value) {
+    ostringstream oss;
+    oss << fixed << setprecision(2) << value;
+    return oss.str();
+}
 
+// ASCII-логотип "MOBILE HELPER" в фиксированной позиции (x=16, строки 2..13)
+void drawLogo() {
+    setColor(9);
+    setCursor(16, 2);
+    cout << "███╗   ███╗ ██████╗ ██████╗ ██╗██╗     ███████╗";
+    setCursor(16, 3);
+    cout << "████╗ ████║██╔═══██╗██╔══██╗██║██║     ██╔════╝";
+    setCursor(16, 4);
+    cout << "██╔████╔██║██║   ██║██████╔╝██║██║     █████╗  ";
+    setCursor(16, 5);
+    cout << "██║╚██╔╝██║██║   ██║██╔══██╗██║██║     ██╔══╝  ";
+    setCursor(16, 6);
+    cout << "██║ ╚═╝ ██║╚██████╔╝██████╔╝██║███████╗███████╗";
+    setCursor(16, 7);
+    cout << "╚═╝     ╚═╝ ╚═════╝ ╚═════╝ ╚═╝╚══════╝╚══════╝";
+    setCursor(16, 8);
+    cout << "██╗  ██╗███████╗██╗     ██████╗ ███████╗██████╗ ";
+    setCursor(16, 9);
+    cout << "██║  ██║██╔════╝██║     ██╔══██╗██╔════╝██╔══██╗";
+    setCursor(16, 10);
+    cout << "███████║█████╗  ██║     ██████╔╝█████╗  ██████╔╝";
+    setCursor(16, 11);
+    cout << "██╔══██║██╔══╝  ██║     ██╔═══╝ ██╔══╝  ██╔══██╗";
+    setCursor(16, 12);
+    cout << "██║  ██║███████╗███████╗██║     ███████╗██║  ██║";
+    setCursor(16, 13);
+    cout << "╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝";
     setColor(7);
 }
 

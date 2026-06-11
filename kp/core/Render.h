@@ -17,8 +17,12 @@ void clearScreen();
 void setCursor(int x, int y);
 // смена цвета текста и фона
 void setColor(int color);
-// текст внутри рамки
-void drawTextBox(int x, int y, int w, int h, std::string text, int textColor, int boxColor, int padding);
+// горизонтальная линия вида +-----+ : x,y — левый угол, innerWidth — число дефисов
+void drawHLineAt(int x, int y, int innerWidth, int color = 7);
+// форматирование суммы с двумя знаками после запятой ("123.45")
+std::string formatMoney(double value);
+// ASCII-логотип "MOBILE HELPER" в фиксированной позиции (x=16, строки 2..13)
+void drawLogo();
 // функция для ввода текста с проверками
 // allowUnicode=true разрешает кириллицу (для ФИО, тарифов и т.п.);
 // при false принимается только латиница (логины, пароли)
