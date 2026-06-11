@@ -18,5 +18,10 @@
         "login": "User4",
         "password": "!!!qwe123",
         "role": "OPERATOR"
+    },
+    {
+        "login": "User9",
+        "password": "!!!qwe123",
+        "role": "OPERATOR"
     }
 ]
