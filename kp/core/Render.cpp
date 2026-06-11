@@ -93,6 +93,7 @@ void drawInputContent(int x, int y, int width, string input, bool isPassword, bo
     int fgColor = isActive ? 15 : 7;
     setColor(bgColor + fgColor);
 
+
     setCursor(x, y);
 
     // длина в символах (колонках), а не в байтах — иначе кириллица
