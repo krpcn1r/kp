@@ -6,5 +6,13 @@
         "isActive": true,
         "phoneNumber": "+3754980399221",
         "tariffName": "Базовый"
+    },
+    {
+        "balance": 0.0,
+        "fullName": "adasdasd",
+        "id": 2,
+        "isActive": true,
+        "phoneNumber": "dsdf",
+        "tariffName": "Базовый"
     }
 ]

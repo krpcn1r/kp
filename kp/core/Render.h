@@ -22,7 +22,9 @@ void drawTextBox(int x, int y, int w, int h, std::string text, int textColor, in
 // функция для ввода текста с проверками
 // allowUnicode=true разрешает кириллицу (для ФИО, тарифов и т.п.);
 // при false принимается только латиница (логины, пароли)
-std::string processInput(int x, int y, int width, std::string currentInput, bool isPassword, int& exitKey, int warningY = 0, bool allowUnicode = false);
+// allowedChars — если не пусто, принимаются только перечисленные символы
+// (например "0123456789+" для номера телефона)
+std::string processInput(int x, int y, int width, std::string currentInput, bool isPassword, int& exitKey, int warningY = 0, bool allowUnicode = false, const std::string& allowedChars = "");
 
 // доп функции для менюшек
 // отрисовка подсказок внизу экрана

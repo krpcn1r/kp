@@ -277,7 +277,7 @@ static void utf8PopBack(string& s) {
 }
 
 // функция для ввода текста с проверкой раскладки
-string processInput(int x, int y, int width, string currentInput, bool isPassword, int& exitKey, int warningY, bool allowUnicode) {
+string processInput(int x, int y, int width, string currentInput, bool isPassword, int& exitKey, int warningY, bool allowUnicode, const string& allowedChars) {
     string input = currentInput;
     int choose;
 
@@ -324,10 +324,16 @@ string processInput(int x, int y, int width, string currentInput, bool isPasswor
             continue;
         }
 
-        if (utf8Length(input) < static_cast<size_t>(width - 1) && isprint(static_cast<unsigned char>(choose))) {
-            clearWarning();
-            input += static_cast<char>(choose);
-            drawInputContent(x, y, width, input, isPassword, true);
+        if (isprint(static_cast<unsigned char>(choose))) {
+            // фильтр по разрешённым символам (например, только цифры и + для телефона)
+            if (!allowedChars.empty() && allowedChars.find(static_cast<char>(choose)) == string::npos) {
+                continue;
+            }
+            if (utf8Length(input) < static_cast<size_t>(width - 1)) {
+                clearWarning();
+                input += static_cast<char>(choose);
+                drawInputContent(x, y, width, input, isPassword, true);
+            }
         }
     }
 

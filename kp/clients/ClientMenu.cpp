@@ -250,7 +250,8 @@ void ClientMenu::showList() {
             if (activeField == 0) {
                 draftClient.fullName = processInput(10, rowY, 24, draftClient.fullName, false, exitKey, 0, true);
             } else if (activeField == 1) {
-                draftClient.phoneNumber = processInput(37, rowY, 14, draftClient.phoneNumber, false, exitKey, 0);
+                // телефон — только цифры и знак плюс
+                draftClient.phoneNumber = processInput(37, rowY, 14, draftClient.phoneNumber, false, exitKey, 0, false, "0123456789+");
             } else if (activeField == 2) {
                 draftClient.tariffName = processInput(54, rowY, 12, draftClient.tariffName, false, exitKey, 0, true);
             } else {
@@ -578,8 +579,10 @@ void ClientMenu::showAddClient() {
             string* val = activeField == 0 ? &fullName : &phone;
             int y = activeField == 0 ? 5 : 9;
             int exitKey = 0;
-            // ФИО разрешаем кириллицей, телефон — только цифры/латиница
-            *val = processInput(25, y, 36, *val, false, exitKey, 24, activeField == 0);
+            // ФИО разрешаем кириллицей; телефон — только цифры и знак плюс
+            // warningY=23 (внутри рамки), строка 24 — нижняя граница рамки
+            string allowed = activeField == 1 ? "0123456789+" : "";
+            *val = processInput(25, y, 36, *val, false, exitKey, 23, activeField == 0, allowed);
             if (exitKey == Key::TAB || exitKey == Key::DOWN || exitKey == Key::ENTER) {
                 activeField++;
             } else if (exitKey == Key::UP) {
@@ -604,7 +607,7 @@ void ClientMenu::showAddClient() {
 
         } else {  // activeField == 3
             int exitKey = 0;
-            balance = processInput(25, 17, 36, balance, false, exitKey, 24);
+            balance = processInput(25, 17, 36, balance, false, exitKey, 23);
             if (exitKey == Key::TAB || exitKey == Key::DOWN) {
                 activeField = 0;
             } else if (exitKey == Key::UP) {
